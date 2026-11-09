@@ -1,0 +1,49 @@
+# https://git-cliff.org/docs/configuration
+[changelog]
+header = """
+# Changelog
+
+All notable changes to this project are documented in this file. The format is based on
+[Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+"""
+body = """
+{%- set repo = "https://github.com/lightsail-network/py-stellar-xdr" -%}
+{%- if version -%}
+    {%- set name = version | trim_start_matches(pat="v") -%}
+    {%- if previous.version -%}
+        ## [{{ name }}]({{ repo }}/compare/{{ previous.version }}...{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+    {%- else -%}
+        ## [{{ name }}]({{ repo }}/releases/tag/{{ version }}) - {{ timestamp | date(format="%Y-%m-%d") }}
+    {%- endif -%}
+{%- else -%}
+    ## [Unreleased]
+{%- endif %}
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | striptags | trim }}
+
+{% for commit in commits -%}
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}{{ commit.message | upper_first }}
+{% endfor %}
+{%- endfor %}"""
+# Keeps the blank line that separates a release from the previous one.
+trim = false
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+tag_pattern = "v[0-9].*"
+sort_commits = "oldest"
+commit_preprocessors = [
+    { pattern = '\(#([0-9]+)\)', replace = "([#${1}](https://github.com/lightsail-network/py-stellar-xdr/pull/${1}))" },
+]
+# The HTML comments set the order of the sections and are stripped from the output.
+commit_parsers = [
+    { field = "breaking", pattern = "true", group = "<!-- 0 -->Breaking Changes" },
+    { message = "^feat", group = "<!-- 1 -->Features" },
+    { message = "^fix", group = "<!-- 2 -->Bug Fixes" },
+    { message = "^perf", group = "<!-- 3 -->Performance" },
+    { message = "^refactor", group = "<!-- 4 -->Refactoring" },
+    { message = "^docs", group = "<!-- 5 -->Documentation" },
+    { message = ".*", skip = true },
+]

@@ -1,0 +1,28 @@
+# https://docs.readthedocs.com/platform/stable/intro/zensical.html
+version: 2
+
+build:
+  os: ubuntu-24.04
+  tools:
+    python: "3.14"
+  jobs:
+    pre_create_environment:
+      - asdf plugin add uv
+      - asdf install uv latest
+      - asdf global uv latest
+    create_environment:
+      - uv venv "${READTHEDOCS_VIRTUALENV_PATH}"
+    install:
+      - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv sync --frozen --no-default-groups --group docs
+    build:
+      html:
+        - cp CHANGELOG.md docs/changelog.md
+        # Read the Docs serves each version under its own path, such as /en/latest/, and
+        # Zensical can't read environment variables in its configuration. Point site_url
+        # at the version being built, or the canonical links, the sitemap and the 404
+        # page would point at the domain root, where nothing is served.
+        - sed -i "s|^site_url = .*|site_url = \"${READTHEDOCS_CANONICAL_URL}\"|" zensical.toml
+        - UV_PROJECT_ENVIRONMENT="${READTHEDOCS_VIRTUALENV_PATH}" uv run --frozen --no-default-groups --group docs zensical build --strict
+    post_build:
+      - mkdir -p "${READTHEDOCS_OUTPUT}/html/"
+      - cp --recursive site/* "${READTHEDOCS_OUTPUT}/html/"

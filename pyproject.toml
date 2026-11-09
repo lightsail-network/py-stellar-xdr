@@ -1,0 +1,161 @@
+[project]
+name = "stellar-xdr"
+version = "0.1.0.dev0"
+description = "Strict, fully typed encoding and decoding of Stellar XDR, including SEP-51 XDR-JSON."
+readme = "README.md"
+authors = [{ name = "overcat", email = "hi@overcat.dev" }]
+license = "Apache-2.0"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+keywords = ["stellar", "xdr", "sep-51", "soroban"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: 3.15",
+    "Programming Language :: Python :: Free Threading :: 3 - Stable",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "stellar-strkey>=0.1.0,<2",
+]
+
+[project.urls]
+Homepage = "https://github.com/lightsail-network/py-stellar-xdr"
+Documentation = "https://stellar-xdr.readthedocs.io/"
+Repository = "https://github.com/lightsail-network/py-stellar-xdr"
+Issues = "https://github.com/lightsail-network/py-stellar-xdr/issues"
+Changelog = "https://github.com/lightsail-network/py-stellar-xdr/blob/main/CHANGELOG.md"
+
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+    "git-cliff>=2.14.2",
+    "mypy>=2.4",
+    "prek>=0.5",
+    "pyright[nodejs]>=1.1.414",
+    "ruff>=0.17",
+    "zizmor>=1.32",
+]
+test = [
+    "hypothesis>=6.170",
+    "pytest>=9.2",
+    "pytest-cov>=7.1",
+]
+docs = [
+    "mkdocstrings-python>=2.0.10",
+    "zensical>=0.0.74",
+]
+
+[build-system]
+requires = ["uv_build>=0.13,<0.14"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+# Ship the tests and their input with the source distribution so that downstream
+# packagers can run them. docs/changelog.md is a build-time copy of CHANGELOG.md.
+source-include = ["tests/**", "docs/**", "xdr/**", "CHANGELOG.md"]
+source-exclude = ["docs/changelog.md"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "COM812", # conflicts with the formatter
+    "CPY001", # the LICENSE file covers the whole package
+    "D105",   # dunder methods are self-explanatory
+    "D107",   # the class docstring documents construction
+    "TRY003", # short, specific exception messages read better inline
+    "EM101",  # as above
+    "EM102",  # as above
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Generated modules (every module of the package except _runtime): the code follows
+# the XDR definitions, not these style rules.
+"src/stellar_xdr/[!_]*.py" = [
+    "A002",    # fields are named as in XDR, such as `type` and `hash`
+    "ANN401",  # JSON values are Any, as from json.loads
+    "ARG001",  # every converter takes the depth context, even when it doesn't nest
+    "ARG002",  # as above
+    "ARG003",  # as above, and every decoder takes the reader
+    "ARG004",  # as above
+    "E501",    # docstrings quote the XDR source as it is
+    "FBT001",  # boolean fields are positional like any other field
+    "N801",    # arm classes are named after their case, such as IPv4
+    "N815",    # enum members are named as in XDR, such as txSUCCESS
+    "C901",    # an encoder has one branch per optional field
+    "PLR0912", # as above
+    "PLR0913", # constructors take one argument per field
+    "PLR0917", # as above
+    "PLR2004", # sizes come from the XDR definitions
+    "RET503",  # some readers end by reporting an error, which never returns
+    "RUF022",  # __all__ follows the generator's order
+    "RUF023",  # __slots__ follow the field order
+    "SLF001",  # the codec of one class calls the codec of another
+    "TC001",   # every import is also used at runtime by some module
+    "TC003",   # as above
+]
+"src/stellar_xdr/__init__.py" = [
+    "RUF022", # __all__ follows the generator's order
+]
+"generator/**" = [
+    "C901",    # dispatch over the kinds of XDR types
+    "PLR0911", # as above
+    "PLR0913", # emitters take the parts of the code they assemble
+    "PLR0917", # as above
+]
+"scripts/**" = [
+    "INP001", # standalone scripts, not a package
+    "T201",   # command-line output
+]
+"tests/**" = [
+    "D",       # test names are the documentation
+    "ANN401",  # tests deliberately pass arbitrary objects
+    "PLR2004", # literal expectations are the point of a test
+    "S101",    # pytest uses assert
+    "SLF001",  # white-box assertions
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.mypy]
+strict = true
+files = ["src", "tests", "scripts", "generator"]
+
+[tool.pyright]
+include = ["src", "tests", "scripts", "generator"]
+typeCheckingMode = "strict"
+pythonVersion = "3.11"
+# tests/typing_checks.py relies on this to check that expected errors are reported.
+reportUnnecessaryTypeIgnoreComment = "error"
+
+[tool.pytest]
+minversion = "9.0"
+testpaths = ["tests"]
+strict = true
+addopts = ["-ra"]
+
+[tool.coverage.run]
+branch = true
+source_pkgs = ["stellar_xdr"]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+skip_covered = true
+exclude_also = ["if TYPE_CHECKING:"]
+# The runtime-only branch of `if not TYPE_CHECKING:` is always taken.
+partial_also = ["if not TYPE_CHECKING:"]

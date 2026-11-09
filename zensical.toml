@@ -1,0 +1,63 @@
+[project]
+site_name = "stellar-xdr"
+site_description = "Strict, fully typed encoding and decoding of Stellar XDR, including SEP-51 XDR-JSON."
+site_url = "https://stellar-xdr.readthedocs.io/"
+repo_url = "https://github.com/lightsail-network/py-stellar-xdr"
+repo_name = "lightsail-network/py-stellar-xdr"
+edit_uri = "edit/main/docs/"
+nav = [
+    { "Home" = "index.md" },
+    { "Guide" = "guide.md" },
+    { "API reference" = [
+        { "Overview" = "api/index.md" },
+        { "contract" = "api/contract.md" },
+        { "contract_config_setting" = "api/contract_config_setting.md" },
+        { "contract_env_meta" = "api/contract_env_meta.md" },
+        { "contract_meta" = "api/contract_meta.md" },
+        { "contract_spec" = "api/contract_spec.md" },
+        { "exporter" = "api/exporter.md" },
+        { "internal" = "api/internal.md" },
+        { "ledger" = "api/ledger.md" },
+        { "ledger_entries" = "api/ledger_entries.md" },
+        { "overlay" = "api/overlay.md" },
+        { "scp" = "api/scp.md" },
+        { "transaction" = "api/transaction.md" },
+        { "types" = "api/types.md" },
+        { "typedefs" = "api/typedefs.md" },
+    ] },
+    { "Changelog" = "changelog.md" },
+]
+
+[project.theme]
+features = ["content.code.copy", "navigation.instant", "search.highlight", "toc.follow"]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle = { icon = "lucide/sun", name = "Switch to dark mode" }
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle = { icon = "lucide/moon", name = "Switch to light mode" }
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+inventories = ["https://docs.python.org/3/objects.inv"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+filters = ["!^_"]
+heading_level = 3
+inherited_members = true
+members_order = "source"
+merge_init_into_class = true
+separate_signature = true
+show_attribute_values = false
+show_bases = false
+show_root_full_path = false
+show_root_heading = true
+show_signature_annotations = true
+show_source = false
+show_symbol_type_heading = true
+signature_crossrefs = true
