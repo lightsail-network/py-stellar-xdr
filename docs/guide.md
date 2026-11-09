@@ -248,8 +248,11 @@ hashing, `repr` and pickling recurse without such a limit.
 
 ### Streams
 
-Contract metadata (SEP-46) and contract specs (SEP-48) store values one after the other,
-with nothing between them. `decode_stream` and `encode_stream` read and write them:
+`decode_stream` reads values of one type written back to back, with no count in front and
+nothing between them, and `encode_stream` writes values that way. The custom sections of a
+Soroban contract's Wasm file, such as its metadata (SEP-46) and its interface spec (SEP-48),
+are stored like this. Files that put a length before each value, such as those in history
+archives, are not.
 
 ```python
 import stellar_xdr as xdr

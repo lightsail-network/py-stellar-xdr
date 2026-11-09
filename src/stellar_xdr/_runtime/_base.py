@@ -383,13 +383,16 @@ class _Decodable(Protocol[_T_co]):
 def decode_stream(
     type_: _Decodable[_T], data: bytes, *, max_depth: int = DEFAULT_MAX_DEPTH
 ) -> Iterator[_T]:
-    """Decode values of one type that follow each other with no framing.
+    """Decode values of one type written back to back, with nothing between them.
 
-    Contract metadata (SEP-46) and contract specs (SEP-48) are stored this way.
+    The data has no count in front and no length before each value, so each value ends
+    where decoding it ends. The custom sections of a Soroban contract's Wasm file, such
+    as its metadata (SEP-46) and its interface spec (SEP-48), are stored this way. Files
+    that put a length before each value, such as those in history archives, are not.
 
     Args:
         type_: A struct, an enum, or a union such as `SCSpecEntry`.
-        data: The encoded values, one after the other.
+        data: The encoded values, back to back.
         max_depth: The deepest nesting of recursive types to accept, for each value.
 
     Raises:
@@ -414,7 +417,9 @@ def _decode_values(decode: Callable[[Reader], _T], reader: Reader) -> Iterator[_
 def encode_stream(
     values: Iterable[_Encodable], *, max_depth: int = DEFAULT_MAX_DEPTH
 ) -> bytes:
-    """Encode values one after the other, with no framing.
+    """Encode values back to back, with nothing between them.
+
+    This is the format that `decode_stream` reads.
 
     Args:
         values: The values to encode.
