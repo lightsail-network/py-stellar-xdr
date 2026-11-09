@@ -1,0 +1,8 @@
+# Written by scripts/update_xdr.py; do not edit.
+repository = "https://github.com/stellar/rs-stellar-xdr"
+commit = "3c2aa43d2ab54d429ae44aa5143d805bf5dba7e2"
+# The stellar/stellar-xdr commit of the .x files behind xdr.json.
+xdr_commit = "4f524bbac80c781c06e4fb5fc93a2d0d331d6705"
+# The Stellar protocol version the definitions are for.
+protocol = 30
+sha256 = "8c53e8376c42763f658bc181213516d6c7591842ba4b5fb6959effc2ce30cfde"
