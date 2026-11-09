@@ -51,10 +51,13 @@ jobs:
         with:
           enable-cache: false
       # Bash on every OS, since PowerShell on Windows would not expand $PYTHON.
-      - run: uv run --no-default-groups --group test --python "$PYTHON" pytest --cov --cov-report=term-missing
+      # Coverage is measured on CPython only: on PyPy, the tests that run into the
+      # recursion limit switch off coverage's tracer, and the rest goes unrecorded.
+      - run: uv run --no-default-groups --group test --python "$PYTHON" pytest $COVERAGE
         shell: bash
         env:
           PYTHON: ${{ matrix.python }}
+          COVERAGE: ${{ !startsWith(matrix.python, 'pypy') && '--cov --cov-report=term-missing' || '' }}
 
   docs:
     runs-on: ubuntu-latest
