@@ -17,7 +17,10 @@ at the commit in `xdr/source.toml`. `make_json_names.py` reads a checkout of it,
 
 Where the reference implementation differs from SEP-51, `make_json_vectors.py` records
 what SEP-51 specifies, keeps the reference output next to it, and `test_json_vectors.py`
-checks that only the known differences were changed. The guide lists them.
+checks that only the known differences were changed. The only one is that v30.0.0
+writes inline fixed-length opaque fields as arrays of integers instead of hex
+([stellar/rs-stellar-xdr#618](https://github.com/stellar/rs-stellar-xdr/issues/618)).
+Once a release fixes it, the normalization can go.
 
 ## After updating `xdr/xdr.json`
 

@@ -324,16 +324,11 @@ assert message == "SCVal.U32.u32: expected an integer, got a string"
 
 !!! note "Differences from the reference implementation"
 
-    This package follows SEP-51 as written. The reference implementation writes seven
-    inline fixed-length opaque fields (`PeerAddressIp.ipv4` and `ipv6`,
-    `Curve25519Public.key`, `Curve25519Secret.key`, `HmacSha256Key.key`,
-    `HmacSha256Mac.mac` and `ShortHashSeed.seed`, all part of the peer-to-peer
-    protocol) as arrays of integers, where SEP-51 and this package use hex.
-
-    It is also more lenient in places where this package is strict: it accepts
-    integer strings such as `"+5"`, `"007"` and `"-0"`, which are not canonical, and,
-    in binary XDR, booleans other than 0 and 1. And it rejects `$schema`, which
-    SEP-51 allows and this package ignores.
+    This package follows SEP-51 as written. The reference implementation is more
+    lenient in places where this package is strict: it accepts integer strings such
+    as `"+5"`, `"007"` and `"-0"`, which are not canonical, and, in binary XDR,
+    booleans other than 0 and 1. And it rejects `$schema`, which SEP-51 allows and
+    this package ignores.
 
 A signed payload signer with an empty payload is valid XDR but has no strkey, so
 `to_json_value` raises `XdrJsonError` for it.
