@@ -299,7 +299,8 @@ SEP-51 writes:
 - strings as ASCII, with every other byte escaped, such as `"\\xc3\\xa9"` for `é`;
 - accounts, contracts and other addresses as strkeys, such as `G...`.
 
-Reading is strict: anything else raises `XdrJsonError`, which names the type and field.
+Reading is strict: anything else, including integer strings that are not canonical such
+as `"+5"`, `"007"` and `"-0"`, raises `XdrJsonError`, which names the type and field.
 Unlike binary XDR, a value has more than one accepted JSON form, and `to_json_value`
 always writes the same one. It also accepts what SEP-51 allows on input: a `$schema` key in any
 object, numbers for 64-bit integers, and text outside ASCII as it is. Like the reference
@@ -321,14 +322,6 @@ except xdr.XdrJsonError as error:
     message = str(error)
 assert message == "SCVal.U32.u32: expected an integer, got a string"
 ```
-
-!!! note "Differences from the reference implementation"
-
-    This package follows SEP-51 as written. The reference implementation is more
-    lenient in places where this package is strict: it accepts integer strings such
-    as `"+5"`, `"007"` and `"-0"`, which are not canonical, and, in binary XDR,
-    booleans other than 0 and 1. And it rejects `$schema`, which SEP-51 allows and
-    this package ignores.
 
 A signed payload signer with an empty payload is valid XDR but has no strkey, so
 `to_json_value` raises `XdrJsonError` for it.
