@@ -1,6 +1,6 @@
 [project]
 name = "stellar-xdr"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Strict, fully typed encoding and decoding of Stellar XDR, including SEP-51 XDR-JSON."
 readme = "README.md"
 authors = [{ name = "overcat", email = "hi@overcat.dev" }]
