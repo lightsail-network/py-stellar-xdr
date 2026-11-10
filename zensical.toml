@@ -1,6 +1,6 @@
 [project]
-site_name = "stellar-xdr"
-site_description = "Strict, fully typed encoding and decoding of Stellar XDR, including SEP-51 XDR-JSON."
+site_name = "py-stellar-xdr"
+site_description = "Strict, fully typed Python library for encoding and decoding Stellar XDR, including SEP-51 XDR-JSON."
 site_url = "https://stellar-xdr.readthedocs.io/"
 repo_url = "https://github.com/lightsail-network/py-stellar-xdr"
 repo_name = "lightsail-network/py-stellar-xdr"

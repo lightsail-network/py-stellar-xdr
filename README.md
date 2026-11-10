@@ -1,7 +1,8 @@
-# stellar-xdr
+# py-stellar-xdr
 
-Encode and decode [Stellar](https://stellar.org) XDR, the binary format of transactions,
-ledger entries, contract values and everything else on the Stellar network, and its
+A Python library to encode and decode [Stellar](https://stellar.org) XDR, the binary
+format of transactions, ledger entries, contract values and everything else on the
+Stellar network, and its
 [SEP-51](https://github.com/stellar/stellar-protocol/blob/master/ecosystem/sep-0051.md)
 JSON form.
 
