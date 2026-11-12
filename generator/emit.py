@@ -73,21 +73,9 @@ _PRIMITIVE_ANNOTATION: Final = {
     "hyper": "int",
     "unsigned_hyper": "int",
 }
-_PRIMITIVE_CODEC: Final = {
-    "bool": "boolean",
-    "int": "int32",
-    "unsigned_int": "uint32",
-    "hyper": "int64",
-    "unsigned_hyper": "uint64",
-}
-_PRIMITIVE_JSON: Final = {
-    "bool": "boolean",
-    "int": "int32",
-    "unsigned_int": "uint32",
-    "hyper": "int64",
-    "unsigned_hyper": "uint64",
-}
-_PRIMITIVE_CHECK: Final = {
+# The name a primitive has in the runtime: `reader`, `writer`, `check` and `xdr_json`
+# each have a function of this name for it.
+_PRIMITIVE_NAME: Final = {
     "bool": "boolean",
     "int": "int32",
     "unsigned_int": "uint32",
@@ -244,7 +232,7 @@ class _TypeCode:
     def check(self, t: TypeRef) -> tuple[str, list[str]]:
         """The check function for a type and its arguments after (value, where)."""
         if isinstance(t, Primitive):
-            return f"check.{_PRIMITIVE_CHECK[t.kind]}", []
+            return f"check.{_PRIMITIVE_NAME[t.kind]}", []
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
@@ -279,7 +267,7 @@ class _TypeCode:
     def decode(self, t: TypeRef) -> str:
         """An expression that reads a value from `reader`."""
         if isinstance(t, Primitive):
-            return f"reader.{_PRIMITIVE_CODEC[t.kind]}()"
+            return f"reader.{_PRIMITIVE_NAME[t.kind]}()"
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
@@ -313,7 +301,7 @@ class _TypeCode:
         type, so two loops over different types can't share one.
         """
         if isinstance(t, Primitive):
-            return [f"writer.{_PRIMITIVE_CODEC[t.kind]}({value})"]
+            return [f"writer.{_PRIMITIVE_NAME[t.kind]}({value})"]
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
@@ -372,7 +360,7 @@ class _TypeCode:
     def from_json(self, t: TypeRef, value: str, where: str, depth: int = 0) -> str:
         """An expression that reads `value`, a JSON value, as SEP-51 JSON."""
         if isinstance(t, Primitive):
-            return f"xdr_json.{_PRIMITIVE_JSON[t.kind]}({value}, {where!r})"
+            return f"xdr_json.{_PRIMITIVE_NAME[t.kind]}({value}, {where!r})"
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
