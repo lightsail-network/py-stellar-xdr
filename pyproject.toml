@@ -67,6 +67,7 @@ build-backend = "uv_build"
 # CHANGELOG.md.
 source-include = ["tests/**", "docs/**", "CHANGELOG.md"]
 source-exclude = [
+    ".DS_Store",
     "docs/changelog.md",
     "tests/test_generator.py",
     "tests/test_vendored_xdr.py",
