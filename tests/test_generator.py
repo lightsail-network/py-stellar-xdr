@@ -358,6 +358,24 @@ def test_ambiguous_definitions_fail_generation(
         Generator(model, PROTOCOL, sep51.Rules()).sources()
 
 
+def test_a_word_in_the_xdr_source_is_not_a_use_of_a_name(tmp_path: Path) -> None:
+    # The docstrings quote the XDR source, comments included.
+    definition = struct("S", ("a", {"kind": "int"}))
+    definition["source"] = (
+        "struct S {\n    int a; // Sequence of Literal, see NewType\n};"
+    )
+    model = load_document(tmp_path, document(definition))
+    source = Generator(model, PROTOCOL, sep51.Rules()).sources()["_test.py"]
+    assert "Sequence of Literal, see NewType" in source
+    imports = [line for line in source.splitlines() if "import" in line]
+    runtime = "JsonReader, JsonWriter, Reader, Writer, XdrStruct, check, new, set_field"
+    assert imports == [
+        "from __future__ import annotations",
+        "from typing import Any, Self, final",
+        f"from ._runtime import {runtime}, xdr_json",
+    ]
+
+
 def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
     arms = dict(sep51.RULES.strkey_unions)
     arms[union] = tuple(arm for arm in arms[union] if arm.case != case)
