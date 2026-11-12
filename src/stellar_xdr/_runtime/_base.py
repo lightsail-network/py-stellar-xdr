@@ -350,9 +350,13 @@ def replace(value: _Value, /, **changes: Any) -> _Value:  # noqa: ANN401 - any f
     any other constructed value.
 
     Raises:
-        TypeError: A field doesn't exist, or a new value has the wrong type.
+        TypeError: The value is not a struct or a union arm, a field doesn't exist, or
+            a new value has the wrong type.
         ValueError: A new value is out of range.
     """
+    if not isinstance(value, _XdrValue):  # pyright: ignore[reportUnnecessaryIsInstance]
+        msg = f"expected a struct or a union arm, got {type(value).__name__}"
+        raise TypeError(msg)
     return value.__replace__(**changes)
 
 
@@ -376,18 +380,23 @@ def decode_stream(
         max_depth: The deepest nesting of recursive types to accept, for each value.
 
     Raises:
-        TypeError: The data is not bytes.
+        TypeError: The type can't be decoded, or the data is not bytes.
         XdrDecodeError: While iterating, when the data is not a valid encoding of a
             sequence of values.
         XdrDepthError: While iterating, when a value is nested more deeply than
             `max_depth`.
     """
-    # Checked here rather than in the generator below, so that the error comes from
-    # the call.
+    # Checked here rather than in the generator below, so that the errors come from
+    # the call. An arm such as `SCVal.U32` has no decoder: its union has.
+    decode: Callable[[Reader], _T] | None = getattr(type_, "_decode", None)
+    if decode is None:
+        shown = type_.__qualname__ if isinstance(type_, type) else type(type_).__name__
+        msg = f"expected a struct, an enum or a union, got {shown}"
+        raise TypeError(msg)
     if not isinstance(data, bytes):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f"expected bytes, got {type(data).__name__}"
         raise TypeError(msg)
-    return _decode_values(type_._decode, Reader(bytes(data), max_depth))  # noqa: SLF001
+    return _decode_values(decode, Reader(bytes(data), max_depth))
 
 
 def _decode_values(decode: Callable[[Reader], _T], reader: Reader) -> Iterator[_T]:

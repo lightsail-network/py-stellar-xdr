@@ -97,6 +97,10 @@ def test_replace_builds_a_checked_copy() -> None:
         xdr.replace(value, lo=-1)
     with pytest.raises(TypeError):
         xdr.replace(value, missing=1)
+    with pytest.raises(
+        TypeError, match="expected a struct or a union arm, got SCValType"
+    ):
+        xdr.replace(xdr.SCValType.SCV_U32, value=1)  # type: ignore[type-var]
 
 
 @pytest.mark.skipif(sys.version_info < (3, 13), reason="copy.replace needs 3.13")
