@@ -82,6 +82,32 @@ more = xdr.replace(parts, lo=200)
 assert (parts.lo, more.lo) == (100, 200)
 ```
 
+To change a field of a nested value, replace from the inside out. Each `replace` copies
+one level, and the copy shares every value that didn't change:
+
+```python
+import stellar_xdr as xdr
+
+data = xdr.SorobanTransactionData(
+    ext=xdr.SorobanTransactionDataExt.V0(),
+    resources=xdr.SorobanResources(
+        footprint=xdr.LedgerFootprint(read_only=[], read_write=[]),
+        instructions=100_000,
+        disk_read_bytes=0,
+        write_bytes=0,
+    ),
+    resource_fee=5_000,
+)
+raised = xdr.replace(
+    data,
+    resources=xdr.replace(data.resources, instructions=150_000),
+    resource_fee=7_500,
+)
+assert raised.resources.instructions == 150_000
+assert raised.resources.footprint is data.resources.footprint
+assert data.resources.instructions == 100_000
+```
+
 Values compare by type and fields, can be hashed, and can be pickled and copied. A
 pickle only works within one version of the package, since names and the order of fields
 can change between versions: to store values or send them elsewhere, use XDR or JSON.
