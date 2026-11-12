@@ -415,12 +415,7 @@ class SCError(metaclass=UnionNamespace):
             return self.contract_code == other.contract_code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Contract,
-                    self.contract_code,
-                )
-            )
+            return hash((SCError.Contract, self.contract_code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -465,12 +460,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.WasmVm,
-                    self.code,
-                )
-            )
+            return hash((SCError.WasmVm, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -511,12 +501,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Context,
-                    self.code,
-                )
-            )
+            return hash((SCError.Context, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -557,12 +542,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Storage,
-                    self.code,
-                )
-            )
+            return hash((SCError.Storage, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -603,12 +583,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Object,
-                    self.code,
-                )
-            )
+            return hash((SCError.Object, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -649,12 +624,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Crypto,
-                    self.code,
-                )
-            )
+            return hash((SCError.Crypto, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -695,12 +665,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Events,
-                    self.code,
-                )
-            )
+            return hash((SCError.Events, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(6)
@@ -741,12 +706,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Budget,
-                    self.code,
-                )
-            )
+            return hash((SCError.Budget, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(7)
@@ -787,12 +747,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Value,
-                    self.code,
-                )
-            )
+            return hash((SCError.Value, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(8)
@@ -833,12 +788,7 @@ class SCError(metaclass=UnionNamespace):
             return self.code == other.code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCError.Auth,
-                    self.code,
-                )
-            )
+            return hash((SCError.Auth, self.code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -965,7 +915,7 @@ _SC_ERROR_JSON_ARMS: Final[dict[str, type[SCError.Any]]] = {
     "value": SCError.Value,
     "auth": SCError.Auth,
 }
-_SC_ERROR_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SC_ERROR_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -980,10 +930,7 @@ class UInt128Parts(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "hi",
-        "lo",
-    )
+    __slots__ = ("hi", "lo")
 
     hi: Uint64
     lo: Uint64
@@ -998,13 +945,7 @@ class UInt128Parts(XdrStruct):
         return self.hi == other.hi and self.lo == other.lo
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                UInt128Parts,
-                self.hi,
-                self.lo,
-            )
-        )
+        return hash((UInt128Parts, self.hi, self.lo))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint64(self.hi)
@@ -1041,10 +982,7 @@ class Int128Parts(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "hi",
-        "lo",
-    )
+    __slots__ = ("hi", "lo")
 
     hi: Int64
     lo: Uint64
@@ -1059,13 +997,7 @@ class Int128Parts(XdrStruct):
         return self.hi == other.hi and self.lo == other.lo
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Int128Parts,
-                self.hi,
-                self.lo,
-            )
-        )
+        return hash((Int128Parts, self.hi, self.lo))
 
     def _encode(self, writer: Writer) -> None:
         writer.int64(self.hi)
@@ -1104,12 +1036,7 @@ class UInt256Parts(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "hi_hi",
-        "hi_lo",
-        "lo_hi",
-        "lo_lo",
-    )
+    __slots__ = ("hi_hi", "hi_lo", "lo_hi", "lo_lo")
 
     hi_hi: Uint64
     hi_lo: Uint64
@@ -1135,15 +1062,7 @@ class UInt256Parts(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                UInt256Parts,
-                self.hi_hi,
-                self.hi_lo,
-                self.lo_hi,
-                self.lo_lo,
-            )
-        )
+        return hash((UInt256Parts, self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint64(self.hi_hi)
@@ -1188,12 +1107,7 @@ class Int256Parts(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "hi_hi",
-        "hi_lo",
-        "lo_hi",
-        "lo_lo",
-    )
+    __slots__ = ("hi_hi", "hi_lo", "lo_hi", "lo_lo")
 
     hi_hi: Int64
     hi_lo: Uint64
@@ -1219,15 +1133,7 @@ class Int256Parts(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Int256Parts,
-                self.hi_hi,
-                self.hi_lo,
-                self.lo_hi,
-                self.lo_lo,
-            )
-        )
+        return hash((Int256Parts, self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo))
 
     def _encode(self, writer: Writer) -> None:
         writer.int64(self.hi_hi)
@@ -1271,10 +1177,7 @@ class MuxedEd25519Account(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "id",
-        "ed25519",
-    )
+    __slots__ = ("id", "ed25519")
 
     id: Uint64
     ed25519: Uint256
@@ -1293,13 +1196,7 @@ class MuxedEd25519Account(XdrStruct):
         return self.id == other.id and self.ed25519 == other.ed25519
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                MuxedEd25519Account,
-                self.id,
-                self.ed25519,
-            )
-        )
+        return hash((MuxedEd25519Account, self.id, self.ed25519))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint64(self.id)
@@ -1337,10 +1234,7 @@ class MuxedContract(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "id",
-        "contract_id",
-    )
+    __slots__ = ("id", "contract_id")
 
     id: Uint64
     contract_id: ContractID
@@ -1359,13 +1253,7 @@ class MuxedContract(XdrStruct):
         return self.id == other.id and self.contract_id == other.contract_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                MuxedContract,
-                self.id,
-                self.contract_id,
-            )
-        )
+        return hash((MuxedContract, self.id, self.contract_id))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint64(self.id)
@@ -1441,12 +1329,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.account_id == other.account_id
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.Account,
-                    self.account_id,
-                )
-            )
+            return hash((SCAddress.Account, self.account_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -1485,12 +1368,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.contract_id == other.contract_id
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.Contract,
-                    self.contract_id,
-                )
-            )
+            return hash((SCAddress.Contract, self.contract_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -1533,12 +1411,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.muxed_account == other.muxed_account
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.MuxedAccount,
-                    self.muxed_account,
-                )
-            )
+            return hash((SCAddress.MuxedAccount, self.muxed_account))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -1582,12 +1455,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.claimable_balance_id == other.claimable_balance_id
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.ClaimableBalance,
-                    self.claimable_balance_id,
-                )
-            )
+            return hash((SCAddress.ClaimableBalance, self.claimable_balance_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -1628,12 +1496,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.liquidity_pool_id == other.liquidity_pool_id
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.LiquidityPool,
-                    self.liquidity_pool_id,
-                )
-            )
+            return hash((SCAddress.LiquidityPool, self.liquidity_pool_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -1676,12 +1539,7 @@ class SCAddress(metaclass=UnionNamespace):
             return self.muxed_contract == other.muxed_contract
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCAddress.MuxedContract,
-                    self.muxed_contract,
-                )
-            )
+            return hash((SCAddress.MuxedContract, self.muxed_contract))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -1828,10 +1686,7 @@ class ContractExecutableExternalRef(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "executable_owner",
-        "tag",
-    )
+    __slots__ = ("executable_owner", "tag")
 
     executable_owner: SCAddress.Any
     tag: SCString
@@ -1857,13 +1712,7 @@ class ContractExecutableExternalRef(XdrStruct):
         return self.executable_owner == other.executable_owner and self.tag == other.tag
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ContractExecutableExternalRef,
-                self.executable_owner,
-                self.tag,
-            )
-        )
+        return hash((ContractExecutableExternalRef, self.executable_owner, self.tag))
 
     def _encode(self, writer: Writer) -> None:
         self.executable_owner._encode(writer)
@@ -1885,12 +1734,7 @@ class ContractExecutableExternalRef(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "ContractExecutableExternalRef",
-            (
-                "executable_owner",
-                "tag",
-            ),
+            value, "ContractExecutableExternalRef", ("executable_owner", "tag")
         )
         obj = new(cls)
         set_field(
@@ -1946,12 +1790,7 @@ class ContractExecutable(metaclass=UnionNamespace):
             return self.wasm_hash == other.wasm_hash
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ContractExecutable.Wasm,
-                    self.wasm_hash,
-                )
-            )
+            return hash((ContractExecutable.Wasm, self.wasm_hash))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -2036,12 +1875,7 @@ class ContractExecutable(metaclass=UnionNamespace):
             return self.external_ref == other.external_ref
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ContractExecutable.ExternalRef,
-                    self.external_ref,
-                )
-            )
+            return hash((ContractExecutable.ExternalRef, self.external_ref))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -2179,12 +2013,7 @@ class SCNonceKey(XdrStruct):
         return self.nonce == other.nonce
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCNonceKey,
-                self.nonce,
-            )
-        )
+        return hash((SCNonceKey, self.nonce))
 
     def _encode(self, writer: Writer) -> None:
         writer.int64(self.nonce)
@@ -2218,10 +2047,7 @@ class SCContractInstance(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "executable",
-        "storage",
-    )
+    __slots__ = ("executable", "storage")
 
     executable: ContractExecutable.Any
     storage: SCMap | None
@@ -2258,13 +2084,7 @@ class SCContractInstance(XdrStruct):
         return self.executable == other.executable and self.storage == other.storage
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCContractInstance,
-                self.executable,
-                self.storage,
-            )
-        )
+        return hash((SCContractInstance, self.executable, self.storage))
 
     def _encode(self, writer: Writer) -> None:
         self.executable._encode(writer)
@@ -2308,10 +2128,7 @@ class SCContractInstance(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SCContractInstance",
-            (
-                "executable",
-                "storage",
-            ),
+            ("executable", "storage"),
             frozenset({"storage"}),
         )
         obj = new(cls)
@@ -2424,12 +2241,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.b == other.b
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Bool,
-                    self.b,
-                )
-            )
+            return hash((SCVal.Bool, self.b))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2512,12 +2324,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.error == other.error
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Error,
-                    self.error,
-                )
-            )
+            return hash((SCVal.Error, self.error))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2561,12 +2368,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.u32 == other.u32
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.U32,
-                    self.u32,
-                )
-            )
+            return hash((SCVal.U32, self.u32))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2610,12 +2412,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.i32 == other.i32
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.I32,
-                    self.i32,
-                )
-            )
+            return hash((SCVal.I32, self.i32))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2659,12 +2456,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.u64 == other.u64
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.U64,
-                    self.u64,
-                )
-            )
+            return hash((SCVal.U64, self.u64))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2708,12 +2500,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.i64 == other.i64
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.I64,
-                    self.i64,
-                )
-            )
+            return hash((SCVal.I64, self.i64))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2759,12 +2546,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.timepoint == other.timepoint
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Timepoint,
-                    self.timepoint,
-                )
-            )
+            return hash((SCVal.Timepoint, self.timepoint))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2812,12 +2594,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.duration == other.duration
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Duration,
-                    self.duration,
-                )
-            )
+            return hash((SCVal.Duration, self.duration))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2865,12 +2642,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.u128 == other.u128
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.U128,
-                    self.u128,
-                )
-            )
+            return hash((SCVal.U128, self.u128))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2916,12 +2688,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.i128 == other.i128
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.I128,
-                    self.i128,
-                )
-            )
+            return hash((SCVal.I128, self.i128))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2967,12 +2734,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.u256 == other.u256
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.U256,
-                    self.u256,
-                )
-            )
+            return hash((SCVal.U256, self.u256))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3018,12 +2780,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.i256 == other.i256
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.I256,
-                    self.i256,
-                )
-            )
+            return hash((SCVal.I256, self.i256))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3067,12 +2824,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.bytes == other.bytes
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Bytes,
-                    self.bytes,
-                )
-            )
+            return hash((SCVal.Bytes, self.bytes))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3116,12 +2868,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.str == other.str
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.String,
-                    self.str,
-                )
-            )
+            return hash((SCVal.String, self.str))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3165,12 +2912,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.sym == other.sym
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Symbol,
-                    self.sym,
-                )
-            )
+            return hash((SCVal.Symbol, self.sym))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3226,12 +2968,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.vec == other.vec
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Vec,
-                    self.vec,
-                )
-            )
+            return hash((SCVal.Vec, self.vec))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3313,12 +3050,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.map == other.map
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Map,
-                    self.map,
-                )
-            )
+            return hash((SCVal.Map, self.map))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3405,12 +3137,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.address == other.address
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.Address,
-                    self.address,
-                )
-            )
+            return hash((SCVal.Address, self.address))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3462,12 +3189,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.instance == other.instance
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.ContractInstance,
-                    self.instance,
-                )
-            )
+            return hash((SCVal.ContractInstance, self.instance))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3554,12 +3276,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.nonce_key == other.nonce_key
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.LedgerKeyNonce,
-                    self.nonce_key,
-                )
-            )
+            return hash((SCVal.LedgerKeyNonce, self.nonce_key))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3611,12 +3328,7 @@ class SCVal(metaclass=UnionNamespace):
             return self.executable_tag == other.executable_tag
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCVal.ExecutableTag,
-                    self.executable_tag,
-                )
-            )
+            return hash((SCVal.ExecutableTag, self.executable_tag))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -3813,10 +3525,7 @@ class SCMapEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "key",
-        "val",
-    )
+    __slots__ = ("key", "val")
 
     key: SCVal.Any
     val: SCVal.Any
@@ -3835,13 +3544,7 @@ class SCMapEntry(XdrStruct):
         return self.key == other.key and self.val == other.val
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCMapEntry,
-                self.key,
-                self.val,
-            )
-        )
+        return hash((SCMapEntry, self.key, self.val))
 
     def _encode(self, writer: Writer) -> None:
         self.key._encode(writer)
@@ -3859,14 +3562,7 @@ class SCMapEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCMapEntry",
-            (
-                "key",
-                "val",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCMapEntry", ("key", "val"))
         obj = new(cls)
         set_field(obj, "key", SCVal._from_json(fields["key"], ctx))
         set_field(obj, "val", SCVal._from_json(fields["val"], ctx))

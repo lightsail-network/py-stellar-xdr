@@ -460,6 +460,14 @@ def _indent(lines: list[str], levels: int = 1) -> list[str]:
     return [pad + line if line else line for line in lines]
 
 
+def _tuple(items: list[str]) -> str:
+    """A tuple display, with a trailing comma only where one item needs it.
+
+    After a trailing comma, ruff puts every item on a line of its own.
+    """
+    return f"({items[0]},)" if len(items) == 1 else f"({', '.join(items)})"
+
+
 def _docstring(lines: list[str]) -> list[str]:
     text = "\n".join(lines).replace("\\", "\\\\").replace('"""', '\\"\\"\\"')
     body = text.split("\n")
@@ -638,7 +646,7 @@ class _Emitter:
             return annotation
 
         body = [*_docstring(doc), ""]
-        body.append(f"__slots__ = ({''.join(f'{s!r}, ' for s in slots)})")
+        body.append(f"__slots__ = {_tuple([repr(s) for s in slots])}")
         if fields or class_vars:
             body.append("")
         body += [f"{n}: {unshadow(code.annotation(t))}" for n, t in fields]
@@ -659,7 +667,7 @@ class _Emitter:
         # times on PyPy. The class is part of the hash so that arms without fields,
         # such as SCVal.Void and Memo.None_, don't all hash alike.
         compare = " and ".join(f"self.{n} == other.{n}" for n in slots) or "True"
-        hashed = ", ".join([qualname, *(f"self.{n}" for n in slots)])
+        hashed = _tuple([qualname, *(f"self.{n}" for n in slots)])
         body += [
             "",
             "def __eq__(self, other: object) -> bool:",
@@ -668,7 +676,7 @@ class _Emitter:
             f"    return {compare}",
             "",
             "def __hash__(self) -> int:",
-            f"    return hash(({hashed},))",
+            f"    return hash({hashed})",
         ]
         encode = list(encode_prefix)
         for n, t in fields:
@@ -756,12 +764,12 @@ class _Emitter:
             for (n, t), x in zip(fields, [f.name for f in d.fields], strict=True)
         )
         to_json = [f"return {{{items}}}"]
-        keys = "".join(f"{names.json_field_name(f.name)!r}, " for f in d.fields)
+        keys = _tuple([repr(names.json_field_name(f.name)) for f in d.fields])
         # An optional field that is left out reads as null, as in the reference.
         optional = [
             names.json_field_name(f.name) for f in d.fields if code.is_optional(f.type)
         ]
-        args = f"{qualname!r}, ({keys})"
+        args = f"{qualname!r}, {keys}"
         if optional:
             args += f", frozenset({{{', '.join(repr(k) for k in optional)}}})"
         if fields:
@@ -938,7 +946,7 @@ class _Emitter:
                     if arm.type is None:
                         void.append(repr(key))
             arms_table = f"dict[str, type[{name}.Any]]"
-            void_set = f"frozenset({{{', '.join(void)}}})"
+            void_set = f"frozenset({{{', '.join(void)}}})" if void else "frozenset()"
             tail += [
                 f"{_json_arms_name(d)}: Final[{arms_table}] = {{{', '.join(keys)}}}",
                 f"{_json_void_name(d)}: Final[frozenset[str]] = {void_set}",

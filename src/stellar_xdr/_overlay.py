@@ -311,10 +311,7 @@ class Error(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "code",
-        "msg",
-    )
+    __slots__ = ("code", "msg")
 
     code: ErrorCode
     msg: bytes
@@ -329,13 +326,7 @@ class Error(XdrStruct):
         return self.code == other.code and self.msg == other.msg
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Error,
-                self.code,
-                self.msg,
-            )
-        )
+        return hash((Error, self.code, self.msg))
 
     def _encode(self, writer: Writer) -> None:
         writer.int32(self.code)
@@ -353,14 +344,7 @@ class Error(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "Error",
-            (
-                "code",
-                "msg",
-            ),
-        )
+        fields = xdr_json.fields(value, "Error", ("code", "msg"))
         obj = new(cls)
         set_field(obj, "code", ErrorCode._from_json(fields["code"], ctx))
         set_field(obj, "msg", xdr_json.string(fields["msg"], "Error.msg", 100))
@@ -394,12 +378,7 @@ class SendMore(XdrStruct):
         return self.num_messages == other.num_messages
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SendMore,
-                self.num_messages,
-            )
-        )
+        return hash((SendMore, self.num_messages))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.num_messages)
@@ -438,10 +417,7 @@ class SendMoreExtended(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "num_messages",
-        "num_bytes",
-    )
+    __slots__ = ("num_messages", "num_bytes")
 
     num_messages: Uint32
     num_bytes: Uint32
@@ -465,13 +441,7 @@ class SendMoreExtended(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SendMoreExtended,
-                self.num_messages,
-                self.num_bytes,
-            )
-        )
+        return hash((SendMoreExtended, self.num_messages, self.num_bytes))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.num_messages)
@@ -490,12 +460,7 @@ class SendMoreExtended(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SendMoreExtended",
-            (
-                "num_messages",
-                "num_bytes",
-            ),
+            value, "SendMoreExtended", ("num_messages", "num_bytes")
         )
         obj = new(cls)
         set_field(
@@ -525,11 +490,7 @@ class AuthCert(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "pubkey",
-        "expiration",
-        "sig",
-    )
+    __slots__ = ("pubkey", "expiration", "sig")
 
     pubkey: Curve25519Public
     expiration: Uint64
@@ -554,14 +515,7 @@ class AuthCert(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AuthCert,
-                self.pubkey,
-                self.expiration,
-                self.sig,
-            )
-        )
+        return hash((AuthCert, self.pubkey, self.expiration, self.sig))
 
     def _encode(self, writer: Writer) -> None:
         self.pubkey._encode(writer)
@@ -585,15 +539,7 @@ class AuthCert(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "AuthCert",
-            (
-                "pubkey",
-                "expiration",
-                "sig",
-            ),
-        )
+        fields = xdr_json.fields(value, "AuthCert", ("pubkey", "expiration", "sig"))
         obj = new(cls)
         set_field(obj, "pubkey", Curve25519Public._from_json(fields["pubkey"], ctx))
         set_field(
@@ -837,12 +783,7 @@ class Auth(XdrStruct):
         return self.flags == other.flags
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Auth,
-                self.flags,
-            )
-        )
+        return hash((Auth, self.flags))
 
     def _encode(self, writer: Writer) -> None:
         writer.int32(self.flags)
@@ -898,12 +839,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
             return self.ipv4 == other.ipv4
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    PeerAddressIp.IPv4,
-                    self.ipv4,
-                )
-            )
+            return hash((PeerAddressIp.IPv4, self.ipv4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -946,12 +882,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
             return self.ipv6 == other.ipv6
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    PeerAddressIp.IPv6,
-                    self.ipv6,
-                )
-            )
+            return hash((PeerAddressIp.IPv6, self.ipv6))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -1056,7 +987,7 @@ _PEER_ADDRESS_IP_JSON_ARMS: Final[dict[str, type[PeerAddressIp.Any]]] = {
     "i_pv4": PeerAddressIp.IPv4,
     "i_pv6": PeerAddressIp.IPv6,
 }
-_PEER_ADDRESS_IP_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_PEER_ADDRESS_IP_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -1080,11 +1011,7 @@ class PeerAddress(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ip",
-        "port",
-        "num_failures",
-    )
+    __slots__ = ("ip", "port", "num_failures")
 
     ip: PeerAddressIp.Any
     port: Uint32
@@ -1115,14 +1042,7 @@ class PeerAddress(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                PeerAddress,
-                self.ip,
-                self.port,
-                self.num_failures,
-            )
-        )
+        return hash((PeerAddress, self.ip, self.port, self.num_failures))
 
     def _encode(self, writer: Writer) -> None:
         self.ip._encode(writer)
@@ -1146,15 +1066,7 @@ class PeerAddress(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "PeerAddress",
-            (
-                "ip",
-                "port",
-                "num_failures",
-            ),
-        )
+        fields = xdr_json.fields(value, "PeerAddress", ("ip", "port", "num_failures"))
         obj = new(cls)
         set_field(obj, "ip", PeerAddressIp._from_json(fields["ip"], ctx))
         set_field(obj, "port", xdr_json.uint32(fields["port"], "PeerAddress.port"))
@@ -1179,10 +1091,7 @@ class DontHave(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "type",
-        "req_hash",
-    )
+    __slots__ = ("type", "req_hash")
 
     type: MessageType
     req_hash: Uint256
@@ -1199,13 +1108,7 @@ class DontHave(XdrStruct):
         return self.type == other.type and self.req_hash == other.req_hash
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                DontHave,
-                self.type,
-                self.req_hash,
-            )
-        )
+        return hash((DontHave, self.type, self.req_hash))
 
     def _encode(self, writer: Writer) -> None:
         writer.int32(self.type)
@@ -1223,14 +1126,7 @@ class DontHave(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "DontHave",
-            (
-                "type",
-                "req_hash",
-            ),
-        )
+        fields = xdr_json.fields(value, "DontHave", ("type", "req_hash"))
         obj = new(cls)
         set_field(obj, "type", MessageType._from_json(fields["type"], ctx))
         set_field(
@@ -1255,11 +1151,7 @@ class TimeSlicedSurveyStartCollectingMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "surveyor_id",
-        "nonce",
-        "ledger_num",
-    )
+    __slots__ = ("surveyor_id", "nonce", "ledger_num")
 
     surveyor_id: NodeID
     nonce: Uint32
@@ -1333,11 +1225,7 @@ class TimeSlicedSurveyStartCollectingMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "TimeSlicedSurveyStartCollectingMessage",
-            (
-                "surveyor_id",
-                "nonce",
-                "ledger_num",
-            ),
+            ("surveyor_id", "nonce", "ledger_num"),
         )
         obj = new(cls)
         set_field(obj, "surveyor_id", PublicKey._from_json(fields["surveyor_id"], ctx))
@@ -1372,10 +1260,7 @@ class SignedTimeSlicedSurveyStartCollectingMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "signature",
-        "start_collecting",
-    )
+    __slots__ = ("signature", "start_collecting")
 
     signature: Signature
     start_collecting: TimeSlicedSurveyStartCollectingMessage
@@ -1445,10 +1330,7 @@ class SignedTimeSlicedSurveyStartCollectingMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SignedTimeSlicedSurveyStartCollectingMessage",
-            (
-                "signature",
-                "start_collecting",
-            ),
+            ("signature", "start_collecting"),
         )
         obj = new(cls)
         set_field(
@@ -1484,11 +1366,7 @@ class TimeSlicedSurveyStopCollectingMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "surveyor_id",
-        "nonce",
-        "ledger_num",
-    )
+    __slots__ = ("surveyor_id", "nonce", "ledger_num")
 
     surveyor_id: NodeID
     nonce: Uint32
@@ -1562,11 +1440,7 @@ class TimeSlicedSurveyStopCollectingMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "TimeSlicedSurveyStopCollectingMessage",
-            (
-                "surveyor_id",
-                "nonce",
-                "ledger_num",
-            ),
+            ("surveyor_id", "nonce", "ledger_num"),
         )
         obj = new(cls)
         set_field(obj, "surveyor_id", PublicKey._from_json(fields["surveyor_id"], ctx))
@@ -1600,10 +1474,7 @@ class SignedTimeSlicedSurveyStopCollectingMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "signature",
-        "stop_collecting",
-    )
+    __slots__ = ("signature", "stop_collecting")
 
     signature: Signature
     stop_collecting: TimeSlicedSurveyStopCollectingMessage
@@ -1673,10 +1544,7 @@ class SignedTimeSlicedSurveyStopCollectingMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SignedTimeSlicedSurveyStopCollectingMessage",
-            (
-                "signature",
-                "stop_collecting",
-            ),
+            ("signature", "stop_collecting"),
         )
         obj = new(cls)
         set_field(
@@ -1884,12 +1752,7 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "request",
-        "nonce",
-        "inbound_peers_index",
-        "outbound_peers_index",
-    )
+    __slots__ = ("request", "nonce", "inbound_peers_index", "outbound_peers_index")
 
     request: SurveyRequestMessage
     nonce: Uint32
@@ -1979,12 +1842,7 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "TimeSlicedSurveyRequestMessage",
-            (
-                "request",
-                "nonce",
-                "inbound_peers_index",
-                "outbound_peers_index",
-            ),
+            ("request", "nonce", "inbound_peers_index", "outbound_peers_index"),
         )
         obj = new(cls)
         set_field(
@@ -2027,10 +1885,7 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "request_signature",
-        "request",
-    )
+    __slots__ = ("request_signature", "request")
 
     request_signature: Signature
     request: TimeSlicedSurveyRequestMessage
@@ -2067,11 +1922,7 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                SignedTimeSlicedSurveyRequestMessage,
-                self.request_signature,
-                self.request,
-            )
+            (SignedTimeSlicedSurveyRequestMessage, self.request_signature, self.request)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -2096,10 +1947,7 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SignedTimeSlicedSurveyRequestMessage",
-            (
-                "request_signature",
-                "request",
-            ),
+            ("request_signature", "request"),
         )
         obj = new(cls)
         set_field(
@@ -2305,10 +2153,7 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "response",
-        "nonce",
-    )
+    __slots__ = ("response", "nonce")
 
     response: SurveyResponseMessage
     nonce: Uint32
@@ -2333,13 +2178,7 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
         return self.response == other.response and self.nonce == other.nonce
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                TimeSlicedSurveyResponseMessage,
-                self.response,
-                self.nonce,
-            )
-        )
+        return hash((TimeSlicedSurveyResponseMessage, self.response, self.nonce))
 
     def _encode(self, writer: Writer) -> None:
         self.response._encode(writer)
@@ -2358,12 +2197,7 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "TimeSlicedSurveyResponseMessage",
-            (
-                "response",
-                "nonce",
-            ),
+            value, "TimeSlicedSurveyResponseMessage", ("response", "nonce")
         )
         obj = new(cls)
         set_field(
@@ -2390,10 +2224,7 @@ class SignedTimeSlicedSurveyResponseMessage(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "response_signature",
-        "response",
-    )
+    __slots__ = ("response_signature", "response")
 
     response_signature: Signature
     response: TimeSlicedSurveyResponseMessage
@@ -2459,10 +2290,7 @@ class SignedTimeSlicedSurveyResponseMessage(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SignedTimeSlicedSurveyResponseMessage",
-            (
-                "response_signature",
-                "response",
-            ),
+            ("response_signature", "response"),
         )
         obj = new(cls)
         set_field(
@@ -3186,10 +3014,7 @@ class TimeSlicedPeerData(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "peer_stats",
-        "average_latency_ms",
-    )
+    __slots__ = ("peer_stats", "average_latency_ms")
 
     peer_stats: PeerStats
     average_latency_ms: Uint32
@@ -3215,13 +3040,7 @@ class TimeSlicedPeerData(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                TimeSlicedPeerData,
-                self.peer_stats,
-                self.average_latency_ms,
-            )
-        )
+        return hash((TimeSlicedPeerData, self.peer_stats, self.average_latency_ms))
 
     def _encode(self, writer: Writer) -> None:
         self.peer_stats._encode(writer)
@@ -3243,12 +3062,7 @@ class TimeSlicedPeerData(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "TimeSlicedPeerData",
-            (
-                "peer_stats",
-                "average_latency_ms",
-            ),
+            value, "TimeSlicedPeerData", ("peer_stats", "average_latency_ms")
         )
         obj = new(cls)
         set_field(obj, "peer_stats", PeerStats._from_json(fields["peer_stats"], ctx))
@@ -3276,11 +3090,7 @@ class TopologyResponseBodyV2(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "inbound_peers",
-        "outbound_peers",
-        "node_data",
-    )
+    __slots__ = ("inbound_peers", "outbound_peers", "node_data")
 
     inbound_peers: TimeSlicedPeerDataList
     outbound_peers: TimeSlicedPeerDataList
@@ -3388,11 +3198,7 @@ class TopologyResponseBodyV2(XdrStruct):
         fields = xdr_json.fields(
             value,
             "TopologyResponseBodyV2",
-            (
-                "inbound_peers",
-                "outbound_peers",
-                "node_data",
-            ),
+            ("inbound_peers", "outbound_peers", "node_data"),
         )
         obj = new(cls)
         set_field(
@@ -3466,10 +3272,7 @@ class SurveyResponseBody(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    SurveyResponseBody.TopologyResponseV2,
-                    self.topology_response_body_v2,
-                )
+                (SurveyResponseBody.TopologyResponseV2, self.topology_response_body_v2)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -3581,7 +3384,7 @@ _SURVEY_RESPONSE_BODY_CLASSES: Final = frozenset(_SURVEY_RESPONSE_BODY_ARMS.valu
 _SURVEY_RESPONSE_BODY_JSON_ARMS: Final[dict[str, type[SurveyResponseBody.Any]]] = {
     "survey_topology_response_v2": SurveyResponseBody.TopologyResponseV2
 }
-_SURVEY_RESPONSE_BODY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SURVEY_RESPONSE_BODY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -3615,12 +3418,7 @@ class FloodAdvert(XdrStruct):
         return self.tx_hashes == other.tx_hashes
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FloodAdvert,
-                self.tx_hashes,
-            )
-        )
+        return hash((FloodAdvert, self.tx_hashes))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.tx_hashes))
@@ -3687,12 +3485,7 @@ class FloodDemand(XdrStruct):
         return self.tx_hashes == other.tx_hashes
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FloodDemand,
-                self.tx_hashes,
-            )
-        )
+        return hash((FloodDemand, self.tx_hashes))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.tx_hashes))
@@ -3813,12 +3606,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.error == other.error
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.ErrorMsg,
-                    self.error,
-                )
-            )
+            return hash((StellarMessage.ErrorMsg, self.error))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -3861,12 +3649,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.hello == other.hello
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.Hello,
-                    self.hello,
-                )
-            )
+            return hash((StellarMessage.Hello, self.hello))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(13)
@@ -3907,12 +3690,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.auth == other.auth
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.Auth,
-                    self.auth,
-                )
-            )
+            return hash((StellarMessage.Auth, self.auth))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -3957,12 +3735,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.dont_have == other.dont_have
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.DontHave,
-                    self.dont_have,
-                )
-            )
+            return hash((StellarMessage.DontHave, self.dont_have))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -4011,12 +3784,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.peers == other.peers
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.Peers,
-                    self.peers,
-                )
-            )
+            return hash((StellarMessage.Peers, self.peers))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -4077,12 +3845,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.tx_set_hash == other.tx_set_hash
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.GetTxSet,
-                    self.tx_set_hash,
-                )
-            )
+            return hash((StellarMessage.GetTxSet, self.tx_set_hash))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(6)
@@ -4129,12 +3892,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.tx_set == other.tx_set
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.TxSet,
-                    self.tx_set,
-                )
-            )
+            return hash((StellarMessage.TxSet, self.tx_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(7)
@@ -4184,12 +3942,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.generalized_tx_set == other.generalized_tx_set
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.GeneralizedTxSet,
-                    self.generalized_tx_set,
-                )
-            )
+            return hash((StellarMessage.GeneralizedTxSet, self.generalized_tx_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(17)
@@ -4243,12 +3996,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.transaction == other.transaction
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.Transaction,
-                    self.transaction,
-                )
-            )
+            return hash((StellarMessage.Transaction, self.transaction))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(8)
@@ -4589,12 +4337,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.q_set_hash == other.q_set_hash
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.GetScpQuorumset,
-                    self.q_set_hash,
-                )
-            )
+            return hash((StellarMessage.GetScpQuorumset, self.q_set_hash))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -4645,12 +4388,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.q_set == other.q_set
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.ScpQuorumset,
-                    self.q_set,
-                )
-            )
+            return hash((StellarMessage.ScpQuorumset, self.q_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(10)
@@ -4695,12 +4433,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.envelope == other.envelope
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.ScpMessage,
-                    self.envelope,
-                )
-            )
+            return hash((StellarMessage.ScpMessage, self.envelope))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(11)
@@ -4745,12 +4478,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.get_scp_ledger_seq == other.get_scp_ledger_seq
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.GetScpState,
-                    self.get_scp_ledger_seq,
-                )
-            )
+            return hash((StellarMessage.GetScpState, self.get_scp_ledger_seq))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(12)
@@ -4801,12 +4529,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.send_more_message == other.send_more_message
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.SendMore,
-                    self.send_more_message,
-                )
-            )
+            return hash((StellarMessage.SendMore, self.send_more_message))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(16)
@@ -4856,10 +4579,7 @@ class StellarMessage(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    StellarMessage.SendMoreExtended,
-                    self.send_more_extended_message,
-                )
+                (StellarMessage.SendMoreExtended, self.send_more_extended_message)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -4911,12 +4631,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.flood_advert == other.flood_advert
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.FloodAdvert,
-                    self.flood_advert,
-                )
-            )
+            return hash((StellarMessage.FloodAdvert, self.flood_advert))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(18)
@@ -4961,12 +4676,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return self.flood_demand == other.flood_demand
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StellarMessage.FloodDemand,
-                    self.flood_demand,
-                )
-            )
+            return hash((StellarMessage.FloodDemand, self.flood_demand))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(19)
@@ -5129,7 +4839,7 @@ _STELLAR_MESSAGE_JSON_ARMS: Final[dict[str, type[StellarMessage.Any]]] = {
     "flood_advert": StellarMessage.FloodAdvert,
     "flood_demand": StellarMessage.FloodDemand,
 }
-_STELLAR_MESSAGE_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_STELLAR_MESSAGE_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -5146,11 +4856,7 @@ class AuthenticatedMessageV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "sequence",
-        "message",
-        "mac",
-    )
+    __slots__ = ("sequence", "message", "mac")
 
     sequence: Uint64
     message: StellarMessage.Any
@@ -5188,14 +4894,7 @@ class AuthenticatedMessageV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AuthenticatedMessageV0,
-                self.sequence,
-                self.message,
-                self.mac,
-            )
-        )
+        return hash((AuthenticatedMessageV0, self.sequence, self.message, self.mac))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint64(self.sequence)
@@ -5220,13 +4919,7 @@ class AuthenticatedMessageV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "AuthenticatedMessageV0",
-            (
-                "sequence",
-                "message",
-                "mac",
-            ),
+            value, "AuthenticatedMessageV0", ("sequence", "message", "mac")
         )
         obj = new(cls)
         set_field(
@@ -5280,12 +4973,7 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
             return self.v0 == other.v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AuthenticatedMessage.V0,
-                    self.v0,
-                )
-            )
+            return hash((AuthenticatedMessage.V0, self.v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.uint32(0)
@@ -5388,7 +5076,7 @@ _AUTHENTICATED_MESSAGE_CLASSES: Final = frozenset(_AUTHENTICATED_MESSAGE_ARMS.va
 _AUTHENTICATED_MESSAGE_JSON_ARMS: Final[dict[str, type[AuthenticatedMessage.Any]]] = {
     "v0": AuthenticatedMessage.V0
 }
-_AUTHENTICATED_MESSAGE_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_AUTHENTICATED_MESSAGE_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 TimeSlicedPeerDataList: TypeAlias = tuple[

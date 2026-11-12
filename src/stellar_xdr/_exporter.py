@@ -48,11 +48,7 @@ class LedgerCloseMetaBatch(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "start_sequence",
-        "end_sequence",
-        "ledger_close_metas",
-    )
+    __slots__ = ("start_sequence", "end_sequence", "ledger_close_metas")
 
     start_sequence: Uint32
     end_sequence: Uint32
@@ -144,11 +140,7 @@ class LedgerCloseMetaBatch(XdrStruct):
         fields = xdr_json.fields(
             value,
             "LedgerCloseMetaBatch",
-            (
-                "start_sequence",
-                "end_sequence",
-                "ledger_close_metas",
-            ),
+            ("start_sequence", "end_sequence", "ledger_close_metas"),
         )
         obj = new(cls)
         set_field(

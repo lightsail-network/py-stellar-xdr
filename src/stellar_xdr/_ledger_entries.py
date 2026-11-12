@@ -694,12 +694,7 @@ class AssetCode(metaclass=UnionNamespace):
             return self.asset_code4 == other.asset_code4
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AssetCode.CreditAlphanum4,
-                    self.asset_code4,
-                )
-            )
+            return hash((AssetCode.CreditAlphanum4, self.asset_code4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -740,12 +735,7 @@ class AssetCode(metaclass=UnionNamespace):
             return self.asset_code12 == other.asset_code12
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AssetCode.CreditAlphanum12,
-                    self.asset_code12,
-                )
-            )
+            return hash((AssetCode.CreditAlphanum12, self.asset_code12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -854,10 +844,7 @@ class AlphaNum4(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "asset_code",
-        "issuer",
-    )
+    __slots__ = ("asset_code", "issuer")
 
     asset_code: AssetCode4
     issuer: AccountID
@@ -880,13 +867,7 @@ class AlphaNum4(XdrStruct):
         return self.asset_code == other.asset_code and self.issuer == other.issuer
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AlphaNum4,
-                self.asset_code,
-                self.issuer,
-            )
-        )
+        return hash((AlphaNum4, self.asset_code, self.issuer))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.asset_code)
@@ -907,14 +888,7 @@ class AlphaNum4(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "AlphaNum4",
-            (
-                "asset_code",
-                "issuer",
-            ),
-        )
+        fields = xdr_json.fields(value, "AlphaNum4", ("asset_code", "issuer"))
         obj = new(cls)
         set_field(
             obj,
@@ -938,10 +912,7 @@ class AlphaNum12(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "asset_code",
-        "issuer",
-    )
+    __slots__ = ("asset_code", "issuer")
 
     asset_code: AssetCode12
     issuer: AccountID
@@ -964,13 +935,7 @@ class AlphaNum12(XdrStruct):
         return self.asset_code == other.asset_code and self.issuer == other.issuer
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AlphaNum12,
-                self.asset_code,
-                self.issuer,
-            )
-        )
+        return hash((AlphaNum12, self.asset_code, self.issuer))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.asset_code)
@@ -991,14 +956,7 @@ class AlphaNum12(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "AlphaNum12",
-            (
-                "asset_code",
-                "issuer",
-            ),
-        )
+        fields = xdr_json.fields(value, "AlphaNum12", ("asset_code", "issuer"))
         obj = new(cls)
         set_field(
             obj,
@@ -1087,12 +1045,7 @@ class Asset(metaclass=UnionNamespace):
             return self.alpha_num4 == other.alpha_num4
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    Asset.CreditAlphanum4,
-                    self.alpha_num4,
-                )
-            )
+            return hash((Asset.CreditAlphanum4, self.alpha_num4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -1139,12 +1092,7 @@ class Asset(metaclass=UnionNamespace):
             return self.alpha_num12 == other.alpha_num12
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    Asset.CreditAlphanum12,
-                    self.alpha_num12,
-                )
-            )
+            return hash((Asset.CreditAlphanum12, self.alpha_num12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -1260,10 +1208,7 @@ class Price(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "n",
-        "d",
-    )
+    __slots__ = ("n", "d")
 
     n: Int32
     d: Int32
@@ -1278,13 +1223,7 @@ class Price(XdrStruct):
         return self.n == other.n and self.d == other.d
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Price,
-                self.n,
-                self.d,
-            )
-        )
+        return hash((Price, self.n, self.d))
 
     def _encode(self, writer: Writer) -> None:
         writer.int32(self.n)
@@ -1302,14 +1241,7 @@ class Price(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "Price",
-            (
-                "n",
-                "d",
-            ),
-        )
+        fields = xdr_json.fields(value, "Price", ("n", "d"))
         obj = new(cls)
         set_field(obj, "n", xdr_json.int32(fields["n"], "Price.n"))
         set_field(obj, "d", xdr_json.int32(fields["d"], "Price.d"))
@@ -1329,10 +1261,7 @@ class Liabilities(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "buying",
-        "selling",
-    )
+    __slots__ = ("buying", "selling")
 
     buying: Int64
     selling: Int64
@@ -1347,13 +1276,7 @@ class Liabilities(XdrStruct):
         return self.buying == other.buying and self.selling == other.selling
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Liabilities,
-                self.buying,
-                self.selling,
-            )
-        )
+        return hash((Liabilities, self.buying, self.selling))
 
     def _encode(self, writer: Writer) -> None:
         writer.int64(self.buying)
@@ -1371,14 +1294,7 @@ class Liabilities(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "Liabilities",
-            (
-                "buying",
-                "selling",
-            ),
-        )
+        fields = xdr_json.fields(value, "Liabilities", ("buying", "selling"))
         obj = new(cls)
         set_field(obj, "buying", xdr_json.int64(fields["buying"], "Liabilities.buying"))
         set_field(
@@ -1400,10 +1316,7 @@ class Signer(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "key",
-        "weight",
-    )
+    __slots__ = ("key", "weight")
 
     key: SignerKey.Any
     weight: Uint32
@@ -1422,13 +1335,7 @@ class Signer(XdrStruct):
         return self.key == other.key and self.weight == other.weight
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Signer,
-                self.key,
-                self.weight,
-            )
-        )
+        return hash((Signer, self.key, self.weight))
 
     def _encode(self, writer: Writer) -> None:
         self.key._encode(writer)
@@ -1446,14 +1353,7 @@ class Signer(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "Signer",
-            (
-                "key",
-                "weight",
-            ),
-        )
+        fields = xdr_json.fields(value, "Signer", ("key", "weight"))
         obj = new(cls)
         set_field(obj, "key", SignerKey._from_json(fields["key"], ctx))
         set_field(obj, "weight", xdr_json.uint32(fields["weight"], "Signer.weight"))
@@ -1480,11 +1380,7 @@ class AccountEntryExtensionV3(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "seq_ledger",
-        "seq_time",
-    )
+    __slots__ = ("ext", "seq_ledger", "seq_time")
 
     ext: ExtensionPoint.Any
     seq_ledger: Uint32
@@ -1522,14 +1418,7 @@ class AccountEntryExtensionV3(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AccountEntryExtensionV3,
-                self.ext,
-                self.seq_ledger,
-                self.seq_time,
-            )
-        )
+        return hash((AccountEntryExtensionV3, self.ext, self.seq_ledger, self.seq_time))
 
     def _encode(self, writer: Writer) -> None:
         self.ext._encode(writer)
@@ -1554,13 +1443,7 @@ class AccountEntryExtensionV3(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "AccountEntryExtensionV3",
-            (
-                "ext",
-                "seq_ledger",
-                "seq_time",
-            ),
+            value, "AccountEntryExtensionV3", ("ext", "seq_ledger", "seq_time")
         )
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
@@ -1645,12 +1528,7 @@ class AccountEntryExtensionV2Ext(metaclass=UnionNamespace):
             return self.v3 == other.v3
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AccountEntryExtensionV2Ext.V3,
-                    self.v3,
-                )
-            )
+            return hash((AccountEntryExtensionV2Ext.V3, self.v3))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -1781,12 +1659,7 @@ class AccountEntryExtensionV2(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "num_sponsored",
-        "num_sponsoring",
-        "signer_sponsoring_i_ds",
-        "ext",
-    )
+    __slots__ = ("num_sponsored", "num_sponsoring", "signer_sponsoring_i_ds", "ext")
 
     num_sponsored: Uint32
     num_sponsoring: Uint32
@@ -1901,12 +1774,7 @@ class AccountEntryExtensionV2(XdrStruct):
         fields = xdr_json.fields(
             value,
             "AccountEntryExtensionV2",
-            (
-                "num_sponsored",
-                "num_sponsoring",
-                "signer_sponsoring_i_ds",
-                "ext",
-            ),
+            ("num_sponsored", "num_sponsoring", "signer_sponsoring_i_ds", "ext"),
         )
         obj = new(cls)
         set_field(
@@ -2010,12 +1878,7 @@ class AccountEntryExtensionV1Ext(metaclass=UnionNamespace):
             return self.v2 == other.v2
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AccountEntryExtensionV1Ext.V2,
-                    self.v2,
-                )
-            )
+            return hash((AccountEntryExtensionV1Ext.V2, self.v2))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -2144,10 +2007,7 @@ class AccountEntryExtensionV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "liabilities",
-        "ext",
-    )
+    __slots__ = ("liabilities", "ext")
 
     liabilities: Liabilities
     ext: AccountEntryExtensionV1Ext.Any
@@ -2179,13 +2039,7 @@ class AccountEntryExtensionV1(XdrStruct):
         return self.liabilities == other.liabilities and self.ext == other.ext
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                AccountEntryExtensionV1,
-                self.liabilities,
-                self.ext,
-            )
-        )
+        return hash((AccountEntryExtensionV1, self.liabilities, self.ext))
 
     def _encode(self, writer: Writer) -> None:
         self.liabilities._encode(writer)
@@ -2207,12 +2061,7 @@ class AccountEntryExtensionV1(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "AccountEntryExtensionV1",
-            (
-                "liabilities",
-                "ext",
-            ),
+            value, "AccountEntryExtensionV1", ("liabilities", "ext")
         )
         obj = new(cls)
         set_field(
@@ -2288,12 +2137,7 @@ class AccountEntryExt(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    AccountEntryExt.V1,
-                    self.v1,
-                )
-            )
+            return hash((AccountEntryExt.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -2759,12 +2603,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             return self.alpha_num4 == other.alpha_num4
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    TrustLineAsset.CreditAlphanum4,
-                    self.alpha_num4,
-                )
-            )
+            return hash((TrustLineAsset.CreditAlphanum4, self.alpha_num4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -2813,12 +2652,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             return self.alpha_num12 == other.alpha_num12
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    TrustLineAsset.CreditAlphanum12,
-                    self.alpha_num12,
-                )
-            )
+            return hash((TrustLineAsset.CreditAlphanum12, self.alpha_num12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -2865,12 +2699,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             return self.liquidity_pool_id == other.liquidity_pool_id
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    TrustLineAsset.PoolShare,
-                    self.liquidity_pool_id,
-                )
-            )
+            return hash((TrustLineAsset.PoolShare, self.liquidity_pool_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -3134,10 +2963,7 @@ class TrustLineEntryExtensionV2(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "liquidity_pool_use_count",
-        "ext",
-    )
+    __slots__ = ("liquidity_pool_use_count", "ext")
 
     liquidity_pool_use_count: Int32
     ext: TrustLineEntryExtensionV2Ext.Any
@@ -3174,11 +3000,7 @@ class TrustLineEntryExtensionV2(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                TrustLineEntryExtensionV2,
-                self.liquidity_pool_use_count,
-                self.ext,
-            )
+            (TrustLineEntryExtensionV2, self.liquidity_pool_use_count, self.ext)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -3201,12 +3023,7 @@ class TrustLineEntryExtensionV2(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "TrustLineEntryExtensionV2",
-            (
-                "liquidity_pool_use_count",
-                "ext",
-            ),
+            value, "TrustLineEntryExtensionV2", ("liquidity_pool_use_count", "ext")
         )
         obj = new(cls)
         set_field(
@@ -3291,12 +3108,7 @@ class TrustLineEntryV1Ext(metaclass=UnionNamespace):
             return self.v2 == other.v2
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    TrustLineEntryV1Ext.V2,
-                    self.v2,
-                )
-            )
+            return hash((TrustLineEntryV1Ext.V2, self.v2))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -3425,10 +3237,7 @@ class TrustLineEntryV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "liabilities",
-        "ext",
-    )
+    __slots__ = ("liabilities", "ext")
 
     liabilities: Liabilities
     ext: TrustLineEntryV1Ext.Any
@@ -3456,13 +3265,7 @@ class TrustLineEntryV1(XdrStruct):
         return self.liabilities == other.liabilities and self.ext == other.ext
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                TrustLineEntryV1,
-                self.liabilities,
-                self.ext,
-            )
-        )
+        return hash((TrustLineEntryV1, self.liabilities, self.ext))
 
     def _encode(self, writer: Writer) -> None:
         self.liabilities._encode(writer)
@@ -3483,14 +3286,7 @@ class TrustLineEntryV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "TrustLineEntryV1",
-            (
-                "liabilities",
-                "ext",
-            ),
-        )
+        fields = xdr_json.fields(value, "TrustLineEntryV1", ("liabilities", "ext"))
         obj = new(cls)
         set_field(
             obj, "liabilities", Liabilities._from_json(fields["liabilities"], ctx)
@@ -3577,12 +3373,7 @@ class TrustLineEntryExt(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    TrustLineEntryExt.V1,
-                    self.v1,
-                )
-            )
+            return hash((TrustLineEntryExt.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -3728,14 +3519,7 @@ class TrustLineEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "account_id",
-        "asset",
-        "balance",
-        "limit",
-        "flags",
-        "ext",
-    )
+    __slots__ = ("account_id", "asset", "balance", "limit", "flags", "ext")
 
     account_id: AccountID
     asset: TrustLineAsset.Any
@@ -3846,14 +3630,7 @@ class TrustLineEntry(XdrStruct):
         fields = xdr_json.fields(
             value,
             "TrustLineEntry",
-            (
-                "account_id",
-                "asset",
-                "balance",
-                "limit",
-                "flags",
-                "ext",
-            ),
+            ("account_id", "asset", "balance", "limit", "flags", "ext"),
         )
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._from_json(fields["account_id"], ctx))
@@ -4320,12 +4097,7 @@ class DataEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "account_id",
-        "data_name",
-        "data_value",
-        "ext",
-    )
+    __slots__ = ("account_id", "data_name", "data_value", "ext")
 
     account_id: AccountID
     data_name: String64
@@ -4368,13 +4140,7 @@ class DataEntry(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                DataEntry,
-                self.account_id,
-                self.data_name,
-                self.data_value,
-                self.ext,
-            )
+            (DataEntry, self.account_id, self.data_name, self.data_value, self.ext)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -4403,14 +4169,7 @@ class DataEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "DataEntry",
-            (
-                "account_id",
-                "data_name",
-                "data_value",
-                "ext",
-            ),
+            value, "DataEntry", ("account_id", "data_name", "data_value", "ext")
         )
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._from_json(fields["account_id"], ctx))
@@ -4519,12 +4278,7 @@ class ClaimPredicate(metaclass=UnionNamespace):
             return self.and_predicates == other.and_predicates
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimPredicate.And,
-                    self.and_predicates,
-                )
-            )
+            return hash((ClaimPredicate.And, self.and_predicates))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -4597,12 +4351,7 @@ class ClaimPredicate(metaclass=UnionNamespace):
             return self.or_predicates == other.or_predicates
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimPredicate.Or,
-                    self.or_predicates,
-                )
-            )
+            return hash((ClaimPredicate.Or, self.or_predicates))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -4674,12 +4423,7 @@ class ClaimPredicate(metaclass=UnionNamespace):
             return self.not_predicate == other.not_predicate
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimPredicate.Not,
-                    self.not_predicate,
-                )
-            )
+            return hash((ClaimPredicate.Not, self.not_predicate))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -4747,12 +4491,7 @@ class ClaimPredicate(metaclass=UnionNamespace):
             return self.abs_before == other.abs_before
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimPredicate.BeforeAbsoluteTime,
-                    self.abs_before,
-                )
-            )
+            return hash((ClaimPredicate.BeforeAbsoluteTime, self.abs_before))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -4806,12 +4545,7 @@ class ClaimPredicate(metaclass=UnionNamespace):
             return self.rel_before == other.rel_before
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimPredicate.BeforeRelativeTime,
-                    self.rel_before,
-                )
-            )
+            return hash((ClaimPredicate.BeforeRelativeTime, self.rel_before))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -4955,10 +4689,7 @@ class ClaimantV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "destination",
-        "predicate",
-    )
+    __slots__ = ("destination", "predicate")
 
     destination: AccountID
     predicate: ClaimPredicate.Any
@@ -4990,13 +4721,7 @@ class ClaimantV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ClaimantV0,
-                self.destination,
-                self.predicate,
-            )
-        )
+        return hash((ClaimantV0, self.destination, self.predicate))
 
     def _encode(self, writer: Writer) -> None:
         self.destination._encode(writer)
@@ -5017,14 +4742,7 @@ class ClaimantV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "ClaimantV0",
-            (
-                "destination",
-                "predicate",
-            ),
-        )
+        fields = xdr_json.fields(value, "ClaimantV0", ("destination", "predicate"))
         obj = new(cls)
         set_field(obj, "destination", PublicKey._from_json(fields["destination"], ctx))
         set_field(obj, "predicate", ClaimPredicate._from_json(fields["predicate"], ctx))
@@ -5067,12 +4785,7 @@ class Claimant(metaclass=UnionNamespace):
             return self.v0 == other.v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    Claimant.V0,
-                    self.v0,
-                )
-            )
+            return hash((Claimant.V0, self.v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -5168,7 +4881,7 @@ _CLAIMANT_CLASSES: Final = frozenset(_CLAIMANT_ARMS.values())
 _CLAIMANT_JSON_ARMS: Final[dict[str, type[Claimant.Any]]] = {
     "claimant_type_v0": Claimant.V0
 }
-_CLAIMANT_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_CLAIMANT_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 class ClaimableBalanceEntryExtensionV1Ext(metaclass=UnionNamespace):
@@ -5327,10 +5040,7 @@ class ClaimableBalanceEntryExtensionV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "flags",
-    )
+    __slots__ = ("ext", "flags")
 
     ext: ClaimableBalanceEntryExtensionV1Ext.Any
     flags: Uint32
@@ -5358,13 +5068,7 @@ class ClaimableBalanceEntryExtensionV1(XdrStruct):
         return self.ext == other.ext and self.flags == other.flags
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ClaimableBalanceEntryExtensionV1,
-                self.ext,
-                self.flags,
-            )
-        )
+        return hash((ClaimableBalanceEntryExtensionV1, self.ext, self.flags))
 
     def _encode(self, writer: Writer) -> None:
         self.ext._encode(writer)
@@ -5383,12 +5087,7 @@ class ClaimableBalanceEntryExtensionV1(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "ClaimableBalanceEntryExtensionV1",
-            (
-                "ext",
-                "flags",
-            ),
+            value, "ClaimableBalanceEntryExtensionV1", ("ext", "flags")
         )
         obj = new(cls)
         set_field(
@@ -5474,12 +5173,7 @@ class ClaimableBalanceEntryExt(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimableBalanceEntryExt.V1,
-                    self.v1,
-                )
-            )
+            return hash((ClaimableBalanceEntryExt.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -5621,13 +5315,7 @@ class ClaimableBalanceEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "balance_id",
-        "claimants",
-        "asset",
-        "amount",
-        "ext",
-    )
+    __slots__ = ("balance_id", "claimants", "asset", "amount", "ext")
 
     balance_id: ClaimableBalanceID.Any
     claimants: tuple[Claimant.Any, ...]
@@ -5742,13 +5430,7 @@ class ClaimableBalanceEntry(XdrStruct):
         fields = xdr_json.fields(
             value,
             "ClaimableBalanceEntry",
-            (
-                "balance_id",
-                "claimants",
-                "asset",
-                "amount",
-                "ext",
-            ),
+            ("balance_id", "claimants", "asset", "amount", "ext"),
         )
         obj = new(cls)
         set_field(
@@ -5789,11 +5471,7 @@ class LiquidityPoolConstantProductParameters(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "asset_a",
-        "asset_b",
-        "fee",
-    )
+    __slots__ = ("asset_a", "asset_b", "fee")
 
     asset_a: Asset.Any
     asset_b: Asset.Any
@@ -5868,11 +5546,7 @@ class LiquidityPoolConstantProductParameters(XdrStruct):
         fields = xdr_json.fields(
             value,
             "LiquidityPoolConstantProductParameters",
-            (
-                "asset_a",
-                "asset_b",
-                "fee",
-            ),
+            ("asset_a", "asset_b", "fee"),
         )
         obj = new(cls)
         set_field(obj, "asset_a", Asset._from_json(fields["asset_a"], ctx))
@@ -6110,12 +5784,7 @@ class LiquidityPoolEntryBody(metaclass=UnionNamespace):
             return self.constant_product == other.constant_product
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LiquidityPoolEntryBody.ConstantProduct,
-                    self.constant_product,
-                )
-            )
+            return hash((LiquidityPoolEntryBody.ConstantProduct, self.constant_product))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -6230,7 +5899,7 @@ _LIQUIDITY_POOL_ENTRY_BODY_CLASSES: Final = frozenset(
 _LIQUIDITY_POOL_ENTRY_BODY_JSON_ARMS: Final[
     dict[str, type[LiquidityPoolEntryBody.Any]]
 ] = {"liquidity_pool_constant_product": LiquidityPoolEntryBody.ConstantProduct}
-_LIQUIDITY_POOL_ENTRY_BODY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_LIQUIDITY_POOL_ENTRY_BODY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -6261,10 +5930,7 @@ class LiquidityPoolEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "liquidity_pool_id",
-        "body",
-    )
+    __slots__ = ("liquidity_pool_id", "body")
 
     liquidity_pool_id: PoolID
     body: LiquidityPoolEntryBody.Any
@@ -6299,13 +5965,7 @@ class LiquidityPoolEntry(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LiquidityPoolEntry,
-                self.liquidity_pool_id,
-                self.body,
-            )
-        )
+        return hash((LiquidityPoolEntry, self.liquidity_pool_id, self.body))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.liquidity_pool_id)
@@ -6327,12 +5987,7 @@ class LiquidityPoolEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "LiquidityPoolEntry",
-            (
-                "liquidity_pool_id",
-                "body",
-            ),
+            value, "LiquidityPoolEntry", ("liquidity_pool_id", "body")
         )
         obj = new(cls)
         set_field(
@@ -6362,13 +6017,7 @@ class ContractDataEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "contract",
-        "key",
-        "durability",
-        "val",
-    )
+    __slots__ = ("ext", "contract", "key", "durability", "val")
 
     ext: ExtensionPoint.Any
     contract: SCAddress.Any
@@ -6468,15 +6117,7 @@ class ContractDataEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "ContractDataEntry",
-            (
-                "ext",
-                "contract",
-                "key",
-                "durability",
-                "val",
-            ),
+            value, "ContractDataEntry", ("ext", "contract", "key", "durability", "val")
         )
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
@@ -6792,10 +6433,7 @@ class ContractCodeEntryV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "cost_inputs",
-    )
+    __slots__ = ("ext", "cost_inputs")
 
     ext: ExtensionPoint.Any
     cost_inputs: ContractCodeCostInputs
@@ -6827,13 +6465,7 @@ class ContractCodeEntryV1(XdrStruct):
         return self.ext == other.ext and self.cost_inputs == other.cost_inputs
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ContractCodeEntryV1,
-                self.ext,
-                self.cost_inputs,
-            )
-        )
+        return hash((ContractCodeEntryV1, self.ext, self.cost_inputs))
 
     def _encode(self, writer: Writer) -> None:
         self.ext._encode(writer)
@@ -6854,14 +6486,7 @@ class ContractCodeEntryV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "ContractCodeEntryV1",
-            (
-                "ext",
-                "cost_inputs",
-            ),
-        )
+        fields = xdr_json.fields(value, "ContractCodeEntryV1", ("ext", "cost_inputs"))
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
         set_field(
@@ -6942,12 +6567,7 @@ class ContractCodeEntryExt(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ContractCodeEntryExt.V1,
-                    self.v1,
-                )
-            )
+            return hash((ContractCodeEntryExt.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -7081,11 +6701,7 @@ class ContractCodeEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "hash",
-        "code",
-    )
+    __slots__ = ("ext", "hash", "code")
 
     ext: ContractCodeEntryExt.Any
     hash: Hash
@@ -7115,14 +6731,7 @@ class ContractCodeEntry(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ContractCodeEntry,
-                self.ext,
-                self.hash,
-                self.code,
-            )
-        )
+        return hash((ContractCodeEntry, self.ext, self.hash, self.code))
 
     def _encode(self, writer: Writer) -> None:
         self.ext._encode(writer)
@@ -7146,15 +6755,7 @@ class ContractCodeEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "ContractCodeEntry",
-            (
-                "ext",
-                "hash",
-                "code",
-            ),
-        )
+        fields = xdr_json.fields(value, "ContractCodeEntry", ("ext", "hash", "code"))
         obj = new(cls)
         set_field(obj, "ext", ContractCodeEntryExt._from_json(fields["ext"], ctx))
         set_field(
@@ -7183,10 +6784,7 @@ class TTLEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "key_hash",
-        "live_until_ledger_seq",
-    )
+    __slots__ = ("key_hash", "live_until_ledger_seq")
 
     key_hash: Hash
     live_until_ledger_seq: Uint32
@@ -7210,13 +6808,7 @@ class TTLEntry(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                TTLEntry,
-                self.key_hash,
-                self.live_until_ledger_seq,
-            )
-        )
+        return hash((TTLEntry, self.key_hash, self.live_until_ledger_seq))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key_hash)
@@ -7238,12 +6830,7 @@ class TTLEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "TTLEntry",
-            (
-                "key_hash",
-                "live_until_ledger_seq",
-            ),
+            value, "TTLEntry", ("key_hash", "live_until_ledger_seq")
         )
         obj = new(cls)
         set_field(
@@ -7409,10 +6996,7 @@ class LedgerEntryExtensionV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "sponsoring_id",
-        "ext",
-    )
+    __slots__ = ("sponsoring_id", "ext")
 
     sponsoring_id: SponsorshipDescriptor
     ext: LedgerEntryExtensionV1Ext.Any
@@ -7448,13 +7032,7 @@ class LedgerEntryExtensionV1(XdrStruct):
         return self.sponsoring_id == other.sponsoring_id and self.ext == other.ext
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerEntryExtensionV1,
-                self.sponsoring_id,
-                self.ext,
-            )
-        )
+        return hash((LedgerEntryExtensionV1, self.sponsoring_id, self.ext))
 
     def _encode(self, writer: Writer) -> None:
         if self.sponsoring_id is None:
@@ -7488,10 +7066,7 @@ class LedgerEntryExtensionV1(XdrStruct):
         fields = xdr_json.fields(
             value,
             "LedgerEntryExtensionV1",
-            (
-                "sponsoring_id",
-                "ext",
-            ),
+            ("sponsoring_id", "ext"),
             frozenset({"sponsoring_id"}),
         )
         obj = new(cls)
@@ -7562,12 +7137,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.account == other.account
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.Account,
-                    self.account,
-                )
-            )
+            return hash((LedgerEntryData.Account, self.account))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -7612,12 +7182,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.trust_line == other.trust_line
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.Trustline,
-                    self.trust_line,
-                )
-            )
+            return hash((LedgerEntryData.Trustline, self.trust_line))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -7660,12 +7225,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.offer == other.offer
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.Offer,
-                    self.offer,
-                )
-            )
+            return hash((LedgerEntryData.Offer, self.offer))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -7708,12 +7268,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.data == other.data
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.Data,
-                    self.data,
-                )
-            )
+            return hash((LedgerEntryData.Data, self.data))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -7762,12 +7317,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.claimable_balance == other.claimable_balance
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.ClaimableBalance,
-                    self.claimable_balance,
-                )
-            )
+            return hash((LedgerEntryData.ClaimableBalance, self.claimable_balance))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -7818,12 +7368,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.liquidity_pool == other.liquidity_pool
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.LiquidityPool,
-                    self.liquidity_pool,
-                )
-            )
+            return hash((LedgerEntryData.LiquidityPool, self.liquidity_pool))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -7872,12 +7417,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.contract_data == other.contract_data
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.ContractData,
-                    self.contract_data,
-                )
-            )
+            return hash((LedgerEntryData.ContractData, self.contract_data))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(6)
@@ -7926,12 +7466,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.contract_code == other.contract_code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.ContractCode,
-                    self.contract_code,
-                )
-            )
+            return hash((LedgerEntryData.ContractCode, self.contract_code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(7)
@@ -7981,12 +7516,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.config_setting == other.config_setting
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.ConfigSetting,
-                    self.config_setting,
-                )
-            )
+            return hash((LedgerEntryData.ConfigSetting, self.config_setting))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(8)
@@ -8027,12 +7557,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return self.ttl == other.ttl
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryData.Ttl,
-                    self.ttl,
-                )
-            )
+            return hash((LedgerEntryData.Ttl, self.ttl))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -8162,7 +7687,7 @@ _LEDGER_ENTRY_DATA_JSON_ARMS: Final[dict[str, type[LedgerEntryData.Any]]] = {
     "config_setting": LedgerEntryData.ConfigSetting,
     "ttl": LedgerEntryData.Ttl,
 }
-_LEDGER_ENTRY_DATA_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_LEDGER_ENTRY_DATA_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 class LedgerEntryExt(metaclass=UnionNamespace):
@@ -8231,12 +7756,7 @@ class LedgerEntryExt(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerEntryExt.V1,
-                    self.v1,
-                )
-            )
+            return hash((LedgerEntryExt.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -8389,11 +7909,7 @@ class LedgerEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "last_modified_ledger_seq",
-        "data",
-        "ext",
-    )
+    __slots__ = ("last_modified_ledger_seq", "data", "ext")
 
     last_modified_ledger_seq: Uint32
     data: LedgerEntryData.Any
@@ -8437,14 +7953,7 @@ class LedgerEntry(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerEntry,
-                self.last_modified_ledger_seq,
-                self.data,
-                self.ext,
-            )
-        )
+        return hash((LedgerEntry, self.last_modified_ledger_seq, self.data, self.ext))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.last_modified_ledger_seq)
@@ -8469,13 +7978,7 @@ class LedgerEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "LedgerEntry",
-            (
-                "last_modified_ledger_seq",
-                "data",
-                "ext",
-            ),
+            value, "LedgerEntry", ("last_modified_ledger_seq", "data", "ext")
         )
         obj = new(cls)
         set_field(
@@ -8525,12 +8028,7 @@ class LedgerKeyAccount(XdrStruct):
         return self.account_id == other.account_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyAccount,
-                self.account_id,
-            )
-        )
+        return hash((LedgerKeyAccount, self.account_id))
 
     def _encode(self, writer: Writer) -> None:
         self.account_id._encode(writer)
@@ -8565,10 +8063,7 @@ class LedgerKeyTrustLine(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "account_id",
-        "asset",
-    )
+    __slots__ = ("account_id", "asset")
 
     account_id: AccountID
     asset: TrustLineAsset.Any
@@ -8601,13 +8096,7 @@ class LedgerKeyTrustLine(XdrStruct):
         return self.account_id == other.account_id and self.asset == other.asset
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyTrustLine,
-                self.account_id,
-                self.asset,
-            )
-        )
+        return hash((LedgerKeyTrustLine, self.account_id, self.asset))
 
     def _encode(self, writer: Writer) -> None:
         self.account_id._encode(writer)
@@ -8628,14 +8117,7 @@ class LedgerKeyTrustLine(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "LedgerKeyTrustLine",
-            (
-                "account_id",
-                "asset",
-            ),
-        )
+        fields = xdr_json.fields(value, "LedgerKeyTrustLine", ("account_id", "asset"))
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._from_json(fields["account_id"], ctx))
         set_field(obj, "asset", TrustLineAsset._from_json(fields["asset"], ctx))
@@ -8655,10 +8137,7 @@ class LedgerKeyOffer(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "seller_id",
-        "offer_id",
-    )
+    __slots__ = ("seller_id", "offer_id")
 
     seller_id: AccountID
     offer_id: Int64
@@ -8679,13 +8158,7 @@ class LedgerKeyOffer(XdrStruct):
         return self.seller_id == other.seller_id and self.offer_id == other.offer_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyOffer,
-                self.seller_id,
-                self.offer_id,
-            )
-        )
+        return hash((LedgerKeyOffer, self.seller_id, self.offer_id))
 
     def _encode(self, writer: Writer) -> None:
         self.seller_id._encode(writer)
@@ -8706,14 +8179,7 @@ class LedgerKeyOffer(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "LedgerKeyOffer",
-            (
-                "seller_id",
-                "offer_id",
-            ),
-        )
+        fields = xdr_json.fields(value, "LedgerKeyOffer", ("seller_id", "offer_id"))
         obj = new(cls)
         set_field(obj, "seller_id", PublicKey._from_json(fields["seller_id"], ctx))
         set_field(
@@ -8737,10 +8203,7 @@ class LedgerKeyData(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "account_id",
-        "data_name",
-    )
+    __slots__ = ("account_id", "data_name")
 
     account_id: AccountID
     data_name: String64
@@ -8763,13 +8226,7 @@ class LedgerKeyData(XdrStruct):
         return self.account_id == other.account_id and self.data_name == other.data_name
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyData,
-                self.account_id,
-                self.data_name,
-            )
-        )
+        return hash((LedgerKeyData, self.account_id, self.data_name))
 
     def _encode(self, writer: Writer) -> None:
         self.account_id._encode(writer)
@@ -8790,14 +8247,7 @@ class LedgerKeyData(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "LedgerKeyData",
-            (
-                "account_id",
-                "data_name",
-            ),
-        )
+        fields = xdr_json.fields(value, "LedgerKeyData", ("account_id", "data_name"))
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._from_json(fields["account_id"], ctx))
         set_field(
@@ -8842,12 +8292,7 @@ class LedgerKeyClaimableBalance(XdrStruct):
         return self.balance_id == other.balance_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyClaimableBalance,
-                self.balance_id,
-            )
-        )
+        return hash((LedgerKeyClaimableBalance, self.balance_id))
 
     def _encode(self, writer: Writer) -> None:
         self.balance_id._encode(writer)
@@ -8902,12 +8347,7 @@ class LedgerKeyLiquidityPool(XdrStruct):
         return self.liquidity_pool_id == other.liquidity_pool_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyLiquidityPool,
-                self.liquidity_pool_id,
-            )
-        )
+        return hash((LedgerKeyLiquidityPool, self.liquidity_pool_id))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.liquidity_pool_id)
@@ -8951,11 +8391,7 @@ class LedgerKeyContractData(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "contract",
-        "key",
-        "durability",
-    )
+    __slots__ = ("contract", "key", "durability")
 
     contract: SCAddress.Any
     key: SCVal.Any
@@ -9000,14 +8436,7 @@ class LedgerKeyContractData(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyContractData,
-                self.contract,
-                self.key,
-                self.durability,
-            )
-        )
+        return hash((LedgerKeyContractData, self.contract, self.key, self.durability))
 
     def _encode(self, writer: Writer) -> None:
         self.contract._encode(writer)
@@ -9032,13 +8461,7 @@ class LedgerKeyContractData(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "LedgerKeyContractData",
-            (
-                "contract",
-                "key",
-                "durability",
-            ),
+            value, "LedgerKeyContractData", ("contract", "key", "durability")
         )
         obj = new(cls)
         set_field(obj, "contract", SCAddress._from_json(fields["contract"], ctx))
@@ -9078,12 +8501,7 @@ class LedgerKeyContractCode(XdrStruct):
         return self.hash == other.hash
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyContractCode,
-                self.hash,
-            )
-        )
+        return hash((LedgerKeyContractCode, self.hash))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.hash)
@@ -9142,12 +8560,7 @@ class LedgerKeyConfigSetting(XdrStruct):
         return self.config_setting_id == other.config_setting_id
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyConfigSetting,
-                self.config_setting_id,
-            )
-        )
+        return hash((LedgerKeyConfigSetting, self.config_setting_id))
 
     def _encode(self, writer: Writer) -> None:
         writer.int32(self.config_setting_id)
@@ -9203,12 +8616,7 @@ class LedgerKeyTtl(XdrStruct):
         return self.key_hash == other.key_hash
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                LedgerKeyTtl,
-                self.key_hash,
-            )
-        )
+        return hash((LedgerKeyTtl, self.key_hash))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key_hash)
@@ -9327,12 +8735,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.account == other.account
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.Account,
-                    self.account,
-                )
-            )
+            return hash((LedgerKey.Account, self.account))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -9377,12 +8780,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.trust_line == other.trust_line
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.Trustline,
-                    self.trust_line,
-                )
-            )
+            return hash((LedgerKey.Trustline, self.trust_line))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -9425,12 +8823,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.offer == other.offer
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.Offer,
-                    self.offer,
-                )
-            )
+            return hash((LedgerKey.Offer, self.offer))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -9471,12 +8864,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.data == other.data
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.Data,
-                    self.data,
-                )
-            )
+            return hash((LedgerKey.Data, self.data))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -9525,12 +8913,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.claimable_balance == other.claimable_balance
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.ClaimableBalance,
-                    self.claimable_balance,
-                )
-            )
+            return hash((LedgerKey.ClaimableBalance, self.claimable_balance))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -9585,12 +8968,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.liquidity_pool == other.liquidity_pool
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.LiquidityPool,
-                    self.liquidity_pool,
-                )
-            )
+            return hash((LedgerKey.LiquidityPool, self.liquidity_pool))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -9641,12 +9019,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.contract_data == other.contract_data
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.ContractData,
-                    self.contract_data,
-                )
-            )
+            return hash((LedgerKey.ContractData, self.contract_data))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(6)
@@ -9697,12 +9070,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.contract_code == other.contract_code
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.ContractCode,
-                    self.contract_code,
-                )
-            )
+            return hash((LedgerKey.ContractCode, self.contract_code))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(7)
@@ -9753,12 +9121,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.config_setting == other.config_setting
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.ConfigSetting,
-                    self.config_setting,
-                )
-            )
+            return hash((LedgerKey.ConfigSetting, self.config_setting))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(8)
@@ -9801,12 +9164,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return self.ttl == other.ttl
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    LedgerKey.Ttl,
-                    self.ttl,
-                )
-            )
+            return hash((LedgerKey.Ttl, self.ttl))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -9933,7 +9291,7 @@ _LEDGER_KEY_JSON_ARMS: Final[dict[str, type[LedgerKey.Any]]] = {
     "config_setting": LedgerKey.ConfigSetting,
     "ttl": LedgerKey.Ttl,
 }
-_LEDGER_KEY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_LEDGER_KEY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 class BucketMetadataExt(metaclass=UnionNamespace):
@@ -10006,12 +9364,7 @@ class BucketMetadataExt(metaclass=UnionNamespace):
             return self.bucket_list_type == other.bucket_list_type
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    BucketMetadataExt.V1,
-                    self.bucket_list_type,
-                )
-            )
+            return hash((BucketMetadataExt.V1, self.bucket_list_type))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -10140,10 +9493,7 @@ class BucketMetadata(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ledger_version",
-        "ext",
-    )
+    __slots__ = ("ledger_version", "ext")
 
     ledger_version: Uint32
     ext: BucketMetadataExt.Any
@@ -10171,13 +9521,7 @@ class BucketMetadata(XdrStruct):
         return self.ledger_version == other.ledger_version and self.ext == other.ext
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                BucketMetadata,
-                self.ledger_version,
-                self.ext,
-            )
-        )
+        return hash((BucketMetadata, self.ledger_version, self.ext))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.ledger_version)
@@ -10195,14 +9539,7 @@ class BucketMetadata(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "BucketMetadata",
-            (
-                "ledger_version",
-                "ext",
-            ),
-        )
+        fields = xdr_json.fields(value, "BucketMetadata", ("ledger_version", "ext"))
         obj = new(cls)
         set_field(
             obj,
@@ -10255,12 +9592,7 @@ class BucketEntry(metaclass=UnionNamespace):
             return self.live_entry == other.live_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    BucketEntry.LiveEntry,
-                    self.live_entry,
-                )
-            )
+            return hash((BucketEntry.LiveEntry, self.live_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -10305,12 +9637,7 @@ class BucketEntry(metaclass=UnionNamespace):
             return self.live_entry == other.live_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    BucketEntry.InitEntry,
-                    self.live_entry,
-                )
-            )
+            return hash((BucketEntry.InitEntry, self.live_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -10358,12 +9685,7 @@ class BucketEntry(metaclass=UnionNamespace):
             return self.dead_entry == other.dead_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    BucketEntry.DeadEntry,
-                    self.dead_entry,
-                )
-            )
+            return hash((BucketEntry.DeadEntry, self.dead_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -10408,12 +9730,7 @@ class BucketEntry(metaclass=UnionNamespace):
             return self.meta_entry == other.meta_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    BucketEntry.MetaEntry,
-                    self.meta_entry,
-                )
-            )
+            return hash((BucketEntry.MetaEntry, self.meta_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(-1)
@@ -10517,7 +9834,7 @@ _BUCKET_ENTRY_JSON_ARMS: Final[dict[str, type[BucketEntry.Any]]] = {
     "deadentry": BucketEntry.DeadEntry,
     "metaentry": BucketEntry.MetaEntry,
 }
-_BUCKET_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_BUCKET_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 class HotArchiveBucketEntry(metaclass=UnionNamespace):
@@ -10565,12 +9882,7 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
             return self.archived_entry == other.archived_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    HotArchiveBucketEntry.Archived,
-                    self.archived_entry,
-                )
-            )
+            return hash((HotArchiveBucketEntry.Archived, self.archived_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -10620,12 +9932,7 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
             return self.key == other.key
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    HotArchiveBucketEntry.Live,
-                    self.key,
-                )
-            )
+            return hash((HotArchiveBucketEntry.Live, self.key))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -10674,12 +9981,7 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
             return self.meta_entry == other.meta_entry
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    HotArchiveBucketEntry.MetaEntry,
-                    self.meta_entry,
-                )
-            )
+            return hash((HotArchiveBucketEntry.MetaEntry, self.meta_entry))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(-1)
@@ -10790,7 +10092,7 @@ _HOT_ARCHIVE_BUCKET_ENTRY_JSON_ARMS: Final[
     "live": HotArchiveBucketEntry.Live,
     "metaentry": HotArchiveBucketEntry.MetaEntry,
 }
-_HOT_ARCHIVE_BUCKET_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_HOT_ARCHIVE_BUCKET_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 SequenceNumber: TypeAlias = Int64  # typedef int64 SequenceNumber;

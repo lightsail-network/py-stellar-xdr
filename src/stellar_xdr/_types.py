@@ -378,12 +378,7 @@ class PublicKey(metaclass=UnionNamespace):
             return self.ed25519 == other.ed25519
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    PublicKey.Ed25519,
-                    self.ed25519,
-                )
-            )
+            return hash((PublicKey.Ed25519, self.ed25519))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -489,10 +484,7 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ed25519",
-        "payload",
-    )
+    __slots__ = ("ed25519", "payload")
 
     ed25519: Uint256
     payload: bytes
@@ -515,13 +507,7 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
         return self.ed25519 == other.ed25519 and self.payload == other.payload
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SignerKeyEd25519SignedPayload,
-                self.ed25519,
-                self.payload,
-            )
-        )
+        return hash((SignerKeyEd25519SignedPayload, self.ed25519, self.payload))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.ed25519)
@@ -596,12 +582,7 @@ class SignerKey(metaclass=UnionNamespace):
             return self.ed25519 == other.ed25519
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SignerKey.Ed25519,
-                    self.ed25519,
-                )
-            )
+            return hash((SignerKey.Ed25519, self.ed25519))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -640,12 +621,7 @@ class SignerKey(metaclass=UnionNamespace):
             return self.pre_auth_tx == other.pre_auth_tx
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SignerKey.PreAuthTx,
-                    self.pre_auth_tx,
-                )
-            )
+            return hash((SignerKey.PreAuthTx, self.pre_auth_tx))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -682,12 +658,7 @@ class SignerKey(metaclass=UnionNamespace):
             return self.hash_x == other.hash_x
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SignerKey.HashX,
-                    self.hash_x,
-                )
-            )
+            return hash((SignerKey.HashX, self.hash_x))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -732,12 +703,7 @@ class SignerKey(metaclass=UnionNamespace):
             return self.ed25519_signed_payload == other.ed25519_signed_payload
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SignerKey.Ed25519SignedPayload,
-                    self.ed25519_signed_payload,
-                )
-            )
+            return hash((SignerKey.Ed25519SignedPayload, self.ed25519_signed_payload))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -877,12 +843,7 @@ class Curve25519Secret(XdrStruct):
         return self.key == other.key
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Curve25519Secret,
-                self.key,
-            )
-        )
+        return hash((Curve25519Secret, self.key))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key)
@@ -931,12 +892,7 @@ class Curve25519Public(XdrStruct):
         return self.key == other.key
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                Curve25519Public,
-                self.key,
-            )
-        )
+        return hash((Curve25519Public, self.key))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key)
@@ -985,12 +941,7 @@ class HmacSha256Key(XdrStruct):
         return self.key == other.key
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                HmacSha256Key,
-                self.key,
-            )
-        )
+        return hash((HmacSha256Key, self.key))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key)
@@ -1039,12 +990,7 @@ class HmacSha256Mac(XdrStruct):
         return self.mac == other.mac
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                HmacSha256Mac,
-                self.mac,
-            )
-        )
+        return hash((HmacSha256Mac, self.mac))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.mac)
@@ -1093,12 +1039,7 @@ class ShortHashSeed(XdrStruct):
         return self.seed == other.seed
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ShortHashSeed,
-                self.seed,
-            )
-        )
+        return hash((ShortHashSeed, self.seed))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.seed)
@@ -1422,12 +1363,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
             return self.v0 == other.v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ClaimableBalanceID.V0,
-                    self.v0,
-                )
-            )
+            return hash((ClaimableBalanceID.V0, self.v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)

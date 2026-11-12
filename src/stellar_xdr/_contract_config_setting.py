@@ -585,12 +585,7 @@ class ConfigSettingContractExecutionLanesV0(XdrStruct):
         return self.ledger_max_tx_count == other.ledger_max_tx_count
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ConfigSettingContractExecutionLanesV0,
-                self.ledger_max_tx_count,
-            )
-        )
+        return hash((ConfigSettingContractExecutionLanesV0, self.ledger_max_tx_count))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.ledger_max_tx_count)
@@ -1356,10 +1351,7 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "tx_max_footprint_entries",
-        "fee_write1_kb",
-    )
+    __slots__ = ("tx_max_footprint_entries", "fee_write1_kb")
 
     tx_max_footprint_entries: Uint32
     fee_write1_kb: Int64
@@ -1420,10 +1412,7 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
         fields = xdr_json.fields(
             value,
             "ConfigSettingContractLedgerCostExtV0",
-            (
-                "tx_max_footprint_entries",
-                "fee_write1_kb",
-            ),
+            ("tx_max_footprint_entries", "fee_write1_kb"),
         )
         obj = new(cls)
         set_field(
@@ -1477,12 +1466,7 @@ class ConfigSettingContractHistoricalDataV0(XdrStruct):
         return self.fee_historical1_kb == other.fee_historical1_kb
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                ConfigSettingContractHistoricalDataV0,
-                self.fee_historical1_kb,
-            )
-        )
+        return hash((ConfigSettingContractHistoricalDataV0, self.fee_historical1_kb))
 
     def _encode(self, writer: Writer) -> None:
         writer.int64(self.fee_historical1_kb)
@@ -1528,10 +1512,7 @@ class ConfigSettingContractEventsV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "tx_max_contract_events_size_bytes",
-        "fee_contract_events1_kb",
-    )
+    __slots__ = ("tx_max_contract_events_size_bytes", "fee_contract_events1_kb")
 
     tx_max_contract_events_size_bytes: Uint32
     fee_contract_events1_kb: Int64
@@ -1596,10 +1577,7 @@ class ConfigSettingContractEventsV0(XdrStruct):
         fields = xdr_json.fields(
             value,
             "ConfigSettingContractEventsV0",
-            (
-                "tx_max_contract_events_size_bytes",
-                "fee_contract_events1_kb",
-            ),
+            ("tx_max_contract_events_size_bytes", "fee_contract_events1_kb"),
         )
         obj = new(cls)
         set_field(
@@ -1639,11 +1617,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ledger_max_txs_size_bytes",
-        "tx_max_size_bytes",
-        "fee_tx_size1_kb",
-    )
+    __slots__ = ("ledger_max_txs_size_bytes", "tx_max_size_bytes", "fee_tx_size1_kb")
 
     ledger_max_txs_size_bytes: Uint32
     tx_max_size_bytes: Uint32
@@ -1722,11 +1696,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
         fields = xdr_json.fields(
             value,
             "ConfigSettingContractBandwidthV0",
-            (
-                "ledger_max_txs_size_bytes",
-                "tx_max_size_bytes",
-                "fee_tx_size1_kb",
-            ),
+            ("ledger_max_txs_size_bytes", "tx_max_size_bytes", "fee_tx_size1_kb"),
         )
         obj = new(cls)
         set_field(
@@ -1771,11 +1741,7 @@ class ContractCostParamEntry(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ext",
-        "const_term",
-        "linear_term",
-    )
+    __slots__ = ("ext", "const_term", "linear_term")
 
     ext: ExtensionPoint.Any
     const_term: Int64
@@ -1816,12 +1782,7 @@ class ContractCostParamEntry(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                ContractCostParamEntry,
-                self.ext,
-                self.const_term,
-                self.linear_term,
-            )
+            (ContractCostParamEntry, self.ext, self.const_term, self.linear_term)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -1847,13 +1808,7 @@ class ContractCostParamEntry(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "ContractCostParamEntry",
-            (
-                "ext",
-                "const_term",
-                "linear_term",
-            ),
+            value, "ContractCostParamEntry", ("ext", "const_term", "linear_term")
         )
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
@@ -2201,11 +2156,7 @@ class EvictionIterator(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "bucket_list_level",
-        "is_curr_bucket",
-        "bucket_file_offset",
-    )
+    __slots__ = ("bucket_list_level", "is_curr_bucket", "bucket_file_offset")
 
     bucket_list_level: Uint32
     is_curr_bucket: bool
@@ -2277,11 +2228,7 @@ class EvictionIterator(XdrStruct):
         fields = xdr_json.fields(
             value,
             "EvictionIterator",
-            (
-                "bucket_list_level",
-                "is_curr_bucket",
-                "bucket_file_offset",
-            ),
+            ("bucket_list_level", "is_curr_bucket", "bucket_file_offset"),
         )
         obj = new(cls)
         set_field(
@@ -2525,12 +2472,7 @@ class FrozenLedgerKeys(XdrStruct):
         return self.keys == other.keys
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FrozenLedgerKeys,
-                self.keys,
-            )
-        )
+        return hash((FrozenLedgerKeys, self.keys))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.keys))
@@ -2578,10 +2520,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "keys_to_freeze",
-        "keys_to_unfreeze",
-    )
+    __slots__ = ("keys_to_freeze", "keys_to_unfreeze")
 
     keys_to_freeze: tuple[EncodedLedgerKey, ...]
     keys_to_unfreeze: tuple[EncodedLedgerKey, ...]
@@ -2623,13 +2562,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FrozenLedgerKeysDelta,
-                self.keys_to_freeze,
-                self.keys_to_unfreeze,
-            )
-        )
+        return hash((FrozenLedgerKeysDelta, self.keys_to_freeze, self.keys_to_unfreeze))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.keys_to_freeze))
@@ -2663,12 +2596,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "FrozenLedgerKeysDelta",
-            (
-                "keys_to_freeze",
-                "keys_to_unfreeze",
-            ),
+            value, "FrozenLedgerKeysDelta", ("keys_to_freeze", "keys_to_unfreeze")
         )
         obj = new(cls)
         set_field(
@@ -2734,12 +2662,7 @@ class FreezeBypassTxs(XdrStruct):
         return self.tx_hashes == other.tx_hashes
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FreezeBypassTxs,
-                self.tx_hashes,
-            )
-        )
+        return hash((FreezeBypassTxs, self.tx_hashes))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.tx_hashes))
@@ -2789,10 +2712,7 @@ class FreezeBypassTxsDelta(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "add_txs",
-        "remove_txs",
-    )
+    __slots__ = ("add_txs", "remove_txs")
 
     add_txs: tuple[Hash, ...]
     remove_txs: tuple[Hash, ...]
@@ -2823,13 +2743,7 @@ class FreezeBypassTxsDelta(XdrStruct):
         return self.add_txs == other.add_txs and self.remove_txs == other.remove_txs
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                FreezeBypassTxsDelta,
-                self.add_txs,
-                self.remove_txs,
-            )
-        )
+        return hash((FreezeBypassTxsDelta, self.add_txs, self.remove_txs))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.add_txs))
@@ -2863,12 +2777,7 @@ class FreezeBypassTxsDelta(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "FreezeBypassTxsDelta",
-            (
-                "add_txs",
-                "remove_txs",
-            ),
+            value, "FreezeBypassTxsDelta", ("add_txs", "remove_txs")
         )
         obj = new(cls)
         set_field(
@@ -2978,10 +2887,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    ConfigSettingEntry.ContractMaxSizeBytes,
-                    self.contract_max_size_bytes,
-                )
+                (ConfigSettingEntry.ContractMaxSizeBytes, self.contract_max_size_bytes)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -3038,12 +2944,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.contract_compute == other.contract_compute
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.ContractComputeV0,
-                    self.contract_compute,
-                )
-            )
+            return hash((ConfigSettingEntry.ContractComputeV0, self.contract_compute))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -3101,10 +3002,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    ConfigSettingEntry.ContractLedgerCostV0,
-                    self.contract_ledger_cost,
-                )
+                (ConfigSettingEntry.ContractLedgerCostV0, self.contract_ledger_cost)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -3230,12 +3128,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.contract_events == other.contract_events
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.ContractEventsV0,
-                    self.contract_events,
-                )
-            )
+            return hash((ConfigSettingEntry.ContractEventsV0, self.contract_events))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -3293,10 +3186,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    ConfigSettingEntry.ContractBandwidthV0,
-                    self.contract_bandwidth,
-                )
+                (ConfigSettingEntry.ContractBandwidthV0, self.contract_bandwidth)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -3664,10 +3554,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    ConfigSettingEntry.StateArchival,
-                    self.state_archival_settings,
-                )
+                (ConfigSettingEntry.StateArchival, self.state_archival_settings)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -3874,12 +3761,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.eviction_iterator == other.eviction_iterator
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.EvictionIterator,
-                    self.eviction_iterator,
-                )
-            )
+            return hash((ConfigSettingEntry.EvictionIterator, self.eviction_iterator))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(13)
@@ -4064,12 +3946,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.contract_scp_timing == other.contract_scp_timing
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.ScpTiming,
-                    self.contract_scp_timing,
-                )
-            )
+            return hash((ConfigSettingEntry.ScpTiming, self.contract_scp_timing))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(16)
@@ -4124,12 +4001,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.frozen_ledger_keys == other.frozen_ledger_keys
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.FrozenLedgerKeys,
-                    self.frozen_ledger_keys,
-                )
-            )
+            return hash((ConfigSettingEntry.FrozenLedgerKeys, self.frozen_ledger_keys))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(17)
@@ -4242,12 +4114,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return self.freeze_bypass_txs == other.freeze_bypass_txs
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    ConfigSettingEntry.FreezeBypassTxs,
-                    self.freeze_bypass_txs,
-                )
-            )
+            return hash((ConfigSettingEntry.FreezeBypassTxs, self.freeze_bypass_txs))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(19)
@@ -4297,10 +4164,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         def __hash__(self) -> int:
             return hash(
-                (
-                    ConfigSettingEntry.FreezeBypassTxsDelta,
-                    self.freeze_bypass_txs_delta,
-                )
+                (ConfigSettingEntry.FreezeBypassTxsDelta, self.freeze_bypass_txs_delta)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -4472,7 +4336,7 @@ _CONFIG_SETTING_ENTRY_JSON_ARMS: Final[dict[str, type[ConfigSettingEntry.Any]]] 
     "freeze_bypass_txs": ConfigSettingEntry.FreezeBypassTxs,
     "freeze_bypass_txs_delta": ConfigSettingEntry.FreezeBypassTxsDelta,
 }
-_CONFIG_SETTING_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_CONFIG_SETTING_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 ContractCostParams: TypeAlias = tuple[
