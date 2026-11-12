@@ -31,10 +31,19 @@ def test_equality_and_hashing_follow_the_fields_and_the_class() -> None:
     assert hash(xdr.SCVal.Void()) != hash(xdr.Memo.None_())
 
 
-def test_repr_shows_the_qualified_name_and_the_fields() -> None:
+def test_repr_shows_a_struct_with_its_fields() -> None:
     assert repr(xdr.UInt128Parts(1, 2)) == "UInt128Parts(hi=1, lo=2)"
-    assert repr(xdr.SCVal.Symbol("a")) == "SCVal.Symbol(sym=b'a')"
+    entry = xdr.SCMapEntry(xdr.SCVal.U32(1), xdr.SCVal.Void())
+    assert repr(entry) == "SCMapEntry(key=SCVal.U32(1), val=SCVal.Void())"
+
+
+def test_repr_shows_an_arm_with_its_value_alone() -> None:
+    assert repr(xdr.SCVal.Symbol("a")) == "SCVal.Symbol(b'a')"
     assert repr(xdr.SCVal.Void()) == "SCVal.Void()"
+    assert repr(xdr.SCVal.Vec(None)) == "SCVal.Vec(None)"
+    assert repr(xdr.SCVal.Vec([xdr.SCVal.U32(1)])) == "SCVal.Vec((SCVal.U32(1),))"
+    parts = xdr.SCVal.I128(xdr.Int128Parts(0, 1))
+    assert repr(parts) == "SCVal.I128(Int128Parts(hi=0, lo=1))"
 
 
 def test_match_with_class_patterns() -> None:
