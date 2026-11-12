@@ -29,6 +29,7 @@ _HEX: Final = re.compile(r"(?:[0-9a-fA-F]{2})*")
 _SCHEMA: Final = "$schema"
 
 _K = TypeVar("_K")
+_T = TypeVar("_T")
 _V = TypeVar("_V")
 
 
@@ -64,6 +65,26 @@ class JsonReader:
         if self.depth > self.max_depth:
             msg = f"JSON nested deeper than max_depth={self.max_depth}"
             raise XdrDepthError(msg)
+
+
+def encode_json(convert: Callable[[JsonWriter], _T], max_depth: int) -> _T:
+    """Convert to JSON, turning a too deep recursion into `XdrDepthError`."""
+    try:
+        return convert(JsonWriter(max_depth))
+    except RecursionError:
+        msg = "value nested deeper than Python's recursion limit"
+        raise XdrDepthError(msg) from None
+
+
+def decode_json(
+    convert: Callable[[object, JsonReader], _T], value: object, max_depth: int
+) -> _T:
+    """Convert from JSON, turning a too deep recursion into `XdrDepthError`."""
+    try:
+        return convert(value, JsonReader(max_depth))
+    except RecursionError:
+        msg = "JSON nested deeper than Python's recursion limit"
+        raise XdrDepthError(msg) from None
 
 
 def _fail(where: str, message: str) -> NoReturn:
