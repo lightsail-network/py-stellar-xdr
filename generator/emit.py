@@ -87,8 +87,8 @@ _PRIMITIVE_ANNOTATION: Final = {
     "hyper": "int",
     "unsigned_hyper": "int",
 }
-# The name a primitive has in the runtime: `reader`, `writer`, `check` and `xdr_json`
-# each have a function of this name for it.
+# The name a primitive has in the runtime: `reader`, `writer` and `check` each have a
+# function of this name for it, and `xdr_json` has `read_` followed by this name.
 _PRIMITIVE_NAME: Final = {
     "bool": "boolean",
     "int": "int32",
@@ -392,7 +392,7 @@ class _TypeCode:
         if isinstance(t, OpaqueFixed | OpaqueVar):
             return f"{value}.hex()"
         if isinstance(t, String):
-            return f"xdr_json.escape({value})"
+            return f"xdr_json.write_string({value})"
         if isinstance(t, Array | VarArray):
             item = f"item{depth}"
             element = self.to_json(t.element, item, depth + 1)
@@ -404,7 +404,7 @@ class _TypeCode:
     def from_json(self, t: TypeRef, value: str, where: str, depth: int = 0) -> str:
         """An expression that reads `value`, a JSON value, as SEP-51 JSON."""
         if isinstance(t, Primitive):
-            return f"xdr_json.{_PRIMITIVE_NAME[t.kind]}({value}, {where!r})"
+            return f"xdr_json.read_{_PRIMITIVE_NAME[t.kind]}({value}, {where!r})"
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
@@ -414,21 +414,21 @@ class _TypeCode:
                 return self.from_json(d.type, value, where, depth)
             return f"{self.ctx.use(t.name)}._from_json({value}, ctx)"
         if isinstance(t, OpaqueFixed):
-            return f"xdr_json.hex_fixed({value}, {where!r}, {t.size})"
+            return f"xdr_json.read_hex_fixed({value}, {where!r}, {t.size})"
         if isinstance(t, OpaqueVar):
-            return f"xdr_json.hex_var({value}, {where!r}, {t.max_size})"
+            return f"xdr_json.read_hex_var({value}, {where!r}, {t.max_size})"
         if isinstance(t, String):
-            return f"xdr_json.string({value}, {where!r}, {t.max_size})"
+            return f"xdr_json.read_string({value}, {where!r}, {t.max_size})"
         item = f"item{depth}"
         element = self.from_json(t.element, item, where, depth + 1)
         # The items are read through a function, so that an error can say which one.
         read = f"lambda {item}: {element}"
         if isinstance(t, VarArray):
-            items = f"xdr_json.array({value}, {where!r}, {t.max_count})"
-            return f"xdr_json.items({items}, {where!r}, {read})"
+            items = f"xdr_json.read_array({value}, {where!r}, {t.max_count})"
+            return f"xdr_json.read_items({items}, {where!r}, {read})"
         if isinstance(t, Array):
-            items = f"xdr_json.array_fixed({value}, {where!r}, {t.count})"
-            return f"xdr_json.items({items}, {where!r}, {read})"
+            items = f"xdr_json.read_array_fixed({value}, {where!r}, {t.count})"
+            return f"xdr_json.read_items({items}, {where!r}, {read})"
         inner = self.from_json(t.element, value, where, depth)
         return f"(None if {value} is None else {inner})"
 
@@ -862,9 +862,9 @@ class _Emitter:
         if optional:
             args += f", frozenset({{{', '.join(repr(k) for k in optional)}}})"
         if fields:
-            build = [f"fields = xdr_json.fields(value, {args})"]
+            build = [f"fields = xdr_json.read_fields(value, {args})"]
         else:
-            build = [f"xdr_json.fields(value, {args})"]
+            build = [f"xdr_json.read_fields(value, {args})"]
         build.append("obj = new(cls)")
         for (n, t), f in zip(fields, d.fields, strict=True):
             key = names.json_field_name(f.name)
@@ -1045,7 +1045,7 @@ class _Emitter:
         if d.name in self.rules.length_unions:
             return self._length_union_from_json(d, name)
         if d.name in self.rules.strkey_unions:
-            lines = [f"key = xdr_json.parse_strkey(value, {name!r})"]
+            lines = [f"key = xdr_json.read_strkey(value, {name!r})"]
             # mypy gives a variable one type, so each branch has its own variables.
             counter = itertools.count()
             for rule in self.rules.strkey_unions[d.name]:
@@ -1062,7 +1062,7 @@ class _Emitter:
                 ]
             return [*lines, f"xdr_json.wrong_strkey({name!r}, key)"]
         tables = f"{_json_arms_name(d)}, {_json_void_name(d)}"
-        read = [f"arm, payload = xdr_json.union(value, {name!r}, {tables})"]
+        read = [f"arm, payload = xdr_json.read_union(value, {name!r}, {tables})"]
         if counted:
             return [
                 "ctx.enter()",
@@ -1216,7 +1216,7 @@ class _Emitter:
             "",
             "@classmethod",
             f"def _from_json(cls, value: object, ctx: JsonReader) -> {name}:",
-            f"    return xdr_json.enum(value, {name!r}, {table}_MEMBERS)",
+            f"    return xdr_json.read_enum(value, {name!r}, {table}_MEMBERS)",
         ]
         names_ = ", ".join(
             f"{name}.{m.name}: {names.json_member_name(m.name, d)!r}" for m in d.members

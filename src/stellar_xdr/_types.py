@@ -63,7 +63,7 @@ class CryptoKeyType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> CryptoKeyType:
-        return xdr_json.enum(value, "CryptoKeyType", _CRYPTO_KEY_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "CryptoKeyType", _CRYPTO_KEY_TYPE_JSON_MEMBERS)
 
 
 _CRYPTO_KEY_TYPE_JSON_NAMES: Final[dict[CryptoKeyType, str]] = {
@@ -94,7 +94,7 @@ class PublicKeyType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> PublicKeyType:
-        return xdr_json.enum(value, "PublicKeyType", _PUBLIC_KEY_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "PublicKeyType", _PUBLIC_KEY_TYPE_JSON_MEMBERS)
 
 
 _PUBLIC_KEY_TYPE_JSON_NAMES: Final[dict[PublicKeyType, str]] = {
@@ -127,7 +127,7 @@ class SignerKeyType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SignerKeyType:
-        return xdr_json.enum(value, "SignerKeyType", _SIGNER_KEY_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SignerKeyType", _SIGNER_KEY_TYPE_JSON_MEMBERS)
 
 
 _SIGNER_KEY_TYPE_JSON_NAMES: Final[dict[SignerKeyType, str]] = {
@@ -161,7 +161,7 @@ class BinaryFuseFilterType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> BinaryFuseFilterType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "BinaryFuseFilterType", _BINARY_FUSE_FILTER_TYPE_JSON_MEMBERS
         )
 
@@ -194,7 +194,7 @@ class ClaimableBalanceIDType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ClaimableBalanceIDType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ClaimableBalanceIDType", _CLAIMABLE_BALANCE_ID_TYPE_JSON_MEMBERS
         )
 
@@ -306,7 +306,7 @@ class ExtensionPoint(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ExtensionPoint.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ExtensionPoint",
             _EXTENSION_POINT_JSON_ARMS,
@@ -391,7 +391,7 @@ class PublicKey(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.account(self.ed25519)
+            return xdr_json.write_account(self.ed25519)
 
     Any: TypeAlias = Ed25519
 
@@ -440,7 +440,7 @@ class PublicKey(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> PublicKey.Any:
-        key = xdr_json.parse_strkey(value, "PublicKey")
+        key = xdr_json.read_strkey(value, "PublicKey")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(PublicKey.Ed25519)
             set_field(arm0, "ed25519", key.key)
@@ -521,7 +521,7 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.signed_payload(self.ed25519, self.payload)
+        return xdr_json.write_signed_payload(self.ed25519, self.payload)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
@@ -595,7 +595,7 @@ class SignerKey(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.account(self.ed25519)
+            return xdr_json.write_account(self.ed25519)
 
     @final
     class PreAuthTx(XdrArm):
@@ -634,7 +634,7 @@ class SignerKey(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.pre_auth_tx(self.pre_auth_tx)
+            return xdr_json.write_pre_auth_tx(self.pre_auth_tx)
 
     @final
     class HashX(XdrArm):
@@ -671,7 +671,7 @@ class SignerKey(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.hash_x(self.hash_x)
+            return xdr_json.write_hash_x(self.hash_x)
 
     @final
     class Ed25519SignedPayload(XdrArm):
@@ -769,7 +769,7 @@ class SignerKey(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SignerKey.Any:
-        key = xdr_json.parse_strkey(value, "SignerKey")
+        key = xdr_json.read_strkey(value, "SignerKey")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(SignerKey.Ed25519)
             set_field(arm0, "ed25519", key.key)
@@ -859,10 +859,12 @@ class Curve25519Secret(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "Curve25519Secret", ("key",))
+        fields = xdr_json.read_fields(value, "Curve25519Secret", ("key",))
         obj = new(cls)
         set_field(
-            obj, "key", xdr_json.hex_fixed(fields["key"], "Curve25519Secret.key", 32)
+            obj,
+            "key",
+            xdr_json.read_hex_fixed(fields["key"], "Curve25519Secret.key", 32),
         )
         return obj
 
@@ -908,10 +910,12 @@ class Curve25519Public(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "Curve25519Public", ("key",))
+        fields = xdr_json.read_fields(value, "Curve25519Public", ("key",))
         obj = new(cls)
         set_field(
-            obj, "key", xdr_json.hex_fixed(fields["key"], "Curve25519Public.key", 32)
+            obj,
+            "key",
+            xdr_json.read_hex_fixed(fields["key"], "Curve25519Public.key", 32),
         )
         return obj
 
@@ -957,10 +961,10 @@ class HmacSha256Key(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "HmacSha256Key", ("key",))
+        fields = xdr_json.read_fields(value, "HmacSha256Key", ("key",))
         obj = new(cls)
         set_field(
-            obj, "key", xdr_json.hex_fixed(fields["key"], "HmacSha256Key.key", 32)
+            obj, "key", xdr_json.read_hex_fixed(fields["key"], "HmacSha256Key.key", 32)
         )
         return obj
 
@@ -1006,10 +1010,10 @@ class HmacSha256Mac(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "HmacSha256Mac", ("mac",))
+        fields = xdr_json.read_fields(value, "HmacSha256Mac", ("mac",))
         obj = new(cls)
         set_field(
-            obj, "mac", xdr_json.hex_fixed(fields["mac"], "HmacSha256Mac.mac", 32)
+            obj, "mac", xdr_json.read_hex_fixed(fields["mac"], "HmacSha256Mac.mac", 32)
         )
         return obj
 
@@ -1055,10 +1059,12 @@ class ShortHashSeed(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ShortHashSeed", ("seed",))
+        fields = xdr_json.read_fields(value, "ShortHashSeed", ("seed",))
         obj = new(cls)
         set_field(
-            obj, "seed", xdr_json.hex_fixed(fields["seed"], "ShortHashSeed.seed", 16)
+            obj,
+            "seed",
+            xdr_json.read_hex_fixed(fields["seed"], "ShortHashSeed.seed", 16),
         )
         return obj
 
@@ -1256,7 +1262,7 @@ class SerializedBinaryFuseFilter(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SerializedBinaryFuseFilter",
             (
@@ -1284,14 +1290,14 @@ class SerializedBinaryFuseFilter(XdrStruct):
         set_field(
             obj,
             "segment_length",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["segment_length"], "SerializedBinaryFuseFilter.segment_length"
             ),
         )
         set_field(
             obj,
             "segement_length_mask",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["segement_length_mask"],
                 "SerializedBinaryFuseFilter.segement_length_mask",
             ),
@@ -1299,14 +1305,14 @@ class SerializedBinaryFuseFilter(XdrStruct):
         set_field(
             obj,
             "segment_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["segment_count"], "SerializedBinaryFuseFilter.segment_count"
             ),
         )
         set_field(
             obj,
             "segment_count_length",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["segment_count_length"],
                 "SerializedBinaryFuseFilter.segment_count_length",
             ),
@@ -1314,7 +1320,7 @@ class SerializedBinaryFuseFilter(XdrStruct):
         set_field(
             obj,
             "fingerprint_length",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["fingerprint_length"],
                 "SerializedBinaryFuseFilter.fingerprint_length",
             ),
@@ -1322,7 +1328,7 @@ class SerializedBinaryFuseFilter(XdrStruct):
         set_field(
             obj,
             "fingerprints",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["fingerprints"], "SerializedBinaryFuseFilter.fingerprints", None
             ),
         )
@@ -1376,7 +1382,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.claimable_balance(self.v0)
+            return xdr_json.write_claimable_balance(self.v0)
 
     Any: TypeAlias = V0
 
@@ -1425,7 +1431,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ClaimableBalanceID.Any:
-        key = xdr_json.parse_strkey(value, "ClaimableBalanceID")
+        key = xdr_json.read_strkey(value, "ClaimableBalanceID")
         if isinstance(key, strkey.ClaimableBalance):
             arm0 = new(ClaimableBalanceID.V0)
             set_field(arm0, "v0", key.hash)

@@ -355,7 +355,7 @@ class ContractCostType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ContractCostType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ContractCostType", _CONTRACT_COST_TYPE_JSON_MEMBERS
         )
 
@@ -520,7 +520,9 @@ class ConfigSettingID(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ConfigSettingID:
-        return xdr_json.enum(value, "ConfigSettingID", _CONFIG_SETTING_ID_JSON_MEMBERS)
+        return xdr_json.read_enum(
+            value, "ConfigSettingID", _CONFIG_SETTING_ID_JSON_MEMBERS
+        )
 
 
 _CONFIG_SETTING_ID_JSON_NAMES: Final[dict[ConfigSettingID, str]] = {
@@ -601,14 +603,14 @@ class ConfigSettingContractExecutionLanesV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ConfigSettingContractExecutionLanesV0", ("ledger_max_tx_count",)
         )
         obj = new(cls)
         set_field(
             obj,
             "ledger_max_tx_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_tx_count"],
                 "ConfigSettingContractExecutionLanesV0.ledger_max_tx_count",
             ),
@@ -737,7 +739,7 @@ class ConfigSettingContractComputeV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractComputeV0",
             (
@@ -751,7 +753,7 @@ class ConfigSettingContractComputeV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_instructions",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["ledger_max_instructions"],
                 "ConfigSettingContractComputeV0.ledger_max_instructions",
             ),
@@ -759,7 +761,7 @@ class ConfigSettingContractComputeV0(XdrStruct):
         set_field(
             obj,
             "tx_max_instructions",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["tx_max_instructions"],
                 "ConfigSettingContractComputeV0.tx_max_instructions",
             ),
@@ -767,7 +769,7 @@ class ConfigSettingContractComputeV0(XdrStruct):
         set_field(
             obj,
             "fee_rate_per_instructions_increment",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_rate_per_instructions_increment"],
                 "ConfigSettingContractComputeV0.fee_rate_per_instructions_increment",
             ),
@@ -775,7 +777,7 @@ class ConfigSettingContractComputeV0(XdrStruct):
         set_field(
             obj,
             "tx_memory_limit",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_memory_limit"],
                 "ConfigSettingContractComputeV0.tx_memory_limit",
             ),
@@ -845,7 +847,7 @@ class ConfigSettingContractParallelComputeV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractParallelComputeV0",
             ("ledger_max_dependent_tx_clusters",),
@@ -854,7 +856,7 @@ class ConfigSettingContractParallelComputeV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_dependent_tx_clusters",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_dependent_tx_clusters"],
                 "ConfigSettingContractParallelComputeV0.ledger_max_dependent_tx_clusters",
             ),
@@ -1189,7 +1191,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractLedgerCostV0",
             (
@@ -1214,7 +1216,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_disk_read_entries",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_disk_read_entries"],
                 "ConfigSettingContractLedgerCostV0.ledger_max_disk_read_entries",
             ),
@@ -1222,7 +1224,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_disk_read_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_disk_read_bytes"],
                 "ConfigSettingContractLedgerCostV0.ledger_max_disk_read_bytes",
             ),
@@ -1230,7 +1232,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_write_ledger_entries",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_write_ledger_entries"],
                 "ConfigSettingContractLedgerCostV0.ledger_max_write_ledger_entries",
             ),
@@ -1238,7 +1240,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_write_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_write_bytes"],
                 "ConfigSettingContractLedgerCostV0.ledger_max_write_bytes",
             ),
@@ -1246,7 +1248,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "tx_max_disk_read_entries",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_disk_read_entries"],
                 "ConfigSettingContractLedgerCostV0.tx_max_disk_read_entries",
             ),
@@ -1254,7 +1256,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "tx_max_disk_read_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_disk_read_bytes"],
                 "ConfigSettingContractLedgerCostV0.tx_max_disk_read_bytes",
             ),
@@ -1262,7 +1264,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "tx_max_write_ledger_entries",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_write_ledger_entries"],
                 "ConfigSettingContractLedgerCostV0.tx_max_write_ledger_entries",
             ),
@@ -1270,7 +1272,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "tx_max_write_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_write_bytes"],
                 "ConfigSettingContractLedgerCostV0.tx_max_write_bytes",
             ),
@@ -1278,7 +1280,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "fee_disk_read_ledger_entry",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_disk_read_ledger_entry"],
                 "ConfigSettingContractLedgerCostV0.fee_disk_read_ledger_entry",
             ),
@@ -1286,7 +1288,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "fee_write_ledger_entry",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_write_ledger_entry"],
                 "ConfigSettingContractLedgerCostV0.fee_write_ledger_entry",
             ),
@@ -1294,7 +1296,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "fee_disk_read1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_disk_read1_kb"],
                 "ConfigSettingContractLedgerCostV0.fee_disk_read1_kb",
             ),
@@ -1302,7 +1304,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "soroban_state_target_size_bytes",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["soroban_state_target_size_bytes"],
                 "ConfigSettingContractLedgerCostV0.soroban_state_target_size_bytes",
             ),
@@ -1310,7 +1312,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "rent_fee1_kb_soroban_state_size_low",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["rent_fee1_kb_soroban_state_size_low"],
                 "ConfigSettingContractLedgerCostV0.rent_fee1_kb_soroban_state_size_low",
             ),
@@ -1318,7 +1320,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "rent_fee1_kb_soroban_state_size_high",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["rent_fee1_kb_soroban_state_size_high"],
                 "ConfigSettingContractLedgerCostV0.rent_fee1_kb_soroban_state_size_high",
             ),
@@ -1326,7 +1328,7 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
         set_field(
             obj,
             "soroban_state_rent_fee_growth_factor",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["soroban_state_rent_fee_growth_factor"],
                 "ConfigSettingContractLedgerCostV0.soroban_state_rent_fee_growth_factor",
             ),
@@ -1409,7 +1411,7 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractLedgerCostExtV0",
             ("tx_max_footprint_entries", "fee_write1_kb"),
@@ -1418,7 +1420,7 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
         set_field(
             obj,
             "tx_max_footprint_entries",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_footprint_entries"],
                 "ConfigSettingContractLedgerCostExtV0.tx_max_footprint_entries",
             ),
@@ -1426,7 +1428,7 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
         set_field(
             obj,
             "fee_write1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_write1_kb"],
                 "ConfigSettingContractLedgerCostExtV0.fee_write1_kb",
             ),
@@ -1482,14 +1484,14 @@ class ConfigSettingContractHistoricalDataV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ConfigSettingContractHistoricalDataV0", ("fee_historical1_kb",)
         )
         obj = new(cls)
         set_field(
             obj,
             "fee_historical1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_historical1_kb"],
                 "ConfigSettingContractHistoricalDataV0.fee_historical1_kb",
             ),
@@ -1574,7 +1576,7 @@ class ConfigSettingContractEventsV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractEventsV0",
             ("tx_max_contract_events_size_bytes", "fee_contract_events1_kb"),
@@ -1583,7 +1585,7 @@ class ConfigSettingContractEventsV0(XdrStruct):
         set_field(
             obj,
             "tx_max_contract_events_size_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_contract_events_size_bytes"],
                 "ConfigSettingContractEventsV0.tx_max_contract_events_size_bytes",
             ),
@@ -1591,7 +1593,7 @@ class ConfigSettingContractEventsV0(XdrStruct):
         set_field(
             obj,
             "fee_contract_events1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_contract_events1_kb"],
                 "ConfigSettingContractEventsV0.fee_contract_events1_kb",
             ),
@@ -1693,7 +1695,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingContractBandwidthV0",
             ("ledger_max_txs_size_bytes", "tx_max_size_bytes", "fee_tx_size1_kb"),
@@ -1702,7 +1704,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
         set_field(
             obj,
             "ledger_max_txs_size_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_max_txs_size_bytes"],
                 "ConfigSettingContractBandwidthV0.ledger_max_txs_size_bytes",
             ),
@@ -1710,7 +1712,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
         set_field(
             obj,
             "tx_max_size_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["tx_max_size_bytes"],
                 "ConfigSettingContractBandwidthV0.tx_max_size_bytes",
             ),
@@ -1718,7 +1720,7 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
         set_field(
             obj,
             "fee_tx_size1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["fee_tx_size1_kb"],
                 "ConfigSettingContractBandwidthV0.fee_tx_size1_kb",
             ),
@@ -1807,7 +1809,7 @@ class ContractCostParamEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ContractCostParamEntry", ("ext", "const_term", "linear_term")
         )
         obj = new(cls)
@@ -1815,12 +1817,16 @@ class ContractCostParamEntry(XdrStruct):
         set_field(
             obj,
             "const_term",
-            xdr_json.int64(fields["const_term"], "ContractCostParamEntry.const_term"),
+            xdr_json.read_int64(
+                fields["const_term"], "ContractCostParamEntry.const_term"
+            ),
         )
         set_field(
             obj,
             "linear_term",
-            xdr_json.int64(fields["linear_term"], "ContractCostParamEntry.linear_term"),
+            xdr_json.read_int64(
+                fields["linear_term"], "ContractCostParamEntry.linear_term"
+            ),
         )
         return obj
 
@@ -2047,7 +2053,7 @@ class StateArchivalSettings(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "StateArchivalSettings",
             (
@@ -2067,28 +2073,28 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "max_entry_ttl",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["max_entry_ttl"], "StateArchivalSettings.max_entry_ttl"
             ),
         )
         set_field(
             obj,
             "min_temporary_ttl",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["min_temporary_ttl"], "StateArchivalSettings.min_temporary_ttl"
             ),
         )
         set_field(
             obj,
             "min_persistent_ttl",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["min_persistent_ttl"], "StateArchivalSettings.min_persistent_ttl"
             ),
         )
         set_field(
             obj,
             "persistent_rent_rate_denominator",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["persistent_rent_rate_denominator"],
                 "StateArchivalSettings.persistent_rent_rate_denominator",
             ),
@@ -2096,7 +2102,7 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "temp_rent_rate_denominator",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["temp_rent_rate_denominator"],
                 "StateArchivalSettings.temp_rent_rate_denominator",
             ),
@@ -2104,7 +2110,7 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "max_entries_to_archive",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["max_entries_to_archive"],
                 "StateArchivalSettings.max_entries_to_archive",
             ),
@@ -2112,7 +2118,7 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "live_soroban_state_size_window_sample_size",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["live_soroban_state_size_window_sample_size"],
                 "StateArchivalSettings.live_soroban_state_size_window_sample_size",
             ),
@@ -2120,7 +2126,7 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "live_soroban_state_size_window_sample_period",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["live_soroban_state_size_window_sample_period"],
                 "StateArchivalSettings.live_soroban_state_size_window_sample_period",
             ),
@@ -2128,14 +2134,14 @@ class StateArchivalSettings(XdrStruct):
         set_field(
             obj,
             "eviction_scan_size",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["eviction_scan_size"], "StateArchivalSettings.eviction_scan_size"
             ),
         )
         set_field(
             obj,
             "starting_eviction_scan_level",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["starting_eviction_scan_level"],
                 "StateArchivalSettings.starting_eviction_scan_level",
             ),
@@ -2225,7 +2231,7 @@ class EvictionIterator(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "EvictionIterator",
             ("bucket_list_level", "is_curr_bucket", "bucket_file_offset"),
@@ -2234,21 +2240,21 @@ class EvictionIterator(XdrStruct):
         set_field(
             obj,
             "bucket_list_level",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["bucket_list_level"], "EvictionIterator.bucket_list_level"
             ),
         )
         set_field(
             obj,
             "is_curr_bucket",
-            xdr_json.boolean(
+            xdr_json.read_boolean(
                 fields["is_curr_bucket"], "EvictionIterator.is_curr_bucket"
             ),
         )
         set_field(
             obj,
             "bucket_file_offset",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["bucket_file_offset"], "EvictionIterator.bucket_file_offset"
             ),
         )
@@ -2389,7 +2395,7 @@ class ConfigSettingSCPTiming(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ConfigSettingSCPTiming",
             (
@@ -2404,7 +2410,7 @@ class ConfigSettingSCPTiming(XdrStruct):
         set_field(
             obj,
             "ledger_target_close_time_milliseconds",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_target_close_time_milliseconds"],
                 "ConfigSettingSCPTiming.ledger_target_close_time_milliseconds",
             ),
@@ -2412,7 +2418,7 @@ class ConfigSettingSCPTiming(XdrStruct):
         set_field(
             obj,
             "nomination_timeout_initial_milliseconds",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["nomination_timeout_initial_milliseconds"],
                 "ConfigSettingSCPTiming.nomination_timeout_initial_milliseconds",
             ),
@@ -2420,7 +2426,7 @@ class ConfigSettingSCPTiming(XdrStruct):
         set_field(
             obj,
             "nomination_timeout_increment_milliseconds",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["nomination_timeout_increment_milliseconds"],
                 "ConfigSettingSCPTiming.nomination_timeout_increment_milliseconds",
             ),
@@ -2428,7 +2434,7 @@ class ConfigSettingSCPTiming(XdrStruct):
         set_field(
             obj,
             "ballot_timeout_initial_milliseconds",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ballot_timeout_initial_milliseconds"],
                 "ConfigSettingSCPTiming.ballot_timeout_initial_milliseconds",
             ),
@@ -2436,7 +2442,7 @@ class ConfigSettingSCPTiming(XdrStruct):
         set_field(
             obj,
             "ballot_timeout_increment_milliseconds",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ballot_timeout_increment_milliseconds"],
                 "ConfigSettingSCPTiming.ballot_timeout_increment_milliseconds",
             ),
@@ -2494,15 +2500,17 @@ class FrozenLedgerKeys(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "FrozenLedgerKeys", ("keys",))
+        fields = xdr_json.read_fields(value, "FrozenLedgerKeys", ("keys",))
         obj = new(cls)
         set_field(
             obj,
             "keys",
-            xdr_json.items(
-                xdr_json.array(fields["keys"], "FrozenLedgerKeys.keys", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["keys"], "FrozenLedgerKeys.keys", None),
                 "FrozenLedgerKeys.keys",
-                lambda item0: xdr_json.hex_var(item0, "FrozenLedgerKeys.keys", None),
+                lambda item0: xdr_json.read_hex_var(
+                    item0, "FrozenLedgerKeys.keys", None
+                ),
             ),
         )
         return obj
@@ -2595,21 +2603,21 @@ class FrozenLedgerKeysDelta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "FrozenLedgerKeysDelta", ("keys_to_freeze", "keys_to_unfreeze")
         )
         obj = new(cls)
         set_field(
             obj,
             "keys_to_freeze",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["keys_to_freeze"],
                     "FrozenLedgerKeysDelta.keys_to_freeze",
                     None,
                 ),
                 "FrozenLedgerKeysDelta.keys_to_freeze",
-                lambda item0: xdr_json.hex_var(
+                lambda item0: xdr_json.read_hex_var(
                     item0, "FrozenLedgerKeysDelta.keys_to_freeze", None
                 ),
             ),
@@ -2617,14 +2625,14 @@ class FrozenLedgerKeysDelta(XdrStruct):
         set_field(
             obj,
             "keys_to_unfreeze",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["keys_to_unfreeze"],
                     "FrozenLedgerKeysDelta.keys_to_unfreeze",
                     None,
                 ),
                 "FrozenLedgerKeysDelta.keys_to_unfreeze",
-                lambda item0: xdr_json.hex_var(
+                lambda item0: xdr_json.read_hex_var(
                     item0, "FrozenLedgerKeysDelta.keys_to_unfreeze", None
                 ),
             ),
@@ -2684,15 +2692,17 @@ class FreezeBypassTxs(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "FreezeBypassTxs", ("tx_hashes",))
+        fields = xdr_json.read_fields(value, "FreezeBypassTxs", ("tx_hashes",))
         obj = new(cls)
         set_field(
             obj,
             "tx_hashes",
-            xdr_json.items(
-                xdr_json.array(fields["tx_hashes"], "FreezeBypassTxs.tx_hashes", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["tx_hashes"], "FreezeBypassTxs.tx_hashes", None
+                ),
                 "FreezeBypassTxs.tx_hashes",
-                lambda item0: xdr_json.hex_fixed(
+                lambda item0: xdr_json.read_hex_fixed(
                     item0, "FreezeBypassTxs.tx_hashes", 32
                 ),
             ),
@@ -2776,17 +2786,19 @@ class FreezeBypassTxsDelta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "FreezeBypassTxsDelta", ("add_txs", "remove_txs")
         )
         obj = new(cls)
         set_field(
             obj,
             "add_txs",
-            xdr_json.items(
-                xdr_json.array(fields["add_txs"], "FreezeBypassTxsDelta.add_txs", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["add_txs"], "FreezeBypassTxsDelta.add_txs", None
+                ),
                 "FreezeBypassTxsDelta.add_txs",
-                lambda item0: xdr_json.hex_fixed(
+                lambda item0: xdr_json.read_hex_fixed(
                     item0, "FreezeBypassTxsDelta.add_txs", 32
                 ),
             ),
@@ -2794,12 +2806,12 @@ class FreezeBypassTxsDelta(XdrStruct):
         set_field(
             obj,
             "remove_txs",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["remove_txs"], "FreezeBypassTxsDelta.remove_txs", None
                 ),
                 "FreezeBypassTxsDelta.remove_txs",
-                lambda item0: xdr_json.hex_fixed(
+                lambda item0: xdr_json.read_hex_fixed(
                     item0, "FreezeBypassTxsDelta.remove_txs", 32
                 ),
             ),
@@ -2909,7 +2921,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_max_size_bytes",
-                xdr_json.uint32(
+                xdr_json.read_uint32(
                     value,
                     "ConfigSettingEntry.ContractMaxSizeBytes.contract_max_size_bytes",
                 ),
@@ -3296,8 +3308,8 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_cpu_insns",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value,
                         "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
                         1024,
@@ -3386,8 +3398,8 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_mem_bytes",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value,
                         "ConfigSettingEntry.ContractCostParamsMemoryBytes.contract_cost_params_mem_bytes",
                         1024,
@@ -3453,7 +3465,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_data_key_size_bytes",
-                xdr_json.uint32(
+                xdr_json.read_uint32(
                     value,
                     "ConfigSettingEntry.ContractDataKeySizeBytes.contract_data_key_size_bytes",
                 ),
@@ -3518,7 +3530,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_data_entry_size_bytes",
-                xdr_json.uint32(
+                xdr_json.read_uint32(
                     value,
                     "ConfigSettingEntry.ContractDataEntrySizeBytes.contract_data_entry_size_bytes",
                 ),
@@ -3718,14 +3730,14 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "live_soroban_state_size_window",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value,
                         "ConfigSettingEntry.LiveSorobanStateSizeWindow.live_soroban_state_size_window",
                         None,
                     ),
                     "ConfigSettingEntry.LiveSorobanStateSizeWindow.live_soroban_state_size_window",
-                    lambda item0: xdr_json.uint64(
+                    lambda item0: xdr_json.read_uint64(
                         item0,
                         "ConfigSettingEntry.LiveSorobanStateSizeWindow.live_soroban_state_size_window",
                     ),
@@ -4263,7 +4275,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ConfigSettingEntry.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ConfigSettingEntry",
             _CONFIG_SETTING_ENTRY_JSON_ARMS,

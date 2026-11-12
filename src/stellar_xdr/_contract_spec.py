@@ -113,7 +113,7 @@ class SCSpecType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCSpecType:
-        return xdr_json.enum(value, "SCSpecType", _SC_SPEC_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCSpecType", _SC_SPEC_TYPE_JSON_MEMBERS)
 
 
 _SC_SPEC_TYPE_JSON_NAMES: Final[dict[SCSpecType, str]] = {
@@ -167,7 +167,7 @@ class SCSpecUDTUnionCaseV0Kind(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCSpecUDTUnionCaseV0Kind:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "SCSpecUDTUnionCaseV0Kind",
             _SC_SPEC_UDT_UNION_CASE_V0_KIND_JSON_MEMBERS,
@@ -205,7 +205,7 @@ class SCSpecEventParamLocationV0(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCSpecEventParamLocationV0:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "SCSpecEventParamLocationV0",
             _SC_SPEC_EVENT_PARAM_LOCATION_V0_JSON_MEMBERS,
@@ -245,7 +245,7 @@ class SCSpecEventDataFormat(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCSpecEventDataFormat:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "SCSpecEventDataFormat", _SC_SPEC_EVENT_DATA_FORMAT_JSON_MEMBERS
         )
 
@@ -288,7 +288,9 @@ class SCSpecEntryKind(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCSpecEntryKind:
-        return xdr_json.enum(value, "SCSpecEntryKind", _SC_SPEC_ENTRY_KIND_JSON_MEMBERS)
+        return xdr_json.read_enum(
+            value, "SCSpecEntryKind", _SC_SPEC_ENTRY_KIND_JSON_MEMBERS
+        )
 
 
 _SC_SPEC_ENTRY_KIND_JSON_NAMES: Final[dict[SCSpecEntryKind, str]] = {
@@ -354,7 +356,7 @@ class SCSpecTypeOption(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeOption", ("value_type",))
+        fields = xdr_json.read_fields(value, "SCSpecTypeOption", ("value_type",))
         obj = new(cls)
         set_field(
             obj, "value_type", SCSpecTypeDef._from_json(fields["value_type"], ctx)
@@ -431,7 +433,9 @@ class SCSpecTypeResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeResult", ("ok_type", "error_type"))
+        fields = xdr_json.read_fields(
+            value, "SCSpecTypeResult", ("ok_type", "error_type")
+        )
         obj = new(cls)
         set_field(obj, "ok_type", SCSpecTypeDef._from_json(fields["ok_type"], ctx))
         set_field(
@@ -490,7 +494,7 @@ class SCSpecTypeVec(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeVec", ("element_type",))
+        fields = xdr_json.read_fields(value, "SCSpecTypeVec", ("element_type",))
         obj = new(cls)
         set_field(
             obj, "element_type", SCSpecTypeDef._from_json(fields["element_type"], ctx)
@@ -567,7 +571,9 @@ class SCSpecTypeMap(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeMap", ("key_type", "value_type"))
+        fields = xdr_json.read_fields(
+            value, "SCSpecTypeMap", ("key_type", "value_type")
+        )
         obj = new(cls)
         set_field(obj, "key_type", SCSpecTypeDef._from_json(fields["key_type"], ctx))
         set_field(
@@ -634,13 +640,13 @@ class SCSpecTypeTuple(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeTuple", ("value_types",))
+        fields = xdr_json.read_fields(value, "SCSpecTypeTuple", ("value_types",))
         obj = new(cls)
         set_field(
             obj,
             "value_types",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["value_types"], "SCSpecTypeTuple.value_types", 12
                 ),
                 "SCSpecTypeTuple.value_types",
@@ -691,9 +697,9 @@ class SCSpecTypeBytesN(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeBytesN", ("n",))
+        fields = xdr_json.read_fields(value, "SCSpecTypeBytesN", ("n",))
         obj = new(cls)
-        set_field(obj, "n", xdr_json.uint32(fields["n"], "SCSpecTypeBytesN.n"))
+        set_field(obj, "n", xdr_json.read_uint32(fields["n"], "SCSpecTypeBytesN.n"))
         return obj
 
 
@@ -734,14 +740,16 @@ class SCSpecTypeUDT(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {"name": xdr_json.escape(self.name)}
+        return {"name": xdr_json.write_string(self.name)}
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecTypeUDT", ("name",))
+        fields = xdr_json.read_fields(value, "SCSpecTypeUDT", ("name",))
         obj = new(cls)
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecTypeUDT.name", 1024)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecTypeUDT.name", 1024),
         )
         return obj
 
@@ -1917,7 +1925,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCSpecTypeDef.Any:
         ctx.enter()
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SCSpecTypeDef",
             _SC_SPEC_TYPE_DEF_JSON_ARMS,
@@ -2090,26 +2098,26 @@ class SCSpecUDTStructFieldV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "type": self.type._to_json(ctx),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTStructFieldV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
             obj,
             "doc",
-            xdr_json.string(fields["doc"], "SCSpecUDTStructFieldV0.doc", 1024),
+            xdr_json.read_string(fields["doc"], "SCSpecUDTStructFieldV0.doc", 1024),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecUDTStructFieldV0.name", 30),
+            xdr_json.read_string(fields["name"], "SCSpecUDTStructFieldV0.name", 30),
         )
         set_field(obj, "type", SCSpecTypeDef._from_json(fields["type"], ctx))
         return obj
@@ -2200,32 +2208,36 @@ class SCSpecUDTStructV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "lib": xdr_json.escape(self.lib),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "lib": xdr_json.write_string(self.lib),
+            "name": xdr_json.write_string(self.name),
             "fields": [item0._to_json(ctx) for item0 in self.fields],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTStructV0", ("doc", "lib", "name", "fields")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTStructV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecUDTStructV0.doc", 1024),
         )
         set_field(
-            obj, "lib", xdr_json.string(fields["lib"], "SCSpecUDTStructV0.lib", 80)
+            obj, "lib", xdr_json.read_string(fields["lib"], "SCSpecUDTStructV0.lib", 80)
         )
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecUDTStructV0.name", 1024)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecUDTStructV0.name", 1024),
         )
         set_field(
             obj,
             "fields",
-            xdr_json.items(
-                xdr_json.array(fields["fields"], "SCSpecUDTStructV0.fields", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["fields"], "SCSpecUDTStructV0.fields", None),
                 "SCSpecUDTStructV0.fields",
                 lambda item0: SCSpecUDTStructFieldV0._from_json(item0, ctx),
             ),
@@ -2275,21 +2287,26 @@ class SCSpecUDTUnionCaseVoidV0(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {"doc": xdr_json.escape(self.doc), "name": xdr_json.escape(self.name)}
+        return {
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
+        }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecUDTUnionCaseVoidV0", ("doc", "name"))
+        fields = xdr_json.read_fields(
+            value, "SCSpecUDTUnionCaseVoidV0", ("doc", "name")
+        )
         obj = new(cls)
         set_field(
             obj,
             "doc",
-            xdr_json.string(fields["doc"], "SCSpecUDTUnionCaseVoidV0.doc", 1024),
+            xdr_json.read_string(fields["doc"], "SCSpecUDTUnionCaseVoidV0.doc", 1024),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecUDTUnionCaseVoidV0.name", 60),
+            xdr_json.read_string(fields["name"], "SCSpecUDTUnionCaseVoidV0.name", 60),
         )
         return obj
 
@@ -2369,32 +2386,34 @@ class SCSpecUDTUnionCaseTupleV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "type": [item0._to_json(ctx) for item0 in self.type],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTUnionCaseTupleV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
             obj,
             "doc",
-            xdr_json.string(fields["doc"], "SCSpecUDTUnionCaseTupleV0.doc", 1024),
+            xdr_json.read_string(fields["doc"], "SCSpecUDTUnionCaseTupleV0.doc", 1024),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecUDTUnionCaseTupleV0.name", 60),
+            xdr_json.read_string(fields["name"], "SCSpecUDTUnionCaseTupleV0.name", 60),
         )
         set_field(
             obj,
             "type",
-            xdr_json.items(
-                xdr_json.array(fields["type"], "SCSpecUDTUnionCaseTupleV0.type", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["type"], "SCSpecUDTUnionCaseTupleV0.type", None
+                ),
                 "SCSpecUDTUnionCaseTupleV0.type",
                 lambda item0: SCSpecTypeDef._from_json(item0, ctx),
             ),
@@ -2565,7 +2584,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCSpecUDTUnionCaseV0.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SCSpecUDTUnionCaseV0",
             _SC_SPEC_UDT_UNION_CASE_V0_JSON_ARMS,
@@ -2690,32 +2709,36 @@ class SCSpecUDTUnionV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "lib": xdr_json.escape(self.lib),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "lib": xdr_json.write_string(self.lib),
+            "name": xdr_json.write_string(self.name),
             "cases": [item0._to_json(ctx) for item0 in self.cases],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTUnionV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTUnionV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecUDTUnionV0.doc", 1024),
         )
         set_field(
-            obj, "lib", xdr_json.string(fields["lib"], "SCSpecUDTUnionV0.lib", 80)
+            obj, "lib", xdr_json.read_string(fields["lib"], "SCSpecUDTUnionV0.lib", 80)
         )
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecUDTUnionV0.name", 1024)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecUDTUnionV0.name", 1024),
         )
         set_field(
             obj,
             "cases",
-            xdr_json.items(
-                xdr_json.array(fields["cases"], "SCSpecUDTUnionV0.cases", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["cases"], "SCSpecUDTUnionV0.cases", None),
                 "SCSpecUDTUnionV0.cases",
                 lambda item0: SCSpecUDTUnionCaseV0._from_json(item0, ctx),
             ),
@@ -2775,23 +2798,31 @@ class SCSpecUDTEnumCaseV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "value": self.value,
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCSpecUDTEnumCaseV0", ("doc", "name", "value"))
+        fields = xdr_json.read_fields(
+            value, "SCSpecUDTEnumCaseV0", ("doc", "name", "value")
+        )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTEnumCaseV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecUDTEnumCaseV0.doc", 1024),
         )
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecUDTEnumCaseV0.name", 60)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecUDTEnumCaseV0.name", 60),
         )
         set_field(
-            obj, "value", xdr_json.uint32(fields["value"], "SCSpecUDTEnumCaseV0.value")
+            obj,
+            "value",
+            xdr_json.read_uint32(fields["value"], "SCSpecUDTEnumCaseV0.value"),
         )
         return obj
 
@@ -2881,30 +2912,34 @@ class SCSpecUDTEnumV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "lib": xdr_json.escape(self.lib),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "lib": xdr_json.write_string(self.lib),
+            "name": xdr_json.write_string(self.name),
             "cases": [item0._to_json(ctx) for item0 in self.cases],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTEnumV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTEnumV0.doc", 1024)
+            obj, "doc", xdr_json.read_string(fields["doc"], "SCSpecUDTEnumV0.doc", 1024)
         )
-        set_field(obj, "lib", xdr_json.string(fields["lib"], "SCSpecUDTEnumV0.lib", 80))
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecUDTEnumV0.name", 1024)
+            obj, "lib", xdr_json.read_string(fields["lib"], "SCSpecUDTEnumV0.lib", 80)
+        )
+        set_field(
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecUDTEnumV0.name", 1024),
         )
         set_field(
             obj,
             "cases",
-            xdr_json.items(
-                xdr_json.array(fields["cases"], "SCSpecUDTEnumV0.cases", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["cases"], "SCSpecUDTEnumV0.cases", None),
                 "SCSpecUDTEnumV0.cases",
                 lambda item0: SCSpecUDTEnumCaseV0._from_json(item0, ctx),
             ),
@@ -2964,31 +2999,31 @@ class SCSpecUDTErrorEnumCaseV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "value": self.value,
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTErrorEnumCaseV0", ("doc", "name", "value")
         )
         obj = new(cls)
         set_field(
             obj,
             "doc",
-            xdr_json.string(fields["doc"], "SCSpecUDTErrorEnumCaseV0.doc", 1024),
+            xdr_json.read_string(fields["doc"], "SCSpecUDTErrorEnumCaseV0.doc", 1024),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecUDTErrorEnumCaseV0.name", 60),
+            xdr_json.read_string(fields["name"], "SCSpecUDTErrorEnumCaseV0.name", 60),
         )
         set_field(
             obj,
             "value",
-            xdr_json.uint32(fields["value"], "SCSpecUDTErrorEnumCaseV0.value"),
+            xdr_json.read_uint32(fields["value"], "SCSpecUDTErrorEnumCaseV0.value"),
         )
         return obj
 
@@ -3078,34 +3113,40 @@ class SCSpecUDTErrorEnumV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "lib": xdr_json.escape(self.lib),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "lib": xdr_json.write_string(self.lib),
+            "name": xdr_json.write_string(self.name),
             "cases": [item0._to_json(ctx) for item0 in self.cases],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecUDTErrorEnumV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTErrorEnumV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecUDTErrorEnumV0.doc", 1024),
         )
         set_field(
-            obj, "lib", xdr_json.string(fields["lib"], "SCSpecUDTErrorEnumV0.lib", 80)
+            obj,
+            "lib",
+            xdr_json.read_string(fields["lib"], "SCSpecUDTErrorEnumV0.lib", 80),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecUDTErrorEnumV0.name", 1024),
+            xdr_json.read_string(fields["name"], "SCSpecUDTErrorEnumV0.name", 1024),
         )
         set_field(
             obj,
             "cases",
-            xdr_json.items(
-                xdr_json.array(fields["cases"], "SCSpecUDTErrorEnumV0.cases", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["cases"], "SCSpecUDTErrorEnumV0.cases", None
+                ),
                 "SCSpecUDTErrorEnumV0.cases",
                 lambda item0: SCSpecUDTErrorEnumCaseV0._from_json(item0, ctx),
             ),
@@ -3176,26 +3217,26 @@ class SCSpecFunctionInputV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "type": self.type._to_json(ctx),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecFunctionInputV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
             obj,
             "doc",
-            xdr_json.string(fields["doc"], "SCSpecFunctionInputV0.doc", 1024),
+            xdr_json.read_string(fields["doc"], "SCSpecFunctionInputV0.doc", 1024),
         )
         set_field(
             obj,
             "name",
-            xdr_json.string(fields["name"], "SCSpecFunctionInputV0.name", 30),
+            xdr_json.read_string(fields["name"], "SCSpecFunctionInputV0.name", 30),
         )
         set_field(obj, "type", SCSpecTypeDef._from_json(fields["type"], ctx))
         return obj
@@ -3303,29 +3344,33 @@ class SCSpecFunctionV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "inputs": [item0._to_json(ctx) for item0 in self.inputs],
             "outputs": [item0._to_json(ctx) for item0 in self.outputs],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecFunctionV0", ("doc", "name", "inputs", "outputs")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecFunctionV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecFunctionV0.doc", 1024),
         )
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecFunctionV0.name", 32)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecFunctionV0.name", 32),
         )
         set_field(
             obj,
             "inputs",
-            xdr_json.items(
-                xdr_json.array(fields["inputs"], "SCSpecFunctionV0.inputs", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["inputs"], "SCSpecFunctionV0.inputs", None),
                 "SCSpecFunctionV0.inputs",
                 lambda item0: SCSpecFunctionInputV0._from_json(item0, ctx),
             ),
@@ -3333,8 +3378,8 @@ class SCSpecFunctionV0(XdrStruct):
         set_field(
             obj,
             "outputs",
-            xdr_json.items(
-                xdr_json.array(fields["outputs"], "SCSpecFunctionV0.outputs", 1),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["outputs"], "SCSpecFunctionV0.outputs", 1),
                 "SCSpecFunctionV0.outputs",
                 lambda item0: SCSpecTypeDef._from_json(item0, ctx),
             ),
@@ -3421,23 +3466,27 @@ class SCSpecEventParamV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "name": xdr_json.escape(self.name),
+            "doc": xdr_json.write_string(self.doc),
+            "name": xdr_json.write_string(self.name),
             "type": self.type._to_json(ctx),
             "location": self.location._to_json(ctx),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCSpecEventParamV0", ("doc", "name", "type", "location")
         )
         obj = new(cls)
         set_field(
-            obj, "doc", xdr_json.string(fields["doc"], "SCSpecEventParamV0.doc", 1024)
+            obj,
+            "doc",
+            xdr_json.read_string(fields["doc"], "SCSpecEventParamV0.doc", 1024),
         )
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecEventParamV0.name", 30)
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecEventParamV0.name", 30),
         )
         set_field(obj, "type", SCSpecTypeDef._from_json(fields["type"], ctx))
         set_field(
@@ -3571,43 +3620,53 @@ class SCSpecEventV0(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "doc": xdr_json.escape(self.doc),
-            "lib": xdr_json.escape(self.lib),
-            "name": xdr_json.escape(self.name),
-            "prefix_topics": [xdr_json.escape(item0) for item0 in self.prefix_topics],
+            "doc": xdr_json.write_string(self.doc),
+            "lib": xdr_json.write_string(self.lib),
+            "name": xdr_json.write_string(self.name),
+            "prefix_topics": [
+                xdr_json.write_string(item0) for item0 in self.prefix_topics
+            ],
             "params": [item0._to_json(ctx) for item0 in self.params],
             "data_format": self.data_format._to_json(ctx),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SCSpecEventV0",
             ("doc", "lib", "name", "prefix_topics", "params", "data_format"),
         )
         obj = new(cls)
-        set_field(obj, "doc", xdr_json.string(fields["doc"], "SCSpecEventV0.doc", 1024))
-        set_field(obj, "lib", xdr_json.string(fields["lib"], "SCSpecEventV0.lib", 80))
         set_field(
-            obj, "name", xdr_json.string(fields["name"], "SCSpecEventV0.name", 1024)
+            obj, "doc", xdr_json.read_string(fields["doc"], "SCSpecEventV0.doc", 1024)
+        )
+        set_field(
+            obj, "lib", xdr_json.read_string(fields["lib"], "SCSpecEventV0.lib", 80)
+        )
+        set_field(
+            obj,
+            "name",
+            xdr_json.read_string(fields["name"], "SCSpecEventV0.name", 1024),
         )
         set_field(
             obj,
             "prefix_topics",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["prefix_topics"], "SCSpecEventV0.prefix_topics", 2
                 ),
                 "SCSpecEventV0.prefix_topics",
-                lambda item0: xdr_json.string(item0, "SCSpecEventV0.prefix_topics", 32),
+                lambda item0: xdr_json.read_string(
+                    item0, "SCSpecEventV0.prefix_topics", 32
+                ),
             ),
         )
         set_field(
             obj,
             "params",
-            xdr_json.items(
-                xdr_json.array(fields["params"], "SCSpecEventV0.params", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["params"], "SCSpecEventV0.params", None),
                 "SCSpecEventV0.params",
                 lambda item0: SCSpecEventParamV0._from_json(item0, ctx),
             ),
@@ -3979,7 +4038,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCSpecEntry.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "SCSpecEntry", _SC_SPEC_ENTRY_JSON_ARMS, _SC_SPEC_ENTRY_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)

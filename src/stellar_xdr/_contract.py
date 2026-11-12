@@ -148,7 +148,7 @@ class SCValType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCValType:
-        return xdr_json.enum(value, "SCValType", _SC_VAL_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCValType", _SC_VAL_TYPE_JSON_MEMBERS)
 
 
 _SC_VAL_TYPE_JSON_NAMES: Final[dict[SCValType, str]] = {
@@ -215,7 +215,7 @@ class SCErrorType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCErrorType:
-        return xdr_json.enum(value, "SCErrorType", _SC_ERROR_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCErrorType", _SC_ERROR_TYPE_JSON_MEMBERS)
 
 
 _SC_ERROR_TYPE_JSON_NAMES: Final[dict[SCErrorType, str]] = {
@@ -269,7 +269,7 @@ class SCErrorCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCErrorCode:
-        return xdr_json.enum(value, "SCErrorCode", _SC_ERROR_CODE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCErrorCode", _SC_ERROR_CODE_JSON_MEMBERS)
 
 
 _SC_ERROR_CODE_JSON_NAMES: Final[dict[SCErrorCode, str]] = {
@@ -309,7 +309,7 @@ class ContractExecutableType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ContractExecutableType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ContractExecutableType", _CONTRACT_EXECUTABLE_TYPE_JSON_MEMBERS
         )
 
@@ -352,7 +352,7 @@ class SCAddressType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCAddressType:
-        return xdr_json.enum(value, "SCAddressType", _SC_ADDRESS_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCAddressType", _SC_ADDRESS_TYPE_JSON_MEMBERS)
 
 
 _SC_ADDRESS_TYPE_JSON_NAMES: Final[dict[SCAddressType, str]] = {
@@ -436,7 +436,7 @@ class SCError(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_code",
-                xdr_json.uint32(value, "SCError.Contract.contract_code"),
+                xdr_json.read_uint32(value, "SCError.Contract.contract_code"),
             )
             return obj
 
@@ -867,7 +867,7 @@ class SCError(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCError.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "SCError", _SC_ERROR_JSON_ARMS, _SC_ERROR_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -959,11 +959,11 @@ class UInt128Parts(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.join128(self.hi, self.lo)
+        return xdr_json.write_int128(self.hi, self.lo)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        parts = xdr_json.uint128(value, "UInt128Parts")
+        parts = xdr_json.read_uint128(value, "UInt128Parts")
         obj = new(cls)
         set_field(obj, "hi", parts[0])
         set_field(obj, "lo", parts[1])
@@ -1011,11 +1011,11 @@ class Int128Parts(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.join128(self.hi, self.lo)
+        return xdr_json.write_int128(self.hi, self.lo)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        parts = xdr_json.int128(value, "Int128Parts")
+        parts = xdr_json.read_int128(value, "Int128Parts")
         obj = new(cls)
         set_field(obj, "hi", parts[0])
         set_field(obj, "lo", parts[1])
@@ -1080,11 +1080,11 @@ class UInt256Parts(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.join256(self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo)
+        return xdr_json.write_int256(self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        parts = xdr_json.uint256(value, "UInt256Parts")
+        parts = xdr_json.read_uint256(value, "UInt256Parts")
         obj = new(cls)
         set_field(obj, "hi_hi", parts[0])
         set_field(obj, "hi_lo", parts[1])
@@ -1151,11 +1151,11 @@ class Int256Parts(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.join256(self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo)
+        return xdr_json.write_int256(self.hi_hi, self.hi_lo, self.lo_hi, self.lo_lo)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        parts = xdr_json.int256(value, "Int256Parts")
+        parts = xdr_json.read_int256(value, "Int256Parts")
         obj = new(cls)
         set_field(obj, "hi_hi", parts[0])
         set_field(obj, "hi_lo", parts[1])
@@ -1210,7 +1210,7 @@ class MuxedEd25519Account(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.muxed_account(self.ed25519, self.id)
+        return xdr_json.write_muxed_account(self.ed25519, self.id)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
@@ -1267,7 +1267,7 @@ class MuxedContract(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.muxed_contract(self.contract_id, self.id)
+        return xdr_json.write_muxed_contract(self.contract_id, self.id)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
@@ -1381,7 +1381,7 @@ class SCAddress(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.contract(self.contract_id)
+            return xdr_json.write_contract(self.contract_id)
 
     @final
     class MuxedAccount(XdrArm):
@@ -1509,7 +1509,7 @@ class SCAddress(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.liquidity_pool(self.liquidity_pool_id)
+            return xdr_json.write_liquidity_pool(self.liquidity_pool_id)
 
     @final
     class MuxedContract(XdrArm):
@@ -1608,7 +1608,7 @@ class SCAddress(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCAddress.Any:
-        key = xdr_json.parse_strkey(value, "SCAddress")
+        key = xdr_json.read_strkey(value, "SCAddress")
         if isinstance(key, strkey.Ed25519PublicKey):
             part0 = new(PublicKey.Ed25519)
             set_field(part0, "ed25519", key.key)
@@ -1728,12 +1728,12 @@ class ContractExecutableExternalRef(XdrStruct):
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
             "executable_owner": self.executable_owner._to_json(ctx),
-            "tag": xdr_json.escape(self.tag),
+            "tag": xdr_json.write_string(self.tag),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ContractExecutableExternalRef", ("executable_owner", "tag")
         )
         obj = new(cls)
@@ -1745,7 +1745,9 @@ class ContractExecutableExternalRef(XdrStruct):
         set_field(
             obj,
             "tag",
-            xdr_json.string(fields["tag"], "ContractExecutableExternalRef.tag", None),
+            xdr_json.read_string(
+                fields["tag"], "ContractExecutableExternalRef.tag", None
+            ),
         )
         return obj
 
@@ -1811,7 +1813,7 @@ class ContractExecutable(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "wasm_hash",
-                xdr_json.hex_fixed(value, "ContractExecutable.Wasm.wasm_hash", 32),
+                xdr_json.read_hex_fixed(value, "ContractExecutable.Wasm.wasm_hash", 32),
             )
             return obj
 
@@ -1949,7 +1951,7 @@ class ContractExecutable(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ContractExecutable.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ContractExecutable",
             _CONTRACT_EXECUTABLE_JSON_ARMS,
@@ -2029,9 +2031,11 @@ class SCNonceKey(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCNonceKey", ("nonce",))
+        fields = xdr_json.read_fields(value, "SCNonceKey", ("nonce",))
         obj = new(cls)
-        set_field(obj, "nonce", xdr_json.int64(fields["nonce"], "SCNonceKey.nonce"))
+        set_field(
+            obj, "nonce", xdr_json.read_int64(fields["nonce"], "SCNonceKey.nonce")
+        )
         return obj
 
 
@@ -2125,7 +2129,7 @@ class SCContractInstance(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SCContractInstance",
             ("executable", "storage"),
@@ -2141,8 +2145,8 @@ class SCContractInstance(XdrStruct):
             (
                 None
                 if fields.get("storage") is None
-                else xdr_json.items(
-                    xdr_json.array(
+                else xdr_json.read_items(
+                    xdr_json.read_array(
                         fields.get("storage"), "SCContractInstance.storage", None
                     ),
                     "SCContractInstance.storage",
@@ -2264,7 +2268,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "b", xdr_json.boolean(value, "SCVal.Bool.b"))
+            set_field(obj, "b", xdr_json.read_boolean(value, "SCVal.Bool.b"))
             return obj
 
     @final
@@ -2391,7 +2395,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "u32", xdr_json.uint32(value, "SCVal.U32.u32"))
+            set_field(obj, "u32", xdr_json.read_uint32(value, "SCVal.U32.u32"))
             return obj
 
     @final
@@ -2435,7 +2439,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "i32", xdr_json.int32(value, "SCVal.I32.i32"))
+            set_field(obj, "i32", xdr_json.read_int32(value, "SCVal.I32.i32"))
             return obj
 
     @final
@@ -2479,7 +2483,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "u64", xdr_json.uint64(value, "SCVal.U64.u64"))
+            set_field(obj, "u64", xdr_json.read_uint64(value, "SCVal.U64.u64"))
             return obj
 
     @final
@@ -2523,7 +2527,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "i64", xdr_json.int64(value, "SCVal.I64.i64"))
+            set_field(obj, "i64", xdr_json.read_int64(value, "SCVal.I64.i64"))
             return obj
 
     @final
@@ -2570,7 +2574,9 @@ class SCVal(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "timepoint", xdr_json.uint64(value, "SCVal.Timepoint.timepoint")
+                obj,
+                "timepoint",
+                xdr_json.read_uint64(value, "SCVal.Timepoint.timepoint"),
             )
             return obj
 
@@ -2618,7 +2624,7 @@ class SCVal(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "duration", xdr_json.uint64(value, "SCVal.Duration.duration")
+                obj, "duration", xdr_json.read_uint64(value, "SCVal.Duration.duration")
             )
             return obj
 
@@ -2847,7 +2853,9 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "bytes", xdr_json.hex_var(value, "SCVal.Bytes.bytes", None))
+            set_field(
+                obj, "bytes", xdr_json.read_hex_var(value, "SCVal.Bytes.bytes", None)
+            )
             return obj
 
     @final
@@ -2884,14 +2892,14 @@ class SCVal(metaclass=UnionNamespace):
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {"string": xdr_json.escape(self.str)}
+            result = {"string": xdr_json.write_string(self.str)}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "str", xdr_json.string(value, "SCVal.String.str", None))
+            set_field(obj, "str", xdr_json.read_string(value, "SCVal.String.str", None))
             return obj
 
     @final
@@ -2928,14 +2936,14 @@ class SCVal(metaclass=UnionNamespace):
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {"symbol": xdr_json.escape(self.sym)}
+            result = {"symbol": xdr_json.write_string(self.sym)}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "sym", xdr_json.string(value, "SCVal.Symbol.sym", 32))
+            set_field(obj, "sym", xdr_json.read_string(value, "SCVal.Symbol.sym", 32))
             return obj
 
     @final
@@ -3017,8 +3025,8 @@ class SCVal(metaclass=UnionNamespace):
                 (
                     None
                     if value is None
-                    else xdr_json.items(
-                        xdr_json.array(value, "SCVal.Vec.vec", None),
+                    else xdr_json.read_items(
+                        xdr_json.read_array(value, "SCVal.Vec.vec", None),
                         "SCVal.Vec.vec",
                         lambda item0: SCVal._from_json(item0, ctx),
                     )
@@ -3104,8 +3112,8 @@ class SCVal(metaclass=UnionNamespace):
                 (
                     None
                     if value is None
-                    else xdr_json.items(
-                        xdr_json.array(value, "SCVal.Map.map", None),
+                    else xdr_json.read_items(
+                        xdr_json.read_array(value, "SCVal.Map.map", None),
                         "SCVal.Map.map",
                         lambda item0: SCMapEntry._from_json(item0, ctx),
                     )
@@ -3344,7 +3352,7 @@ class SCVal(metaclass=UnionNamespace):
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {"executable_tag": xdr_json.escape(self.executable_tag)}
+            result = {"executable_tag": xdr_json.write_string(self.executable_tag)}
             ctx.depth -= 1
             return result
 
@@ -3354,7 +3362,7 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "executable_tag",
-                xdr_json.string(value, "SCVal.ExecutableTag.executable_tag", None),
+                xdr_json.read_string(value, "SCVal.ExecutableTag.executable_tag", None),
             )
             return obj
 
@@ -3431,7 +3439,7 @@ class SCVal(metaclass=UnionNamespace):
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCVal.Any:
         ctx.enter()
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "SCVal", _SC_VAL_JSON_ARMS, _SC_VAL_JSON_VOID
         )
         result = arm._from_json_payload(payload, ctx)
@@ -3562,7 +3570,7 @@ class SCMapEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCMapEntry", ("key", "val"))
+        fields = xdr_json.read_fields(value, "SCMapEntry", ("key", "val"))
         obj = new(cls)
         set_field(obj, "key", SCVal._from_json(fields["key"], ctx))
         set_field(obj, "val", SCVal._from_json(fields["val"], ctx))

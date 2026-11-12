@@ -4,8 +4,11 @@ Values go to and come from "JSON values": what `json.loads` returns and `json.du
 accepts. Reading is as strict as binary decoding: anything that is not a valid
 SEP-51 representation raises `XdrJsonError`, which names the type and field.
 
-Every reading function takes the JSON value and a description of where it goes, such
-as `"Transaction.fee"`, followed by its own arguments.
+A function named `read_...` takes a JSON value and a description of where it goes,
+such as `"Transaction.fee"`, followed by its own arguments, and returns the XDR value. A
+function named `write_...` takes an XDR value and returns its JSON. The values that are
+written as they are, or by a method of their own, such as `bytes.hex`, have no function
+to write them.
 """
 
 import re
@@ -147,12 +150,12 @@ def _number(value: object, where: str, bounds: tuple[int, int], name: str) -> in
     return value if value.__class__ is int else int(value)
 
 
-def int32(value: object, where: str) -> int:
+def read_int32(value: object, where: str) -> int:
     """Read a signed 32-bit integer, which SEP-51 writes as a JSON number."""
     return _number(value, where, _INT32, "int32")
 
 
-def uint32(value: object, where: str) -> int:
+def read_uint32(value: object, where: str) -> int:
     """Read an unsigned 32-bit integer, which SEP-51 writes as a JSON number."""
     return _number(value, where, _UINT32, "uint32")
 
@@ -174,17 +177,17 @@ def _decimal(value: object, where: str, bounds: tuple[int, int], name: str) -> i
     return number
 
 
-def int64(value: object, where: str) -> int:
+def read_int64(value: object, where: str) -> int:
     """Read a signed 64-bit integer from a string or a number."""
     return _decimal(value, where, _INT64, "int64")
 
 
-def uint64(value: object, where: str) -> int:
+def read_uint64(value: object, where: str) -> int:
     """Read an unsigned 64-bit integer from a string or a number."""
     return _decimal(value, where, _UINT64, "uint64")
 
 
-def boolean(value: object, where: str) -> bool:
+def read_boolean(value: object, where: str) -> bool:
     """Read a boolean."""
     if not isinstance(value, bool):
         _expected(where, "a boolean", value)
@@ -202,25 +205,25 @@ def _big(value: object, where: str, bounds: tuple[int, int], name: str) -> int:
     return number
 
 
-def uint128(value: object, where: str) -> tuple[int, int]:
+def read_uint128(value: object, where: str) -> tuple[int, int]:
     """Read a `UInt128Parts`, which SEP-51 writes as one integer string: (hi, lo)."""
     number = _big(value, where, (0, 2**128 - 1), "uint128")
     return number >> 64, number & _UINT64_MASK
 
 
-def int128(value: object, where: str) -> tuple[int, int]:
+def read_int128(value: object, where: str) -> tuple[int, int]:
     """Read an `Int128Parts`, written as one integer string: (hi, lo)."""
     number = _big(value, where, (-(2**127), 2**127 - 1), "int128")
     return number >> 64, number & _UINT64_MASK
 
 
-def uint256(value: object, where: str) -> tuple[int, int, int, int]:
+def read_uint256(value: object, where: str) -> tuple[int, int, int, int]:
     """Read a `UInt256Parts`, written as one integer string: (hi_hi, ..., lo_lo)."""
     number = _big(value, where, (0, 2**256 - 1), "uint256")
     return _split256(number)
 
 
-def int256(value: object, where: str) -> tuple[int, int, int, int]:
+def read_int256(value: object, where: str) -> tuple[int, int, int, int]:
     """Read an `Int256Parts`, written as one integer string: (hi_hi, ..., lo_lo)."""
     number = _big(value, where, (-(2**255), 2**255 - 1), "int256")
     return _split256(number)
@@ -236,12 +239,12 @@ def _split256(number: int) -> tuple[int, int, int, int]:
     )
 
 
-def join128(hi: int, lo: int) -> str:
+def write_int128(hi: int, lo: int) -> str:
     """Write the parts of a 128-bit integer as one integer string."""
     return str((hi << 64) | lo)
 
 
-def join256(hi_hi: int, hi_lo: int, lo_hi: int, lo_lo: int) -> str:
+def write_int256(hi_hi: int, hi_lo: int, lo_hi: int, lo_lo: int) -> str:
     """Write the parts of a 256-bit integer as one integer string."""
     return str((hi_hi << 192) | (hi_lo << 128) | (lo_hi << 64) | lo_lo)
 
@@ -258,7 +261,7 @@ def _hex(value: object, where: str) -> bytes:
     return bytes.fromhex(value)
 
 
-def hex_fixed(value: object, where: str, size: int) -> bytes:
+def read_hex_fixed(value: object, where: str, size: int) -> bytes:
     """Read fixed-length opaque data from hex."""
     data = _hex(value, where)
     if len(data) != size:
@@ -266,7 +269,7 @@ def hex_fixed(value: object, where: str, size: int) -> bytes:
     return data
 
 
-def hex_var(value: object, where: str, max_size: int | None) -> bytes:
+def read_hex_var(value: object, where: str, max_size: int | None) -> bytes:
     """Read variable-length opaque data from hex."""
     data = _hex(value, where)
     if max_size is not None and len(data) > max_size:
@@ -278,7 +281,7 @@ _ESCAPES: Final = {0: "\\0", 9: "\\t", 10: "\\n", 13: "\\r", 92: "\\\\"}
 _UNESCAPES: Final = {"0": 0, "t": 9, "n": 10, "r": 13, "\\": 92}
 
 
-def escape(data: bytes) -> str:
+def write_string(data: bytes) -> str:
     """Write a string: printable ASCII as it is, every other byte escaped."""
     if data.isascii() and data.isalnum():
         return data.decode("ascii")
@@ -293,7 +296,7 @@ def escape(data: bytes) -> str:
     return "".join(parts)
 
 
-def unescape(value: object, where: str) -> bytes:
+def read_escaped(value: object, where: str) -> bytes:
     """Read a string, written with SEP-51 escapes.
 
     Characters outside ASCII are accepted as they are and stand for their UTF-8
@@ -331,30 +334,30 @@ def _unescape(value: str, where: str) -> bytes:
     return bytes(result)
 
 
-def string(value: object, where: str, max_size: int | None) -> bytes:
+def read_string(value: object, where: str, max_size: int | None) -> bytes:
     """Read a string and check its length in bytes."""
-    data = unescape(value, where)
+    data = read_escaped(value, where)
     if max_size is not None and len(data) > max_size:
         _fail(where, f"expected at most {max_size} bytes, got {len(data)}")
     return data
 
 
-def asset_code4(code: bytes) -> str:
+def write_asset_code4(code: bytes) -> str:
     """Write an `AssetCode4`: the code without its trailing zero bytes."""
-    return escape(code.rstrip(b"\0"))
+    return write_string(code.rstrip(b"\0"))
 
 
-def asset_code12(code: bytes) -> str:
+def write_asset_code12(code: bytes) -> str:
     """Write an `AssetCode12`: trailing zero bytes removed, but at least 5 bytes.
 
     Keeping 5 bytes tells it apart from an `AssetCode4`.
     """
-    return escape(code.rstrip(b"\0").ljust(_ASSET_CODE4_SIZE + 1, b"\0"))
+    return write_string(code.rstrip(b"\0").ljust(_ASSET_CODE4_SIZE + 1, b"\0"))
 
 
 def read_asset_code4(value: object, where: str) -> bytes:
     """Read an `AssetCode4`: at most 4 bytes, padded with zero bytes."""
-    data = unescape(value, where)
+    data = read_escaped(value, where)
     if len(data) > _ASSET_CODE4_SIZE:
         _fail(where, f"expected at most 4 bytes, got {len(data)}")
     return data.ljust(_ASSET_CODE4_SIZE, b"\0")
@@ -362,7 +365,7 @@ def read_asset_code4(value: object, where: str) -> bytes:
 
 def read_asset_code12(value: object, where: str) -> bytes:
     """Read an `AssetCode12`: 5 to 12 bytes, padded with zero bytes."""
-    data = unescape(value, where)
+    data = read_escaped(value, where)
     if not _ASSET_CODE4_SIZE < len(data) <= _ASSET_CODE12_SIZE:
         _fail(where, f"expected 5 to 12 bytes, got {len(data)}")
     return data.ljust(_ASSET_CODE12_SIZE, b"\0")
@@ -374,7 +377,7 @@ def read_asset_code(value: object, where: str) -> bytes:
     Up to 4 bytes is an `AssetCode4`, which may be empty when its code is all zero
     bytes; 5 to 12 bytes is an `AssetCode12`.
     """
-    data = unescape(value, where)
+    data = read_escaped(value, where)
     if len(data) > _ASSET_CODE12_SIZE:
         _fail(where, f"expected at most 12 bytes, got {len(data)}")
     return data
@@ -383,7 +386,7 @@ def read_asset_code(value: object, where: str) -> bytes:
 # --- Containers -----------------------------------------------------------------
 
 
-def array(value: object, where: str, max_count: int | None) -> list[object]:
+def read_array(value: object, where: str, max_count: int | None) -> list[object]:
     """Read a variable-length array."""
     if not isinstance(value, list):
         _expected(where, "an array", value)
@@ -393,7 +396,7 @@ def array(value: object, where: str, max_count: int | None) -> list[object]:
     return items
 
 
-def items(
+def read_items(
     values: list[object], where: str, read: Callable[[object], _V]
 ) -> tuple[_V, ...]:
     """Read the items of an array, saying which item is wrong if one is."""
@@ -407,15 +410,15 @@ def items(
     return tuple(result)
 
 
-def array_fixed(value: object, where: str, count: int) -> list[object]:
+def read_array_fixed(value: object, where: str, count: int) -> list[object]:
     """Read a fixed-length array."""
-    items = array(value, where, None)
+    items = read_array(value, where, None)
     if len(items) != count:
         _fail(where, f"expected {count} items, got {len(items)}")
     return items
 
 
-def fields(
+def read_fields(
     value: object,
     where: str,
     names: tuple[str, ...],
@@ -440,7 +443,7 @@ def fields(
     return obj
 
 
-def union(
+def read_union(
     value: object, where: str, arms: Mapping[str, _V], void: frozenset[str]
 ) -> tuple[_V, object]:
     """Read a union: the name of a void arm, or an object with one key.
@@ -469,7 +472,7 @@ def union(
     return arms[key], payload
 
 
-def enum(value: object, where: str, members: Mapping[str, _V]) -> _V:
+def read_enum(value: object, where: str, members: Mapping[str, _V]) -> _V:
     """Read an enum member from its name."""
     if not isinstance(value, str):
         _expected(where, "a string", value)
@@ -487,7 +490,7 @@ def inverse(names: Mapping[_K, str]) -> dict[str, _K]:
 # --- Strkeys --------------------------------------------------------------------
 
 
-def parse_strkey(value: object, where: str) -> strkey.Strkey:
+def read_strkey(value: object, where: str) -> strkey.Strkey:
     """Read any strkey."""
     if not isinstance(value, str):
         _expected(where, "a strkey string", value)
@@ -502,47 +505,47 @@ def wrong_strkey(where: str, key: strkey.Strkey) -> NoReturn:
     _fail(where, f"a {type(key).__name__} strkey is not allowed here")
 
 
-def account(key: bytes) -> str:
+def write_account(key: bytes) -> str:
     """Write an ed25519 public key as a G... strkey."""
     return str(strkey.Ed25519PublicKey(key))
 
 
-def muxed_account(key: bytes, id_: int) -> str:
+def write_muxed_account(key: bytes, id_: int) -> str:
     """Write a muxed account as an M... strkey."""
     return str(strkey.MuxedEd25519Account(key, id_))
 
 
-def contract(hash_: bytes) -> str:
+def write_contract(hash_: bytes) -> str:
     """Write a contract ID as a C... strkey."""
     return str(strkey.Contract(hash_))
 
 
-def muxed_contract(hash_: bytes, id_: int) -> str:
+def write_muxed_contract(hash_: bytes, id_: int) -> str:
     """Write a muxed contract as a W... strkey."""
     return str(strkey.MuxedContract(hash_, id_))
 
 
-def liquidity_pool(hash_: bytes) -> str:
+def write_liquidity_pool(hash_: bytes) -> str:
     """Write a liquidity pool ID as an L... strkey."""
     return str(strkey.LiquidityPool(hash_))
 
 
-def claimable_balance(hash_: bytes) -> str:
+def write_claimable_balance(hash_: bytes) -> str:
     """Write a claimable balance ID as a B... strkey."""
     return str(strkey.ClaimableBalance(hash_))
 
 
-def pre_auth_tx(hash_: bytes) -> str:
+def write_pre_auth_tx(hash_: bytes) -> str:
     """Write a pre-authorized transaction signer as a T... strkey."""
     return str(strkey.PreAuthTx(hash_))
 
 
-def hash_x(hash_: bytes) -> str:
+def write_hash_x(hash_: bytes) -> str:
     """Write a hash(x) signer as an X... strkey."""
     return str(strkey.HashX(hash_))
 
 
-def signed_payload(key: bytes, payload: bytes) -> str:
+def write_signed_payload(key: bytes, payload: bytes) -> str:
     """Write a signed payload signer as a P... strkey.
 
     XDR allows an empty payload, but a strkey needs 1 to 64 bytes, so such a value has
@@ -557,7 +560,7 @@ def signed_payload(key: bytes, payload: bytes) -> str:
 
 def read_contract(value: object, where: str) -> bytes:
     """Read a C... strkey."""
-    key = parse_strkey(value, where)
+    key = read_strkey(value, where)
     if not isinstance(key, strkey.Contract):
         wrong_strkey(where, key)
     return key.hash
@@ -565,7 +568,7 @@ def read_contract(value: object, where: str) -> bytes:
 
 def read_liquidity_pool(value: object, where: str) -> bytes:
     """Read an L... strkey."""
-    key = parse_strkey(value, where)
+    key = read_strkey(value, where)
     if not isinstance(key, strkey.LiquidityPool):
         wrong_strkey(where, key)
     return key.hash
@@ -573,7 +576,7 @@ def read_liquidity_pool(value: object, where: str) -> bytes:
 
 def read_muxed_account(value: object, where: str) -> tuple[bytes, int]:
     """Read an M... strkey: (key, id)."""
-    key = parse_strkey(value, where)
+    key = read_strkey(value, where)
     if not isinstance(key, strkey.MuxedEd25519Account):
         wrong_strkey(where, key)
     return key.key, key.id
@@ -581,7 +584,7 @@ def read_muxed_account(value: object, where: str) -> tuple[bytes, int]:
 
 def read_muxed_contract(value: object, where: str) -> tuple[bytes, int]:
     """Read a W... strkey: (hash, id)."""
-    key = parse_strkey(value, where)
+    key = read_strkey(value, where)
     if not isinstance(key, strkey.MuxedContract):
         wrong_strkey(where, key)
     return key.hash, key.id
@@ -589,7 +592,7 @@ def read_muxed_contract(value: object, where: str) -> tuple[bytes, int]:
 
 def read_signed_payload(value: object, where: str) -> tuple[bytes, bytes]:
     """Read a P... strkey: (key, payload)."""
-    key = parse_strkey(value, where)
+    key = read_strkey(value, where)
     if not isinstance(key, strkey.Ed25519SignedPayload):
         wrong_strkey(where, key)
     return key.key, key.payload

@@ -85,7 +85,7 @@ class ErrorCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ErrorCode:
-        return xdr_json.enum(value, "ErrorCode", _ERROR_CODE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "ErrorCode", _ERROR_CODE_JSON_MEMBERS)
 
 
 _ERROR_CODE_JSON_NAMES: Final[dict[ErrorCode, str]] = {
@@ -118,7 +118,7 @@ class IPAddrType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> IPAddrType:
-        return xdr_json.enum(value, "IPAddrType", _IP_ADDR_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "IPAddrType", _IP_ADDR_TYPE_JSON_MEMBERS)
 
 
 _IP_ADDR_TYPE_JSON_NAMES: Final[dict[IPAddrType, str]] = {
@@ -200,7 +200,7 @@ class MessageType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> MessageType:
-        return xdr_json.enum(value, "MessageType", _MESSAGE_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "MessageType", _MESSAGE_TYPE_JSON_MEMBERS)
 
 
 _MESSAGE_TYPE_JSON_NAMES: Final[dict[MessageType, str]] = {
@@ -247,7 +247,7 @@ class SurveyMessageCommandType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SurveyMessageCommandType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "SurveyMessageCommandType", _SURVEY_MESSAGE_COMMAND_TYPE_JSON_MEMBERS
         )
 
@@ -278,7 +278,7 @@ class SurveyMessageResponseType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SurveyMessageResponseType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "SurveyMessageResponseType",
             _SURVEY_MESSAGE_RESPONSE_TYPE_JSON_MEMBERS,
@@ -340,14 +340,14 @@ class Error(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {"code": self.code._to_json(ctx), "msg": xdr_json.escape(self.msg)}
+        return {"code": self.code._to_json(ctx), "msg": xdr_json.write_string(self.msg)}
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "Error", ("code", "msg"))
+        fields = xdr_json.read_fields(value, "Error", ("code", "msg"))
         obj = new(cls)
         set_field(obj, "code", ErrorCode._from_json(fields["code"], ctx))
-        set_field(obj, "msg", xdr_json.string(fields["msg"], "Error.msg", 100))
+        set_field(obj, "msg", xdr_json.read_string(fields["msg"], "Error.msg", 100))
         return obj
 
 
@@ -394,12 +394,12 @@ class SendMore(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SendMore", ("num_messages",))
+        fields = xdr_json.read_fields(value, "SendMore", ("num_messages",))
         obj = new(cls)
         set_field(
             obj,
             "num_messages",
-            xdr_json.uint32(fields["num_messages"], "SendMore.num_messages"),
+            xdr_json.read_uint32(fields["num_messages"], "SendMore.num_messages"),
         )
         return obj
 
@@ -459,19 +459,21 @@ class SendMoreExtended(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SendMoreExtended", ("num_messages", "num_bytes")
         )
         obj = new(cls)
         set_field(
             obj,
             "num_messages",
-            xdr_json.uint32(fields["num_messages"], "SendMoreExtended.num_messages"),
+            xdr_json.read_uint32(
+                fields["num_messages"], "SendMoreExtended.num_messages"
+            ),
         )
         set_field(
             obj,
             "num_bytes",
-            xdr_json.uint32(fields["num_bytes"], "SendMoreExtended.num_bytes"),
+            xdr_json.read_uint32(fields["num_bytes"], "SendMoreExtended.num_bytes"),
         )
         return obj
 
@@ -539,15 +541,17 @@ class AuthCert(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "AuthCert", ("pubkey", "expiration", "sig"))
+        fields = xdr_json.read_fields(
+            value, "AuthCert", ("pubkey", "expiration", "sig")
+        )
         obj = new(cls)
         set_field(obj, "pubkey", Curve25519Public._from_json(fields["pubkey"], ctx))
         set_field(
             obj,
             "expiration",
-            xdr_json.uint64(fields["expiration"], "AuthCert.expiration"),
+            xdr_json.read_uint64(fields["expiration"], "AuthCert.expiration"),
         )
-        set_field(obj, "sig", xdr_json.hex_var(fields["sig"], "AuthCert.sig", 64))
+        set_field(obj, "sig", xdr_json.read_hex_var(fields["sig"], "AuthCert.sig", 64))
         return obj
 
 
@@ -697,7 +701,7 @@ class Hello(XdrStruct):
             "overlay_version": self.overlay_version,
             "overlay_min_version": self.overlay_min_version,
             "network_id": self.network_id.hex(),
-            "version_str": xdr_json.escape(self.version_str),
+            "version_str": xdr_json.write_string(self.version_str),
             "listening_port": self.listening_port,
             "peer_id": self.peer_id._to_json(ctx),
             "cert": self.cert._to_json(ctx),
@@ -706,7 +710,7 @@ class Hello(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "Hello",
             (
@@ -725,36 +729,40 @@ class Hello(XdrStruct):
         set_field(
             obj,
             "ledger_version",
-            xdr_json.uint32(fields["ledger_version"], "Hello.ledger_version"),
+            xdr_json.read_uint32(fields["ledger_version"], "Hello.ledger_version"),
         )
         set_field(
             obj,
             "overlay_version",
-            xdr_json.uint32(fields["overlay_version"], "Hello.overlay_version"),
+            xdr_json.read_uint32(fields["overlay_version"], "Hello.overlay_version"),
         )
         set_field(
             obj,
             "overlay_min_version",
-            xdr_json.uint32(fields["overlay_min_version"], "Hello.overlay_min_version"),
+            xdr_json.read_uint32(
+                fields["overlay_min_version"], "Hello.overlay_min_version"
+            ),
         )
         set_field(
             obj,
             "network_id",
-            xdr_json.hex_fixed(fields["network_id"], "Hello.network_id", 32),
+            xdr_json.read_hex_fixed(fields["network_id"], "Hello.network_id", 32),
         )
         set_field(
             obj,
             "version_str",
-            xdr_json.string(fields["version_str"], "Hello.version_str", 100),
+            xdr_json.read_string(fields["version_str"], "Hello.version_str", 100),
         )
         set_field(
             obj,
             "listening_port",
-            xdr_json.int32(fields["listening_port"], "Hello.listening_port"),
+            xdr_json.read_int32(fields["listening_port"], "Hello.listening_port"),
         )
         set_field(obj, "peer_id", PublicKey._from_json(fields["peer_id"], ctx))
         set_field(obj, "cert", AuthCert._from_json(fields["cert"], ctx))
-        set_field(obj, "nonce", xdr_json.hex_fixed(fields["nonce"], "Hello.nonce", 32))
+        set_field(
+            obj, "nonce", xdr_json.read_hex_fixed(fields["nonce"], "Hello.nonce", 32)
+        )
         return obj
 
 
@@ -799,9 +807,9 @@ class Auth(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "Auth", ("flags",))
+        fields = xdr_json.read_fields(value, "Auth", ("flags",))
         obj = new(cls)
-        set_field(obj, "flags", xdr_json.int32(fields["flags"], "Auth.flags"))
+        set_field(obj, "flags", xdr_json.read_int32(fields["flags"], "Auth.flags"))
         return obj
 
 
@@ -858,7 +866,9 @@ class PeerAddressIp(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "ipv4", xdr_json.hex_fixed(value, "PeerAddressIp.IPv4.ipv4", 4)
+                obj,
+                "ipv4",
+                xdr_json.read_hex_fixed(value, "PeerAddressIp.IPv4.ipv4", 4),
             )
             return obj
 
@@ -901,7 +911,9 @@ class PeerAddressIp(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "ipv6", xdr_json.hex_fixed(value, "PeerAddressIp.IPv6.ipv6", 16)
+                obj,
+                "ipv6",
+                xdr_json.read_hex_fixed(value, "PeerAddressIp.IPv6.ipv6", 16),
             )
             return obj
 
@@ -952,7 +964,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> PeerAddressIp.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "PeerAddressIp",
             _PEER_ADDRESS_IP_JSON_ARMS,
@@ -1066,14 +1078,16 @@ class PeerAddress(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "PeerAddress", ("ip", "port", "num_failures"))
+        fields = xdr_json.read_fields(
+            value, "PeerAddress", ("ip", "port", "num_failures")
+        )
         obj = new(cls)
         set_field(obj, "ip", PeerAddressIp._from_json(fields["ip"], ctx))
-        set_field(obj, "port", xdr_json.uint32(fields["port"], "PeerAddress.port"))
+        set_field(obj, "port", xdr_json.read_uint32(fields["port"], "PeerAddress.port"))
         set_field(
             obj,
             "num_failures",
-            xdr_json.uint32(fields["num_failures"], "PeerAddress.num_failures"),
+            xdr_json.read_uint32(fields["num_failures"], "PeerAddress.num_failures"),
         )
         return obj
 
@@ -1126,13 +1140,13 @@ class DontHave(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "DontHave", ("type", "req_hash"))
+        fields = xdr_json.read_fields(value, "DontHave", ("type", "req_hash"))
         obj = new(cls)
         set_field(obj, "type", MessageType._from_json(fields["type"], ctx))
         set_field(
             obj,
             "req_hash",
-            xdr_json.hex_fixed(fields["req_hash"], "DontHave.req_hash", 32),
+            xdr_json.read_hex_fixed(fields["req_hash"], "DontHave.req_hash", 32),
         )
         return obj
 
@@ -1222,7 +1236,7 @@ class TimeSlicedSurveyStartCollectingMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TimeSlicedSurveyStartCollectingMessage",
             ("surveyor_id", "nonce", "ledger_num"),
@@ -1232,14 +1246,14 @@ class TimeSlicedSurveyStartCollectingMessage(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["nonce"], "TimeSlicedSurveyStartCollectingMessage.nonce"
             ),
         )
         set_field(
             obj,
             "ledger_num",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_num"],
                 "TimeSlicedSurveyStartCollectingMessage.ledger_num",
             ),
@@ -1327,7 +1341,7 @@ class SignedTimeSlicedSurveyStartCollectingMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SignedTimeSlicedSurveyStartCollectingMessage",
             ("signature", "start_collecting"),
@@ -1336,7 +1350,7 @@ class SignedTimeSlicedSurveyStartCollectingMessage(XdrStruct):
         set_field(
             obj,
             "signature",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["signature"],
                 "SignedTimeSlicedSurveyStartCollectingMessage.signature",
                 64,
@@ -1437,7 +1451,7 @@ class TimeSlicedSurveyStopCollectingMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TimeSlicedSurveyStopCollectingMessage",
             ("surveyor_id", "nonce", "ledger_num"),
@@ -1447,14 +1461,14 @@ class TimeSlicedSurveyStopCollectingMessage(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["nonce"], "TimeSlicedSurveyStopCollectingMessage.nonce"
             ),
         )
         set_field(
             obj,
             "ledger_num",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_num"], "TimeSlicedSurveyStopCollectingMessage.ledger_num"
             ),
         )
@@ -1541,7 +1555,7 @@ class SignedTimeSlicedSurveyStopCollectingMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SignedTimeSlicedSurveyStopCollectingMessage",
             ("signature", "stop_collecting"),
@@ -1550,7 +1564,7 @@ class SignedTimeSlicedSurveyStopCollectingMessage(XdrStruct):
         set_field(
             obj,
             "signature",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["signature"],
                 "SignedTimeSlicedSurveyStopCollectingMessage.signature",
                 64,
@@ -1697,7 +1711,7 @@ class SurveyRequestMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SurveyRequestMessage",
             (
@@ -1722,7 +1736,9 @@ class SurveyRequestMessage(XdrStruct):
         set_field(
             obj,
             "ledger_num",
-            xdr_json.uint32(fields["ledger_num"], "SurveyRequestMessage.ledger_num"),
+            xdr_json.read_uint32(
+                fields["ledger_num"], "SurveyRequestMessage.ledger_num"
+            ),
         )
         set_field(
             obj,
@@ -1839,7 +1855,7 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TimeSlicedSurveyRequestMessage",
             ("request", "nonce", "inbound_peers_index", "outbound_peers_index"),
@@ -1851,12 +1867,14 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.uint32(fields["nonce"], "TimeSlicedSurveyRequestMessage.nonce"),
+            xdr_json.read_uint32(
+                fields["nonce"], "TimeSlicedSurveyRequestMessage.nonce"
+            ),
         )
         set_field(
             obj,
             "inbound_peers_index",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["inbound_peers_index"],
                 "TimeSlicedSurveyRequestMessage.inbound_peers_index",
             ),
@@ -1864,7 +1882,7 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
         set_field(
             obj,
             "outbound_peers_index",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["outbound_peers_index"],
                 "TimeSlicedSurveyRequestMessage.outbound_peers_index",
             ),
@@ -1944,7 +1962,7 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SignedTimeSlicedSurveyRequestMessage",
             ("request_signature", "request"),
@@ -1953,7 +1971,7 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
         set_field(
             obj,
             "request_signature",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["request_signature"],
                 "SignedTimeSlicedSurveyRequestMessage.request_signature",
                 64,
@@ -2098,7 +2116,7 @@ class SurveyResponseMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SurveyResponseMessage",
             (
@@ -2123,7 +2141,9 @@ class SurveyResponseMessage(XdrStruct):
         set_field(
             obj,
             "ledger_num",
-            xdr_json.uint32(fields["ledger_num"], "SurveyResponseMessage.ledger_num"),
+            xdr_json.read_uint32(
+                fields["ledger_num"], "SurveyResponseMessage.ledger_num"
+            ),
         )
         set_field(
             obj,
@@ -2133,7 +2153,7 @@ class SurveyResponseMessage(XdrStruct):
         set_field(
             obj,
             "encrypted_body",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["encrypted_body"], "SurveyResponseMessage.encrypted_body", 64000
             ),
         )
@@ -2196,7 +2216,7 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TimeSlicedSurveyResponseMessage", ("response", "nonce")
         )
         obj = new(cls)
@@ -2206,7 +2226,9 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.uint32(fields["nonce"], "TimeSlicedSurveyResponseMessage.nonce"),
+            xdr_json.read_uint32(
+                fields["nonce"], "TimeSlicedSurveyResponseMessage.nonce"
+            ),
         )
         return obj
 
@@ -2287,7 +2309,7 @@ class SignedTimeSlicedSurveyResponseMessage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SignedTimeSlicedSurveyResponseMessage",
             ("response_signature", "response"),
@@ -2296,7 +2318,7 @@ class SignedTimeSlicedSurveyResponseMessage(XdrStruct):
         set_field(
             obj,
             "response_signature",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["response_signature"],
                 "SignedTimeSlicedSurveyResponseMessage.response_signature",
                 64,
@@ -2555,7 +2577,7 @@ class PeerStats(XdrStruct):
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
             "id": self.id._to_json(ctx),
-            "version_str": xdr_json.escape(self.version_str),
+            "version_str": xdr_json.write_string(self.version_str),
             "messages_read": str(self.messages_read),
             "messages_written": str(self.messages_written),
             "bytes_read": str(self.bytes_read),
@@ -2573,7 +2595,7 @@ class PeerStats(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "PeerStats",
             (
@@ -2599,44 +2621,48 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "version_str",
-            xdr_json.string(fields["version_str"], "PeerStats.version_str", 100),
+            xdr_json.read_string(fields["version_str"], "PeerStats.version_str", 100),
         )
         set_field(
             obj,
             "messages_read",
-            xdr_json.uint64(fields["messages_read"], "PeerStats.messages_read"),
+            xdr_json.read_uint64(fields["messages_read"], "PeerStats.messages_read"),
         )
         set_field(
             obj,
             "messages_written",
-            xdr_json.uint64(fields["messages_written"], "PeerStats.messages_written"),
+            xdr_json.read_uint64(
+                fields["messages_written"], "PeerStats.messages_written"
+            ),
         )
         set_field(
             obj,
             "bytes_read",
-            xdr_json.uint64(fields["bytes_read"], "PeerStats.bytes_read"),
+            xdr_json.read_uint64(fields["bytes_read"], "PeerStats.bytes_read"),
         )
         set_field(
             obj,
             "bytes_written",
-            xdr_json.uint64(fields["bytes_written"], "PeerStats.bytes_written"),
+            xdr_json.read_uint64(fields["bytes_written"], "PeerStats.bytes_written"),
         )
         set_field(
             obj,
             "seconds_connected",
-            xdr_json.uint64(fields["seconds_connected"], "PeerStats.seconds_connected"),
+            xdr_json.read_uint64(
+                fields["seconds_connected"], "PeerStats.seconds_connected"
+            ),
         )
         set_field(
             obj,
             "unique_flood_bytes_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["unique_flood_bytes_recv"], "PeerStats.unique_flood_bytes_recv"
             ),
         )
         set_field(
             obj,
             "duplicate_flood_bytes_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["duplicate_flood_bytes_recv"],
                 "PeerStats.duplicate_flood_bytes_recv",
             ),
@@ -2644,14 +2670,14 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "unique_fetch_bytes_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["unique_fetch_bytes_recv"], "PeerStats.unique_fetch_bytes_recv"
             ),
         )
         set_field(
             obj,
             "duplicate_fetch_bytes_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["duplicate_fetch_bytes_recv"],
                 "PeerStats.duplicate_fetch_bytes_recv",
             ),
@@ -2659,7 +2685,7 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "unique_flood_message_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["unique_flood_message_recv"],
                 "PeerStats.unique_flood_message_recv",
             ),
@@ -2667,7 +2693,7 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "duplicate_flood_message_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["duplicate_flood_message_recv"],
                 "PeerStats.duplicate_flood_message_recv",
             ),
@@ -2675,7 +2701,7 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "unique_fetch_message_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["unique_fetch_message_recv"],
                 "PeerStats.unique_fetch_message_recv",
             ),
@@ -2683,7 +2709,7 @@ class PeerStats(XdrStruct):
         set_field(
             obj,
             "duplicate_fetch_message_recv",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["duplicate_fetch_message_recv"],
                 "PeerStats.duplicate_fetch_message_recv",
             ),
@@ -2905,7 +2931,7 @@ class TimeSlicedNodeData(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TimeSlicedNodeData",
             (
@@ -2925,7 +2951,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "added_authenticated_peers",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["added_authenticated_peers"],
                 "TimeSlicedNodeData.added_authenticated_peers",
             ),
@@ -2933,7 +2959,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "dropped_authenticated_peers",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["dropped_authenticated_peers"],
                 "TimeSlicedNodeData.dropped_authenticated_peers",
             ),
@@ -2941,7 +2967,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "total_inbound_peer_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["total_inbound_peer_count"],
                 "TimeSlicedNodeData.total_inbound_peer_count",
             ),
@@ -2949,7 +2975,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "total_outbound_peer_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["total_outbound_peer_count"],
                 "TimeSlicedNodeData.total_outbound_peer_count",
             ),
@@ -2957,7 +2983,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "p75_scp_first_to_self_latency_ms",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["p75_scp_first_to_self_latency_ms"],
                 "TimeSlicedNodeData.p75_scp_first_to_self_latency_ms",
             ),
@@ -2965,7 +2991,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "p75_scp_self_to_other_latency_ms",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["p75_scp_self_to_other_latency_ms"],
                 "TimeSlicedNodeData.p75_scp_self_to_other_latency_ms",
             ),
@@ -2973,19 +2999,21 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "lost_sync_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["lost_sync_count"], "TimeSlicedNodeData.lost_sync_count"
             ),
         )
         set_field(
             obj,
             "is_validator",
-            xdr_json.boolean(fields["is_validator"], "TimeSlicedNodeData.is_validator"),
+            xdr_json.read_boolean(
+                fields["is_validator"], "TimeSlicedNodeData.is_validator"
+            ),
         )
         set_field(
             obj,
             "max_inbound_peer_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["max_inbound_peer_count"],
                 "TimeSlicedNodeData.max_inbound_peer_count",
             ),
@@ -2993,7 +3021,7 @@ class TimeSlicedNodeData(XdrStruct):
         set_field(
             obj,
             "max_outbound_peer_count",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["max_outbound_peer_count"],
                 "TimeSlicedNodeData.max_outbound_peer_count",
             ),
@@ -3061,7 +3089,7 @@ class TimeSlicedPeerData(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TimeSlicedPeerData", ("peer_stats", "average_latency_ms")
         )
         obj = new(cls)
@@ -3069,7 +3097,7 @@ class TimeSlicedPeerData(XdrStruct):
         set_field(
             obj,
             "average_latency_ms",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["average_latency_ms"], "TimeSlicedPeerData.average_latency_ms"
             ),
         )
@@ -3195,7 +3223,7 @@ class TopologyResponseBodyV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TopologyResponseBodyV2",
             ("inbound_peers", "outbound_peers", "node_data"),
@@ -3204,8 +3232,8 @@ class TopologyResponseBodyV2(XdrStruct):
         set_field(
             obj,
             "inbound_peers",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["inbound_peers"], "TopologyResponseBodyV2.inbound_peers", 25
                 ),
                 "TopologyResponseBodyV2.inbound_peers",
@@ -3215,8 +3243,8 @@ class TopologyResponseBodyV2(XdrStruct):
         set_field(
             obj,
             "outbound_peers",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["outbound_peers"],
                     "TopologyResponseBodyV2.outbound_peers",
                     25,
@@ -3351,7 +3379,7 @@ class SurveyResponseBody(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SurveyResponseBody.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SurveyResponseBody",
             _SURVEY_RESPONSE_BODY_JSON_ARMS,
@@ -3440,15 +3468,17 @@ class FloodAdvert(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "FloodAdvert", ("tx_hashes",))
+        fields = xdr_json.read_fields(value, "FloodAdvert", ("tx_hashes",))
         obj = new(cls)
         set_field(
             obj,
             "tx_hashes",
-            xdr_json.items(
-                xdr_json.array(fields["tx_hashes"], "FloodAdvert.tx_hashes", 1000),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["tx_hashes"], "FloodAdvert.tx_hashes", 1000),
                 "FloodAdvert.tx_hashes",
-                lambda item0: xdr_json.hex_fixed(item0, "FloodAdvert.tx_hashes", 32),
+                lambda item0: xdr_json.read_hex_fixed(
+                    item0, "FloodAdvert.tx_hashes", 32
+                ),
             ),
         )
         return obj
@@ -3507,15 +3537,17 @@ class FloodDemand(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "FloodDemand", ("tx_hashes",))
+        fields = xdr_json.read_fields(value, "FloodDemand", ("tx_hashes",))
         obj = new(cls)
         set_field(
             obj,
             "tx_hashes",
-            xdr_json.items(
-                xdr_json.array(fields["tx_hashes"], "FloodDemand.tx_hashes", 1000),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["tx_hashes"], "FloodDemand.tx_hashes", 1000),
                 "FloodDemand.tx_hashes",
-                lambda item0: xdr_json.hex_fixed(item0, "FloodDemand.tx_hashes", 32),
+                lambda item0: xdr_json.read_hex_fixed(
+                    item0, "FloodDemand.tx_hashes", 32
+                ),
             ),
         )
         return obj
@@ -3813,8 +3845,8 @@ class StellarMessage(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "peers",
-                xdr_json.items(
-                    xdr_json.array(value, "StellarMessage.Peers.peers", 100),
+                xdr_json.read_items(
+                    xdr_json.read_array(value, "StellarMessage.Peers.peers", 100),
                     "StellarMessage.Peers.peers",
                     lambda item0: PeerAddress._from_json(item0, ctx),
                 ),
@@ -3866,7 +3898,9 @@ class StellarMessage(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "tx_set_hash",
-                xdr_json.hex_fixed(value, "StellarMessage.GetTxSet.tx_set_hash", 32),
+                xdr_json.read_hex_fixed(
+                    value, "StellarMessage.GetTxSet.tx_set_hash", 32
+                ),
             )
             return obj
 
@@ -4358,7 +4392,7 @@ class StellarMessage(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "q_set_hash",
-                xdr_json.hex_fixed(
+                xdr_json.read_hex_fixed(
                     value, "StellarMessage.GetScpQuorumset.q_set_hash", 32
                 ),
             )
@@ -4499,7 +4533,9 @@ class StellarMessage(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "get_scp_ledger_seq",
-                xdr_json.uint32(value, "StellarMessage.GetScpState.get_scp_ledger_seq"),
+                xdr_json.read_uint32(
+                    value, "StellarMessage.GetScpState.get_scp_ledger_seq"
+                ),
             )
             return obj
 
@@ -4766,7 +4802,7 @@ class StellarMessage(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> StellarMessage.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "StellarMessage",
             _STELLAR_MESSAGE_JSON_ARMS,
@@ -4918,14 +4954,14 @@ class AuthenticatedMessageV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "AuthenticatedMessageV0", ("sequence", "message", "mac")
         )
         obj = new(cls)
         set_field(
             obj,
             "sequence",
-            xdr_json.uint64(fields["sequence"], "AuthenticatedMessageV0.sequence"),
+            xdr_json.read_uint64(fields["sequence"], "AuthenticatedMessageV0.sequence"),
         )
         set_field(obj, "message", StellarMessage._from_json(fields["message"], ctx))
         set_field(obj, "mac", HmacSha256Mac._from_json(fields["mac"], ctx))
@@ -5043,7 +5079,7 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> AuthenticatedMessage.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "AuthenticatedMessage",
             _AUTHENTICATED_MESSAGE_JSON_ARMS,

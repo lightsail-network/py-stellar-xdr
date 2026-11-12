@@ -47,7 +47,7 @@ def _to_json_value(value: _scp.Value, ctx: JsonWriter) -> Any:
 
 
 def _from_json_value(value: object, ctx: JsonReader) -> _scp.Value:
-    return cast("_scp.Value", xdr_json.hex_var(value, "Value", None))
+    return cast("_scp.Value", xdr_json.read_hex_var(value, "Value", None))
 
 
 Value: Final[Typedef[_scp.Value, _scp.Value]] = Typedef(
@@ -93,7 +93,7 @@ def _from_json_encoded_ledger_key(
 ) -> _contract_config_setting.EncodedLedgerKey:
     return cast(
         "_contract_config_setting.EncodedLedgerKey",
-        xdr_json.hex_var(value, "EncodedLedgerKey", None),
+        xdr_json.read_hex_var(value, "EncodedLedgerKey", None),
     )
 
 
@@ -161,8 +161,8 @@ def _from_json_contract_cost_params(
 ) -> _contract_config_setting.ContractCostParams:
     return cast(
         "_contract_config_setting.ContractCostParams",
-        xdr_json.items(
-            xdr_json.array(value, "ContractCostParams", 1024),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "ContractCostParams", 1024),
             "ContractCostParams",
             lambda item0: _contract_config_setting.ContractCostParamEntry._from_json(
                 item0, ctx
@@ -204,7 +204,7 @@ def _to_json_sc_bytes(value: _contract.SCBytes, ctx: JsonWriter) -> Any:
 
 
 def _from_json_sc_bytes(value: object, ctx: JsonReader) -> _contract.SCBytes:
-    return cast("_contract.SCBytes", xdr_json.hex_var(value, "SCBytes", None))
+    return cast("_contract.SCBytes", xdr_json.read_hex_var(value, "SCBytes", None))
 
 
 SCBytes: Final[Typedef[_contract.SCBytes, _contract.SCBytes]] = Typedef(
@@ -231,11 +231,11 @@ def _decode_sc_string(reader: Reader) -> _contract.SCString:
 
 
 def _to_json_sc_string(value: _contract.SCString, ctx: JsonWriter) -> Any:
-    return xdr_json.escape(value)
+    return xdr_json.write_string(value)
 
 
 def _from_json_sc_string(value: object, ctx: JsonReader) -> _contract.SCString:
-    return cast("_contract.SCString", xdr_json.string(value, "SCString", None))
+    return cast("_contract.SCString", xdr_json.read_string(value, "SCString", None))
 
 
 SCString: Final[Typedef[_contract.SCString, bytes | str]] = Typedef(
@@ -262,11 +262,11 @@ def _decode_sc_symbol(reader: Reader) -> _contract.SCSymbol:
 
 
 def _to_json_sc_symbol(value: _contract.SCSymbol, ctx: JsonWriter) -> Any:
-    return xdr_json.escape(value)
+    return xdr_json.write_string(value)
 
 
 def _from_json_sc_symbol(value: object, ctx: JsonReader) -> _contract.SCSymbol:
-    return cast("_contract.SCSymbol", xdr_json.string(value, "SCSymbol", 32))
+    return cast("_contract.SCSymbol", xdr_json.read_string(value, "SCSymbol", 32))
 
 
 SCSymbol: Final[Typedef[_contract.SCSymbol, bytes | str]] = Typedef(
@@ -309,8 +309,8 @@ def _to_json_sc_vec(value: _contract.SCVec, ctx: JsonWriter) -> Any:
 def _from_json_sc_vec(value: object, ctx: JsonReader) -> _contract.SCVec:
     return cast(
         "_contract.SCVec",
-        xdr_json.items(
-            xdr_json.array(value, "SCVec", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "SCVec", None),
             "SCVec",
             lambda item0: _contract.SCVal._from_json(item0, ctx),
         ),
@@ -357,8 +357,8 @@ def _to_json_sc_map(value: _contract.SCMap, ctx: JsonWriter) -> Any:
 def _from_json_sc_map(value: object, ctx: JsonReader) -> _contract.SCMap:
     return cast(
         "_contract.SCMap",
-        xdr_json.items(
-            xdr_json.array(value, "SCMap", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "SCMap", None),
             "SCMap",
             lambda item0: _contract.SCMapEntry._from_json(item0, ctx),
         ),
@@ -394,7 +394,7 @@ def _to_json_thresholds(value: _ledger_entries.Thresholds, ctx: JsonWriter) -> A
 
 def _from_json_thresholds(value: object, ctx: JsonReader) -> _ledger_entries.Thresholds:
     return cast(
-        "_ledger_entries.Thresholds", xdr_json.hex_fixed(value, "Thresholds", 4)
+        "_ledger_entries.Thresholds", xdr_json.read_hex_fixed(value, "Thresholds", 4)
     )
 
 
@@ -424,11 +424,11 @@ def _decode_string32(reader: Reader) -> _ledger_entries.String32:
 
 
 def _to_json_string32(value: _ledger_entries.String32, ctx: JsonWriter) -> Any:
-    return xdr_json.escape(value)
+    return xdr_json.write_string(value)
 
 
 def _from_json_string32(value: object, ctx: JsonReader) -> _ledger_entries.String32:
-    return cast("_ledger_entries.String32", xdr_json.string(value, "String32", 32))
+    return cast("_ledger_entries.String32", xdr_json.read_string(value, "String32", 32))
 
 
 String32: Final[Typedef[_ledger_entries.String32, bytes | str]] = Typedef(
@@ -455,11 +455,11 @@ def _decode_string64(reader: Reader) -> _ledger_entries.String64:
 
 
 def _to_json_string64(value: _ledger_entries.String64, ctx: JsonWriter) -> Any:
-    return xdr_json.escape(value)
+    return xdr_json.write_string(value)
 
 
 def _from_json_string64(value: object, ctx: JsonReader) -> _ledger_entries.String64:
-    return cast("_ledger_entries.String64", xdr_json.string(value, "String64", 64))
+    return cast("_ledger_entries.String64", xdr_json.read_string(value, "String64", 64))
 
 
 String64: Final[Typedef[_ledger_entries.String64, bytes | str]] = Typedef(
@@ -497,7 +497,7 @@ def _from_json_sequence_number(
     value: object, ctx: JsonReader
 ) -> _ledger_entries.SequenceNumber:
     return cast(
-        "_ledger_entries.SequenceNumber", xdr_json.int64(value, "SequenceNumber")
+        "_ledger_entries.SequenceNumber", xdr_json.read_int64(value, "SequenceNumber")
     )
 
 
@@ -531,7 +531,9 @@ def _to_json_data_value(value: _ledger_entries.DataValue, ctx: JsonWriter) -> An
 
 
 def _from_json_data_value(value: object, ctx: JsonReader) -> _ledger_entries.DataValue:
-    return cast("_ledger_entries.DataValue", xdr_json.hex_var(value, "DataValue", 64))
+    return cast(
+        "_ledger_entries.DataValue", xdr_json.read_hex_var(value, "DataValue", 64)
+    )
 
 
 DataValue: Final[Typedef[_ledger_entries.DataValue, _ledger_entries.DataValue]] = (
@@ -560,7 +562,7 @@ def _decode_asset_code4(reader: Reader) -> _ledger_entries.AssetCode4:
 
 
 def _to_json_asset_code4(value: _ledger_entries.AssetCode4, ctx: JsonWriter) -> Any:
-    return xdr_json.asset_code4(value)
+    return xdr_json.write_asset_code4(value)
 
 
 def _from_json_asset_code4(
@@ -597,7 +599,7 @@ def _decode_asset_code12(reader: Reader) -> _ledger_entries.AssetCode12:
 
 
 def _to_json_asset_code12(value: _ledger_entries.AssetCode12, ctx: JsonWriter) -> Any:
-    return xdr_json.asset_code12(value)
+    return xdr_json.write_asset_code12(value)
 
 
 def _from_json_asset_code12(
@@ -698,7 +700,7 @@ def _to_json_upgrade_type(value: _ledger.UpgradeType, ctx: JsonWriter) -> Any:
 
 
 def _from_json_upgrade_type(value: object, ctx: JsonReader) -> _ledger.UpgradeType:
-    return cast("_ledger.UpgradeType", xdr_json.hex_var(value, "UpgradeType", 128))
+    return cast("_ledger.UpgradeType", xdr_json.read_hex_var(value, "UpgradeType", 128))
 
 
 UpgradeType: Final[Typedef[_ledger.UpgradeType, _ledger.UpgradeType]] = Typedef(
@@ -759,8 +761,8 @@ def _from_json_dependent_tx_cluster(
 ) -> _ledger.DependentTxCluster:
     return cast(
         "_ledger.DependentTxCluster",
-        xdr_json.items(
-            xdr_json.array(value, "DependentTxCluster", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "DependentTxCluster", None),
             "DependentTxCluster",
             lambda item0: _transaction.TransactionEnvelope._from_json(item0, ctx),
         ),
@@ -838,11 +840,11 @@ def _from_json_parallel_tx_execution_stage(
 ) -> _ledger.ParallelTxExecutionStage:
     return cast(
         "_ledger.ParallelTxExecutionStage",
-        xdr_json.items(
-            xdr_json.array(value, "ParallelTxExecutionStage", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "ParallelTxExecutionStage", None),
             "ParallelTxExecutionStage",
-            lambda item0: xdr_json.items(
-                xdr_json.array(item0, "ParallelTxExecutionStage", None),
+            lambda item0: xdr_json.read_items(
+                xdr_json.read_array(item0, "ParallelTxExecutionStage", None),
                 "ParallelTxExecutionStage",
                 lambda item1: _transaction.TransactionEnvelope._from_json(item1, ctx),
             ),
@@ -913,8 +915,8 @@ def _from_json_ledger_entry_changes(
 ) -> _ledger.LedgerEntryChanges:
     return cast(
         "_ledger.LedgerEntryChanges",
-        xdr_json.items(
-            xdr_json.array(value, "LedgerEntryChanges", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "LedgerEntryChanges", None),
             "LedgerEntryChanges",
             lambda item0: _ledger.LedgerEntryChange._from_json(item0, ctx),
         ),
@@ -952,7 +954,7 @@ def _to_json_encrypted_body(value: _overlay.EncryptedBody, ctx: JsonWriter) -> A
 
 def _from_json_encrypted_body(value: object, ctx: JsonReader) -> _overlay.EncryptedBody:
     return cast(
-        "_overlay.EncryptedBody", xdr_json.hex_var(value, "EncryptedBody", 64000)
+        "_overlay.EncryptedBody", xdr_json.read_hex_var(value, "EncryptedBody", 64000)
     )
 
 
@@ -1009,8 +1011,8 @@ def _from_json_time_sliced_peer_data_list(
 ) -> _overlay.TimeSlicedPeerDataList:
     return cast(
         "_overlay.TimeSlicedPeerDataList",
-        xdr_json.items(
-            xdr_json.array(value, "TimeSlicedPeerDataList", 25),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "TimeSlicedPeerDataList", 25),
             "TimeSlicedPeerDataList",
             lambda item0: _overlay.TimeSlicedPeerData._from_json(item0, ctx),
         ),
@@ -1059,10 +1061,10 @@ def _from_json_tx_advert_vector(
 ) -> _overlay.TxAdvertVector:
     return cast(
         "_overlay.TxAdvertVector",
-        xdr_json.items(
-            xdr_json.array(value, "TxAdvertVector", 1000),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "TxAdvertVector", 1000),
             "TxAdvertVector",
-            lambda item0: xdr_json.hex_fixed(item0, "TxAdvertVector", 32),
+            lambda item0: xdr_json.read_hex_fixed(item0, "TxAdvertVector", 32),
         ),
     )
 
@@ -1109,10 +1111,10 @@ def _from_json_tx_demand_vector(
 ) -> _overlay.TxDemandVector:
     return cast(
         "_overlay.TxDemandVector",
-        xdr_json.items(
-            xdr_json.array(value, "TxDemandVector", 1000),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "TxDemandVector", 1000),
             "TxDemandVector",
-            lambda item0: xdr_json.hex_fixed(item0, "TxDemandVector", 32),
+            lambda item0: xdr_json.read_hex_fixed(item0, "TxDemandVector", 32),
         ),
     )
 
@@ -1174,8 +1176,8 @@ def _from_json_soroban_authorization_entries(
 ) -> _transaction.SorobanAuthorizationEntries:
     return cast(
         "_transaction.SorobanAuthorizationEntries",
-        xdr_json.items(
-            xdr_json.array(value, "SorobanAuthorizationEntries", None),
+        xdr_json.read_items(
+            xdr_json.read_array(value, "SorobanAuthorizationEntries", None),
             "SorobanAuthorizationEntries",
             lambda item0: _transaction.SorobanAuthorizationEntry._from_json(item0, ctx),
         ),
@@ -1215,7 +1217,7 @@ def _to_json_hash(value: _types.Hash, ctx: JsonWriter) -> Any:
 
 
 def _from_json_hash(value: object, ctx: JsonReader) -> _types.Hash:
-    return cast("_types.Hash", xdr_json.hex_fixed(value, "Hash", 32))
+    return cast("_types.Hash", xdr_json.read_hex_fixed(value, "Hash", 32))
 
 
 Hash: Final[Typedef[_types.Hash, _types.Hash]] = Typedef(
@@ -1246,7 +1248,7 @@ def _to_json_uint256(value: _types.Uint256, ctx: JsonWriter) -> Any:
 
 
 def _from_json_uint256(value: object, ctx: JsonReader) -> _types.Uint256:
-    return cast("_types.Uint256", xdr_json.hex_fixed(value, "Uint256", 32))
+    return cast("_types.Uint256", xdr_json.read_hex_fixed(value, "Uint256", 32))
 
 
 Uint256: Final[Typedef[_types.Uint256, _types.Uint256]] = Typedef(
@@ -1277,7 +1279,7 @@ def _to_json_uint32(value: _types.Uint32, ctx: JsonWriter) -> Any:
 
 
 def _from_json_uint32(value: object, ctx: JsonReader) -> _types.Uint32:
-    return cast("_types.Uint32", xdr_json.uint32(value, "Uint32"))
+    return cast("_types.Uint32", xdr_json.read_uint32(value, "Uint32"))
 
 
 Uint32: Final[Typedef[_types.Uint32, _types.Uint32]] = Typedef(
@@ -1308,7 +1310,7 @@ def _to_json_int32(value: _types.Int32, ctx: JsonWriter) -> Any:
 
 
 def _from_json_int32(value: object, ctx: JsonReader) -> _types.Int32:
-    return cast("_types.Int32", xdr_json.int32(value, "Int32"))
+    return cast("_types.Int32", xdr_json.read_int32(value, "Int32"))
 
 
 Int32: Final[Typedef[_types.Int32, _types.Int32]] = Typedef(
@@ -1339,7 +1341,7 @@ def _to_json_uint64(value: _types.Uint64, ctx: JsonWriter) -> Any:
 
 
 def _from_json_uint64(value: object, ctx: JsonReader) -> _types.Uint64:
-    return cast("_types.Uint64", xdr_json.uint64(value, "Uint64"))
+    return cast("_types.Uint64", xdr_json.read_uint64(value, "Uint64"))
 
 
 Uint64: Final[Typedef[_types.Uint64, _types.Uint64]] = Typedef(
@@ -1370,7 +1372,7 @@ def _to_json_int64(value: _types.Int64, ctx: JsonWriter) -> Any:
 
 
 def _from_json_int64(value: object, ctx: JsonReader) -> _types.Int64:
-    return cast("_types.Int64", xdr_json.int64(value, "Int64"))
+    return cast("_types.Int64", xdr_json.read_int64(value, "Int64"))
 
 
 Int64: Final[Typedef[_types.Int64, _types.Int64]] = Typedef(
@@ -1401,7 +1403,7 @@ def _to_json_time_point(value: _types.TimePoint, ctx: JsonWriter) -> Any:
 
 
 def _from_json_time_point(value: object, ctx: JsonReader) -> _types.TimePoint:
-    return cast("_types.TimePoint", xdr_json.uint64(value, "TimePoint"))
+    return cast("_types.TimePoint", xdr_json.read_uint64(value, "TimePoint"))
 
 
 TimePoint: Final[Typedef[_types.TimePoint, _types.TimePoint]] = Typedef(
@@ -1432,7 +1434,7 @@ def _to_json_duration(value: _types.Duration, ctx: JsonWriter) -> Any:
 
 
 def _from_json_duration(value: object, ctx: JsonReader) -> _types.Duration:
-    return cast("_types.Duration", xdr_json.uint64(value, "Duration"))
+    return cast("_types.Duration", xdr_json.read_uint64(value, "Duration"))
 
 
 Duration: Final[Typedef[_types.Duration, _types.Duration]] = Typedef(
@@ -1463,7 +1465,7 @@ def _to_json_time_point_ms(value: _types.TimePointMs, ctx: JsonWriter) -> Any:
 
 
 def _from_json_time_point_ms(value: object, ctx: JsonReader) -> _types.TimePointMs:
-    return cast("_types.TimePointMs", xdr_json.uint64(value, "TimePointMs"))
+    return cast("_types.TimePointMs", xdr_json.read_uint64(value, "TimePointMs"))
 
 
 TimePointMs: Final[Typedef[_types.TimePointMs, _types.TimePointMs]] = Typedef(
@@ -1494,7 +1496,7 @@ def _to_json_signature(value: _types.Signature, ctx: JsonWriter) -> Any:
 
 
 def _from_json_signature(value: object, ctx: JsonReader) -> _types.Signature:
-    return cast("_types.Signature", xdr_json.hex_var(value, "Signature", 64))
+    return cast("_types.Signature", xdr_json.read_hex_var(value, "Signature", 64))
 
 
 Signature: Final[Typedef[_types.Signature, _types.Signature]] = Typedef(
@@ -1525,7 +1527,9 @@ def _to_json_signature_hint(value: _types.SignatureHint, ctx: JsonWriter) -> Any
 
 
 def _from_json_signature_hint(value: object, ctx: JsonReader) -> _types.SignatureHint:
-    return cast("_types.SignatureHint", xdr_json.hex_fixed(value, "SignatureHint", 4))
+    return cast(
+        "_types.SignatureHint", xdr_json.read_hex_fixed(value, "SignatureHint", 4)
+    )
 
 
 SignatureHint: Final[Typedef[_types.SignatureHint, _types.SignatureHint]] = Typedef(
@@ -1620,7 +1624,7 @@ def _decode_contract_id(reader: Reader) -> _types.ContractID:
 
 
 def _to_json_contract_id(value: _types.ContractID, ctx: JsonWriter) -> Any:
-    return xdr_json.contract(value)
+    return xdr_json.write_contract(value)
 
 
 def _from_json_contract_id(value: object, ctx: JsonReader) -> _types.ContractID:
@@ -1651,7 +1655,7 @@ def _decode_pool_id(reader: Reader) -> _types.PoolID:
 
 
 def _to_json_pool_id(value: _types.PoolID, ctx: JsonWriter) -> Any:
-    return xdr_json.liquidity_pool(value)
+    return xdr_json.write_liquidity_pool(value)
 
 
 def _from_json_pool_id(value: object, ctx: JsonReader) -> _types.PoolID:
