@@ -6,6 +6,7 @@ annotation, the constructor check, the decoder and the encoder of a type can't d
 apart.
 """
 
+import itertools
 import keyword
 import re
 from collections.abc import Iterator
@@ -936,12 +937,11 @@ class _Emitter:
         if d.name in sep51.STRKEY_ARMS:
             lines = [f"key = xdr_json.parse_strkey(value, {name!r})"]
             # mypy gives a variable one type, so each branch has its own variables.
-            counter = [0]
+            counter = itertools.count()
             for kind, arm_name, field_name, payload in sep51.STRKEY_ARMS[d.name]:
                 built: list[str] = []
                 part = self._build(payload, built, counter)
-                arm_var = f"arm{counter[0]}"
-                counter[0] += 1
+                arm_var = f"arm{next(counter)}"
                 lines += [
                     f"if isinstance(key, strkey.{kind}):",
                     *_indent(built),
@@ -963,7 +963,7 @@ class _Emitter:
         return [*read, "return arm._from_json_payload(payload, ctx)"]
 
     def _build(
-        self, payload: sep51.Payload, lines: list[str], counter: list[int]
+        self, payload: sep51.Payload, lines: list[str], counter: Iterator[int]
     ) -> str:
         """Build the payload of a strkey's arm; return the expression that holds it."""
         if isinstance(payload, str):
@@ -972,8 +972,7 @@ class _Emitter:
         head, _, rest = cls.partition(".")
         target = self.ctx.use(head) + (f".{rest}" if rest else "")
         values = {f: self._build(p, lines, counter) for f, p in fields.items()}
-        var = f"part{counter[0]}"
-        counter[0] += 1
+        var = f"part{next(counter)}"
         lines.append(f"{var} = new({target})")
         lines += [f"set_field({var}, {f!r}, {v})" for f, v in values.items()]
         return var
