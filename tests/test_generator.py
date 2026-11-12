@@ -5,6 +5,7 @@ are tested here, and the JSON names against the reference's schemas (see
 `tests/vectors/README.md`).
 """
 
+import dataclasses
 import json
 import pkgutil
 from pathlib import Path
@@ -13,7 +14,7 @@ from typing import Any
 import pytest
 
 import stellar_xdr
-from generator import names
+from generator import names, sep51
 from generator.emit import GenerationError, Generator, counted_types
 from generator.model import Enum, InputError, Model, Struct, Union, load
 
@@ -354,4 +355,102 @@ def test_ambiguous_definitions_fail_generation(
 ) -> None:
     model = load_document(tmp_path, data)
     with pytest.raises(GenerationError, match=message):
-        Generator(model, PROTOCOL).sources()
+        Generator(model, PROTOCOL, sep51.Rules()).sources()
+
+
+def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
+    arms = dict(sep51.RULES.strkey_unions)
+    arms[union] = tuple(arm for arm in arms[union] if arm.case != case)
+    return {"strkey_unions": arms}
+
+
+@pytest.mark.parametrize(
+    ("changes", "message"),
+    [
+        # A rule for a definition that was renamed or removed upstream.
+        (
+            {"typedefs": {"Gone": sep51.TypedefRule("contract", "read_contract")}},
+            "SEP-51 rule for Gone: the definitions have no such Typedef",
+        ),
+        (
+            {"structs": {"SCVal": sep51.StructRule("join128", "int128", ("hi", "lo"))}},
+            "SEP-51 rule for SCVal: the definitions have no such Struct",
+        ),
+        # A struct that gained a field its rule doesn't know.
+        (
+            {
+                "structs": {
+                    "Int128Parts": sep51.StructRule("join128", "int128", ("hi",))
+                }
+            },
+            "SEP-51 rule for Int128Parts: it doesn't name exactly its fields",
+        ),
+        # A union that gained an arm no strkey is read as.
+        (
+            strkey_arms_without("SCAddress", "SC_ADDRESS_TYPE_MUXED_CONTRACT"),
+            "SEP-51 rule for SCAddress: it doesn't name exactly its cases",
+        ),
+        (
+            {"length_unions": {"AssetCode": (("ASSET_TYPE_CREDIT_ALPHANUM4", 4),)}},
+            "SEP-51 rule for AssetCode: it doesn't name exactly its cases",
+        ),
+        # A payload built for a case that the other union doesn't have.
+        (
+            {
+                "strkey_unions": {
+                    "PublicKey": (
+                        sep51.StrkeyArm(
+                            "Ed25519PublicKey",
+                            "PUBLIC_KEY_TYPE_ED25519",
+                            sep51.BuiltArm("SignerKey", "SIGNER_KEY_TYPE_GONE", "key"),
+                        ),
+                    )
+                }
+            },
+            "SEP-51 rule for SignerKey: it has no case SIGNER_KEY_TYPE_GONE",
+        ),
+        # A bare string can't say which arm it is when an arm holds nothing.
+        (
+            {
+                "length_unions": {
+                    "Preconditions": (
+                        ("PRECOND_NONE", 0),
+                        ("PRECOND_TIME", 1),
+                        ("PRECOND_V2", 2),
+                    )
+                }
+            },
+            "SEP-51 rule for Preconditions: an arm without a value has no string",
+        ),
+        (
+            {"length_unions": {"PublicKey": (("PUBLIC_KEY_TYPE_ED25519", 32),)}},
+            "a strkey and a length rule each",
+        ),
+    ],
+)
+def test_a_rule_that_does_not_apply_fails_generation(
+    changes: dict[str, Any], message: str
+) -> None:
+    rules = dataclasses.replace(sep51.RULES, **changes)
+    with pytest.raises(GenerationError, match=message):
+        Generator(MODEL, PROTOCOL, rules)
+
+
+def test_the_rules_apply_to_the_vendored_definitions() -> None:
+    Generator(MODEL, PROTOCOL)
+
+
+def test_a_python_name_does_not_change_the_json_form(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # Without its override the arm of PublicKey gets another class name. The rule
+    # names the XDR case, so the arm is still written and read as a strkey.
+    monkeypatch.delitem(names.ARM_OVERRIDES, ("PublicKey", "PUBLIC_KEY_TYPE_ED25519"))
+    source = Generator(MODEL, PROTOCOL).sources()["_types.py"]
+    assert "class PublicKeyTypeEd25519(XdrArm):" in source
+    assert "new(PublicKey.PublicKeyTypeEd25519)" in source
+    assert "new(PublicKey.Ed25519)" not in source
+    arm = source.split("class PublicKeyTypeEd25519(XdrArm):")[1].split(
+        "Any: TypeAlias"
+    )[0]
+    assert "return xdr_json.account(self.ed25519)" in arm

@@ -11,12 +11,13 @@ import keyword
 import re
 from collections.abc import Iterator
 from dataclasses import dataclass, field
-from typing import Final
+from typing import Final, TypeVar
 
 from . import names, sep51
 from .model import (
     Arm,
     Array,
+    Case,
     Const,
     Definition,
     Enum,
@@ -170,6 +171,7 @@ def _json_void_name(union: Union) -> str:
 @dataclass
 class _Context:
     model: Model
+    rules: sep51.Rules
     module_of: dict[str, str]
     counted: set[str]
     current: _Module | None = None
@@ -361,8 +363,9 @@ class _TypeCode:
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
-                if d.name in sep51.TYPEDEFS:
-                    return f"xdr_json.{sep51.TYPEDEFS[d.name][0]}({value})"
+                rule = self.ctx.rules.typedefs.get(d.name)
+                if rule is not None:
+                    return f"xdr_json.{rule.write}({value})"
                 return self.to_json(d.type, value, depth)
             return f"{value}._to_json(ctx)"
         if isinstance(t, OpaqueFixed | OpaqueVar):
@@ -384,8 +387,9 @@ class _TypeCode:
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
-                if d.name in sep51.TYPEDEFS:
-                    return f"xdr_json.{sep51.TYPEDEFS[d.name][1]}({value}, {where!r})"
+                rule = self.ctx.rules.typedefs.get(d.name)
+                if rule is not None:
+                    return f"xdr_json.{rule.read}({value}, {where!r})"
                 return self.from_json(d.type, value, where, depth)
             return f"{self.ctx.use(t.name)}._from_json({value}, ctx)"
         if isinstance(t, OpaqueFixed):
@@ -576,9 +580,13 @@ def _has_cycle(graph: dict[str, set[str]]) -> bool:
 # --- Definitions --------------------------------------------------------------------
 
 
+_D = TypeVar("_D", Struct, Union, Typedef)
+
+
 class _Emitter:
-    def __init__(self, model: Model) -> None:
+    def __init__(self, model: Model, rules: sep51.Rules) -> None:
         self.model = model
+        self.rules = rules
         self.modules: dict[str, _Module] = {}
         module_of: dict[str, str] = {}
         for d in model.definitions:
@@ -589,9 +597,10 @@ class _Emitter:
             module = self.modules.setdefault(name, _Module(name, d.file))
             module.definitions.append(d)
             module_of[d.name] = name
-        self.ctx = _Context(model, module_of, counted_types(model))
+        self.ctx = _Context(model, rules, module_of, counted_types(model))
         self.code = _TypeCode(self.ctx)
         self._check_names()
+        self._check_rules()
 
     def _check_names(self) -> None:
         # What a generated module or the package's `__init__.py` binds besides the
@@ -617,6 +626,79 @@ class _Emitter:
                 msg = f"{d.name} and {seen[name]} are both named {name}"
                 raise GenerationError(msg)
             seen[name] = d.name
+
+    # SEP-51 rules ------------------------------------------------------------------
+
+    def _defined(self, name: str, kind: type[_D]) -> _D:
+        """The definition a SEP-51 rule names, which has to be of the kind it is for."""
+        d = self.model.by_name.get(name)
+        if not isinstance(d, kind):
+            msg = (
+                f"SEP-51 rule for {name}: the definitions have no such {kind.__name__}"
+            )
+            raise GenerationError(msg)
+        return d
+
+    def _case(self, union: Union, case: str) -> tuple[Arm, Case]:
+        """The arm and the case that a SEP-51 rule names by the case's XDR name."""
+        for arm in union.arms:
+            for c in arm.cases:
+                if c.name == case:
+                    return arm, c
+        msg = f"SEP-51 rule for {union.name}: it has no case {case}"
+        raise GenerationError(msg)
+
+    def _check_rules(self) -> None:
+        """Fail on a rule that applies to nothing, or that leaves an arm out.
+
+        A rule names definitions by their XDR names. When a definition is renamed or
+        removed upstream, its rule would otherwise stop applying without a word, and
+        the type would be written as a plain struct or union.
+        """
+        rules = self.rules
+        for name in rules.typedefs:
+            self._defined(name, Typedef)
+        for name, rule in rules.structs.items():
+            self._check_struct_fields(self._defined(name, Struct), set(rule.fields))
+        for name, strkey_arms in rules.strkey_unions.items():
+            union = self._defined(name, Union)
+            self._check_cases(union, [arm.case for arm in strkey_arms])
+            for arm in strkey_arms:
+                self._check_payload(arm.payload)
+        for name, lengths in rules.length_unions.items():
+            union = self._defined(name, Union)
+            self._check_cases(union, [case for case, _ in lengths])
+        both = rules.strkey_unions.keys() & rules.length_unions.keys()
+        if both:
+            msg = f"SEP-51 rules for {sorted(both)}: a strkey and a length rule each"
+            raise GenerationError(msg)
+
+    def _check_struct_fields(self, d: Struct, fields: set[str]) -> None:
+        if fields != {f.name for f in d.fields}:
+            msg = f"SEP-51 rule for {d.name}: it doesn't name exactly its fields"
+            raise GenerationError(msg)
+
+    def _check_cases(self, union: Union, cases: list[str]) -> None:
+        # A union written as a bare string has no key to say which arm it is, so
+        # every arm needs a rule, and a value to write.
+        expected = [c.name for arm in union.arms for c in arm.cases]
+        if sorted(cases) != sorted(str(c) for c in expected):
+            msg = f"SEP-51 rule for {union.name}: it doesn't name exactly its cases"
+            raise GenerationError(msg)
+        if any(arm.type is None for arm in union.arms):
+            msg = f"SEP-51 rule for {union.name}: an arm without a value has no string"
+            raise GenerationError(msg)
+
+    def _check_payload(self, payload: sep51.Payload) -> None:
+        if isinstance(payload, sep51.BuiltStruct):
+            self._check_struct_fields(
+                self._defined(payload.struct, Struct), set(payload.fields)
+            )
+            for inner in payload.fields.values():
+                self._check_payload(inner)
+        elif isinstance(payload, sep51.BuiltArm):
+            self._case(self._defined(payload.union, Union), payload.case)
+            self._check_payload(payload.payload)
 
     # Structs and arms --------------------------------------------------------------
 
@@ -738,11 +820,9 @@ class _Emitter:
         _check_unique(
             d.name, "JSON keys", [names.json_field_name(f.name) for f in d.fields]
         )
-        if d.name in sep51.STRUCTS:
-            to_fn, takes, from_fn, gives = sep51.STRUCTS[d.name]
-            if set(takes) != {n for n, _ in fields} or set(gives) != set(takes):
-                msg = f"{d.name}: the SEP-51 rule doesn't match its fields"
-                raise GenerationError(msg)
+        rule = self.rules.structs.get(d.name)
+        if rule is not None:
+            ordered = [names.field_name(f) for f in rule.fields]
             for n, t in fields:
                 resolved = self.ctx.resolve(t)
                 if resolved not in _SEP51_FIELD_TYPES:
@@ -750,12 +830,12 @@ class _Emitter:
                         f"{d.name}.{n}: unexpected type {resolved} for its SEP-51 rule"
                     )
                     raise GenerationError(msg)
-            args = ", ".join(f"self.{n}" for n in takes)
-            to_json = [f"return xdr_json.{to_fn}({args})"]
+            args = ", ".join(f"self.{n}" for n in ordered)
+            to_json = [f"return xdr_json.{rule.write}({args})"]
             from_json = [
-                f"parts = xdr_json.{from_fn}(value, {qualname!r})",
+                f"parts = xdr_json.{rule.read}(value, {qualname!r})",
                 "obj = new(cls)",
-                *(f"set_field(obj, {n!r}, parts[{i}])" for i, n in enumerate(gives)),
+                *(f"set_field(obj, {n!r}, parts[{i}])" for i, n in enumerate(ordered)),
                 "return obj",
             ]
             return to_json, from_json
@@ -933,7 +1013,7 @@ class _Emitter:
             f"{_arms_name(d)}: Final[dict[int, type[{name}.Any]]] = {{{arms}}}",
             f"{_sets_name(d)}: Final = frozenset({_arms_name(d)}.values())",
         ]
-        if d.name not in sep51.TRANSPARENT_UNIONS:
+        if not self.rules.is_bare(d.name):
             keys: list[str] = []
             void: list[str] = []
             for arm in d.arms:
@@ -954,32 +1034,19 @@ class _Emitter:
         return [f"class {name}(metaclass=UnionNamespace):", *_indent(body), *tail]
 
     def _union_from_json(self, d: Union, name: str, counted: bool) -> list[str]:  # noqa: FBT001
-        if d.name == "AssetCode":
-            four = names.arm_class_name(self.model, d, 1, "ASSET_TYPE_CREDIT_ALPHANUM4")
-            twelve = names.arm_class_name(
-                self.model, d, 2, "ASSET_TYPE_CREDIT_ALPHANUM12"
-            )
-            # The length tells the arms apart: AssetCode12 always keeps 5 bytes.
-            return [
-                f"code = xdr_json.read_asset_code(value, {name!r})",
-                "if len(code) <= 4:",
-                f"    short = new({name}.{four})",
-                '    set_field(short, "asset_code4", code.ljust(4, b"\\0"))',
-                "    return short",
-                f"long = new({name}.{twelve})",
-                'set_field(long, "asset_code12", code.ljust(12, b"\\0"))',
-                "return long",
-            ]
-        if d.name in sep51.STRKEY_ARMS:
+        if d.name in self.rules.length_unions:
+            return self._length_union_from_json(d, name)
+        if d.name in self.rules.strkey_unions:
             lines = [f"key = xdr_json.parse_strkey(value, {name!r})"]
             # mypy gives a variable one type, so each branch has its own variables.
             counter = itertools.count()
-            for kind, arm_name, field_name, payload in sep51.STRKEY_ARMS[d.name]:
+            for rule in self.rules.strkey_unions[d.name]:
                 built: list[str] = []
-                part = self._build(payload, built, counter)
+                part = self._build(rule.payload, built, counter)
                 arm_var = f"arm{next(counter)}"
+                arm_name, field_name = self._arm_names(d, rule.case)
                 lines += [
-                    f"if isinstance(key, strkey.{kind}):",
+                    f"if isinstance(key, strkey.{rule.strkey}):",
                     *_indent(built),
                     f"    {arm_var} = new({name}.{arm_name})",
                     f"    set_field({arm_var}, {field_name!r}, {part})",
@@ -998,15 +1065,45 @@ class _Emitter:
             ]
         return [*read, "return arm._from_json_payload(payload, ctx)"]
 
+    def _arm_names(self, d: Union, case: str) -> tuple[str, str]:
+        """The class of the arm of a case, and the field that holds its value."""
+        arm, c = self._case(d, case)
+        assert arm.name is not None  # noqa: S101 - _check_cases found a value
+        return (
+            names.arm_class_name(self.model, d, c.value, c.name),
+            names.field_name(arm.name),
+        )
+
+    def _length_union_from_json(self, d: Union, name: str) -> list[str]:
+        """Read a union whose arms are told apart by the length of their string."""
+        (short_case, short), (long_case, long) = self.rules.length_unions[d.name]
+        short_arm, short_field = self._arm_names(d, short_case)
+        long_arm, long_field = self._arm_names(d, long_case)
+        return [
+            f"code = xdr_json.read_asset_code(value, {name!r})",
+            f"if len(code) <= {short}:",
+            f"    short = new({name}.{short_arm})",
+            f'    set_field(short, "{short_field}", code.ljust({short}, b"\\0"))',
+            "    return short",
+            f"long = new({name}.{long_arm})",
+            f'set_field(long, "{long_field}", code.ljust({long}, b"\\0"))',
+            "return long",
+        ]
+
     def _build(
         self, payload: sep51.Payload, lines: list[str], counter: Iterator[int]
     ) -> str:
         """Build the payload of a strkey's arm; return the expression that holds it."""
         if isinstance(payload, str):
             return f"key.{payload}"
-        cls, fields = payload
-        head, _, rest = cls.partition(".")
-        target = self.ctx.use(head) + (f".{rest}" if rest else "")
+        if isinstance(payload, sep51.BuiltStruct):
+            target = self.ctx.use(payload.struct)
+            fields = {names.field_name(f): p for f, p in payload.fields.items()}
+        else:
+            union = self._defined(payload.union, Union)
+            arm_name, field_name = self._arm_names(union, payload.case)
+            target = f"{self.ctx.use(union.name)}.{arm_name}"
+            fields = {field_name: payload.payload}
         values = {f: self._build(p, lines, counter) for f, p in fields.items()}
         var = f"part{next(counter)}"
         lines.append(f"{var} = new({target})")
@@ -1045,14 +1142,15 @@ class _Emitter:
             doc[0] = doc[0].removesuffix(".") + f", holding ``{arm.name}``."
         qualname = f"{union_name}.{arm_name}"
         key = names.json_case_name(self.model, d, value, case)
-        if d.name in sep51.TRANSPARENT_UNIONS:
+        bare = self.rules.is_bare(d.name)
+        if bare:
             # Written as the bare payload, which is a string.
-            assert fields  # noqa: S101 - every arm of these unions has a payload
+            assert fields  # noqa: S101 - _check_cases found a value in every arm
             ((n, t),) = fields
-            special = sep51.ARMS.get((d.name, arm_name))
+            rule = self.rules.strkey_arm(d.name, case)
             converted = (
-                f"xdr_json.{special}(self.{n})"
-                if special
+                f"xdr_json.{rule.write}(self.{n})"
+                if rule is not None and rule.write is not None
                 else self.code.to_json(t, f"self.{n}")
             )
             to_json = [f"return {converted}"]
@@ -1062,8 +1160,8 @@ class _Emitter:
         else:
             to_json = [f"return {key!r}"]
         from_json: list[str] | None
-        if d.name in sep51.TRANSPARENT_UNIONS:
-            from_json = None  # the union reads the strkey and builds the arm
+        if bare:
+            from_json = None  # the union reads the string and builds the arm
         elif fields:
             ((n, t),) = fields
             read = self.code.from_json(t, "value", f"{qualname}.{n}")
@@ -1194,8 +1292,10 @@ def _uses(text: str, name: str) -> bool:
 class Generator(_Emitter):
     """Turns a model into the source of every module of the package."""
 
-    def __init__(self, model: Model, protocol: int) -> None:
-        super().__init__(model)
+    def __init__(
+        self, model: Model, protocol: int, rules: sep51.Rules = sep51.RULES
+    ) -> None:
+        super().__init__(model, rules)
         self.protocol = protocol
 
     def _ordered_typedefs(self, typedefs: list[Typedef]) -> list[Typedef]:
