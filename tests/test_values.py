@@ -71,7 +71,7 @@ def test_replace_builds_a_checked_copy() -> None:
 
 @pytest.mark.skipif(sys.version_info < (3, 13), reason="copy.replace needs 3.13")
 def test_copy_replace() -> None:
-    replace = copy.replace  # type: ignore[attr-defined, unused-ignore]
+    replace = copy.replace  # type: ignore[attr-defined]
     assert replace(xdr.SCVal.U32(1), u32=2) == xdr.SCVal.U32(2)
 
 

@@ -143,6 +143,7 @@ convention = "google"
 
 [tool.mypy]
 strict = true
+python_version = "3.11"
 files = ["src", "tests", "scripts", "generator"]
 
 [tool.pyright]
