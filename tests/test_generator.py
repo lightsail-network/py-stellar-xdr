@@ -19,6 +19,7 @@ from generator.model import Enum, InputError, Model, Struct, Union, load
 
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")
+PROTOCOL = 30
 REFERENCE: dict[str, list[str]] = json.loads(
     (ROOT / "tests" / "vectors" / "xdr_json_names.json").read_text()
 )
@@ -349,4 +350,4 @@ def test_ambiguous_definitions_fail_generation(
 ) -> None:
     model = load_document(tmp_path, data)
     with pytest.raises(GenerationError, match=message):
-        Generator(model).sources()
+        Generator(model, PROTOCOL).sources()
