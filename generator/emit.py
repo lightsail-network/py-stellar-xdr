@@ -1158,7 +1158,7 @@ def _uses(text: str, name: str) -> bool:
 class Generator(_Emitter):
     """Turns a model into the source of every module of the package."""
 
-    def __init__(self, model: Model, protocol: int = 0) -> None:
+    def __init__(self, model: Model, protocol: int) -> None:
         super().__init__(model)
         self.protocol = protocol
 
