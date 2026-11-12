@@ -60,10 +60,18 @@ requires = ["uv_build>=0.13,<0.14"]
 build-backend = "uv_build"
 
 [tool.uv.build-backend]
-# Ship the tests and their input with the source distribution so that downstream
-# packagers can run them. docs/changelog.md is a build-time copy of CHANGELOG.md.
-source-include = ["tests/**", "docs/**", "xdr/**", "CHANGELOG.md"]
-source-exclude = ["docs/changelog.md"]
+# Ship the tests of the installed package with the source distribution, so that
+# downstream packagers can run them, and the documentation, whose examples they run.
+# The generator, its input in xdr/ and their tests stay in the repository: they check
+# how the code is made, not the package. docs/changelog.md is a build-time copy of
+# CHANGELOG.md.
+source-include = ["tests/**", "docs/**", "CHANGELOG.md"]
+source-exclude = [
+    "docs/changelog.md",
+    "tests/test_generator.py",
+    "tests/test_vendored_xdr.py",
+    "tests/vectors/xdr_json_names.json",
+]
 
 [tool.ruff]
 line-length = 88
