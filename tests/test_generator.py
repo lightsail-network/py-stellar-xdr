@@ -236,6 +236,16 @@ def enum(name: str, prefix: str, *members: tuple[str, int]) -> dict[str, Any]:
     }
 
 
+def const(name: str, value: object) -> dict[str, Any]:
+    return {
+        "kind": "const",
+        "name": name,
+        "value": value,
+        "source": "",
+        "file_index": 0,
+    }
+
+
 def struct(name: str, *fields: tuple[str, dict[str, Any]]) -> dict[str, Any]:
     return {
         "kind": "struct",
@@ -278,6 +288,9 @@ def union_on(enum_name: str, *cases: tuple[str, int]) -> dict[str, Any]:
         ),
         (document(enum("E", "", ("A", 2**31))), "out of range"),
         (document(enum("E", "", ("A", True))), "invalid enum value"),
+        (document(const("A", "1")), "invalid const value"),
+        (document({**const("A", 1), "file_index": 1}), "is not one of the 1 files"),
+        (document({"kind": "const", "value": 1}), "without a name"),
     ],
 )
 def test_invalid_numbers_are_rejected(

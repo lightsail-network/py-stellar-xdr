@@ -233,10 +233,15 @@ def _size(value: object, what: str, *, optional: bool = False) -> Any:  # noqa: 
     return value
 
 
-def _int32(value: object, what: str) -> int:
+def _integer(value: object, what: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         msg = f"invalid {what} {value!r}"
         raise InputError(msg)
+    return value
+
+
+def _int32(value: object, what: str) -> int:
+    value = _integer(value, what)
     if not -(2**31) <= value < 2**31:
         msg = f"{what} {value} is out of range for an XDR int"
         raise InputError(msg)
@@ -275,9 +280,24 @@ def _type(obj: dict[str, Any]) -> TypeRef:
     raise InputError(msg)
 
 
+def _file(obj: dict[str, Any], files: tuple[str, ...]) -> str:
+    """The `.x` file of a definition, which also has to have a name and a source."""
+    if not {"name", "source", "file_index"} <= obj.keys():
+        msg = (
+            f"definition without a name, source or file_index: {json.dumps(obj)[:200]}"
+        )
+        raise InputError(msg)
+    index: int = _size(obj["file_index"], "file_index")
+    if index >= len(files):
+        msg = f"{obj['name']}: file_index {index} is not one of the {len(files)} files"
+        raise InputError(msg)
+    return files[index]
+
+
 def _definition(obj: dict[str, Any], files: tuple[str, ...]) -> Definition:
     kind = obj.get("kind")
-    file = files[int(obj["file_index"])]
+    # Every kind has these; each kind then checks the keys of its own.
+    file = _file(obj, files)
     name: str = obj["name"]
     source: str = obj["source"]
     if kind == "struct":
@@ -340,7 +360,7 @@ def _definition(obj: dict[str, Any], files: tuple[str, ...]) -> Definition:
         return Typedef(name, file, source, _type(obj["type"]))
     if kind == "const":
         _keys(obj, {"kind", "name", "value", "source", "file_index"})
-        return Const(name, file, source, obj["value"])
+        return Const(name, file, source, _integer(obj["value"], "const value"))
     msg = f"unsupported definition kind {kind!r}"
     raise InputError(msg)
 
