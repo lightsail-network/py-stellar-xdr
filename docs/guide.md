@@ -202,6 +202,9 @@ A typedef is a type alias of the type it names, not a class of its own:
   are written as different strkeys, so type checkers keep them apart.
 - Other typedefs are plain aliases: `Uint32` is `int`, and `SCVec` is
   `tuple[SCVal.Any, ...]`.
+- A typedef of a union is an alias of the union's `Any`: `AccountID` and `NodeID` are
+  both `PublicKey.Any`. Their values are arms of the union, so an account ID is built
+  with `PublicKey.Ed25519`, not with `AccountID`.
 
 Since a typedef has no methods, its codec is in `stellar_xdr.typedefs`, under the same
 name:
@@ -213,6 +216,10 @@ from stellar_xdr import typedefs
 changes = typedefs.LedgerEntryChanges.from_xdr_base64("AAAAAA==")
 assert changes == ()
 assert typedefs.SCVec.to_xdr_base64([xdr.SCVal.Void()]) == "AAAAAQAAAAE="
+
+account: xdr.AccountID = xdr.PublicKey.Ed25519(xdr.Uint256(bytes(32)))
+assert typedefs.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account
+assert xdr.PublicKey.from_xdr_bytes(account.to_xdr_bytes()) == account
 ```
 
 ## Encoding and decoding
