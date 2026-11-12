@@ -2239,6 +2239,7 @@ class LiquidityPoolParameters(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LiquidityPoolParameters._decode, data, max_depth)
 
@@ -2256,6 +2257,7 @@ class LiquidityPoolParameters(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             LiquidityPoolParameters._decode, decode_base64(text), max_depth
@@ -2284,6 +2286,7 @@ class LiquidityPoolParameters(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LiquidityPoolParameters._from_json, value, max_depth)
 
@@ -2497,6 +2500,7 @@ class MuxedAccount(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(MuxedAccount._decode, data, max_depth)
 
@@ -2514,6 +2518,7 @@ class MuxedAccount(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(MuxedAccount._decode, decode_base64(text), max_depth)
 
@@ -2546,6 +2551,7 @@ class MuxedAccount(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(MuxedAccount._from_json, value, max_depth)
 
@@ -4237,6 +4243,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ChangeTrustAsset._decode, data, max_depth)
 
@@ -4254,6 +4261,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ChangeTrustAsset._decode, decode_base64(text), max_depth)
 
@@ -4280,6 +4288,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ChangeTrustAsset._from_json, value, max_depth)
 
@@ -5134,6 +5143,7 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(RevokeSponsorshipOp._decode, data, max_depth)
 
@@ -5151,6 +5161,7 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(RevokeSponsorshipOp._decode, decode_base64(text), max_depth)
 
@@ -5177,6 +5188,7 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(RevokeSponsorshipOp._from_json, value, max_depth)
 
@@ -6020,6 +6032,7 @@ class ContractIDPreimage(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractIDPreimage._decode, data, max_depth)
 
@@ -6037,6 +6050,7 @@ class ContractIDPreimage(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractIDPreimage._decode, decode_base64(text), max_depth)
 
@@ -6063,6 +6077,7 @@ class ContractIDPreimage(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ContractIDPreimage._from_json, value, max_depth)
 
@@ -6728,6 +6743,7 @@ class HostFunction(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(HostFunction._decode, data, max_depth)
 
@@ -6745,6 +6761,7 @@ class HostFunction(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(HostFunction._decode, decode_base64(text), max_depth)
 
@@ -6768,6 +6785,7 @@ class HostFunction(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(HostFunction._from_json, value, max_depth)
 
@@ -7021,6 +7039,7 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SorobanAuthorizedFunction._decode, data, max_depth)
 
@@ -7038,6 +7057,7 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             SorobanAuthorizedFunction._decode, decode_base64(text), max_depth
@@ -7066,6 +7086,7 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SorobanAuthorizedFunction._from_json, value, max_depth)
 
@@ -7889,6 +7910,7 @@ class SorobanCredentials(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SorobanCredentials._decode, data, max_depth)
 
@@ -7906,6 +7928,7 @@ class SorobanCredentials(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SorobanCredentials._decode, decode_base64(text), max_depth)
 
@@ -7932,6 +7955,7 @@ class SorobanCredentials(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SorobanCredentials._from_json, value, max_depth)
 
@@ -9979,6 +10003,7 @@ class OperationBody(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationBody._decode, data, max_depth)
 
@@ -9996,6 +10021,7 @@ class OperationBody(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationBody._decode, decode_base64(text), max_depth)
 
@@ -10019,6 +10045,7 @@ class OperationBody(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(OperationBody._from_json, value, max_depth)
 
@@ -11331,6 +11358,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(HashIDPreimage._decode, data, max_depth)
 
@@ -11348,6 +11376,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(HashIDPreimage._decode, decode_base64(text), max_depth)
 
@@ -11374,6 +11403,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(HashIDPreimage._from_json, value, max_depth)
 
@@ -11649,6 +11679,7 @@ class Memo(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(Memo._decode, data, max_depth)
 
@@ -11666,6 +11697,7 @@ class Memo(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(Memo._decode, decode_base64(text), max_depth)
 
@@ -11687,6 +11719,7 @@ class Memo(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(Memo._from_json, value, max_depth)
 
@@ -12303,6 +12336,7 @@ class Preconditions(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(Preconditions._decode, data, max_depth)
 
@@ -12320,6 +12354,7 @@ class Preconditions(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(Preconditions._decode, decode_base64(text), max_depth)
 
@@ -12343,6 +12378,7 @@ class Preconditions(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(Preconditions._from_json, value, max_depth)
 
@@ -12832,6 +12868,7 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SorobanTransactionDataExt._decode, data, max_depth)
 
@@ -12849,6 +12886,7 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             SorobanTransactionDataExt._decode, decode_base64(text), max_depth
@@ -12877,6 +12915,7 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SorobanTransactionDataExt._from_json, value, max_depth)
 
@@ -13091,6 +13130,7 @@ class TransactionV0Ext(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionV0Ext._decode, data, max_depth)
 
@@ -13108,6 +13148,7 @@ class TransactionV0Ext(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionV0Ext._decode, decode_base64(text), max_depth)
 
@@ -13134,6 +13175,7 @@ class TransactionV0Ext(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionV0Ext._from_json, value, max_depth)
 
@@ -13591,6 +13633,7 @@ class TransactionExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionExt._decode, data, max_depth)
 
@@ -13608,6 +13651,7 @@ class TransactionExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionExt._decode, decode_base64(text), max_depth)
 
@@ -13634,6 +13678,7 @@ class TransactionExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionExt._from_json, value, max_depth)
 
@@ -14048,6 +14093,7 @@ class FeeBumpTransactionInnerTx(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(FeeBumpTransactionInnerTx._decode, data, max_depth)
 
@@ -14065,6 +14111,7 @@ class FeeBumpTransactionInnerTx(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             FeeBumpTransactionInnerTx._decode, decode_base64(text), max_depth
@@ -14093,6 +14140,7 @@ class FeeBumpTransactionInnerTx(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(FeeBumpTransactionInnerTx._from_json, value, max_depth)
 
@@ -14174,6 +14222,7 @@ class FeeBumpTransactionExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(FeeBumpTransactionExt._decode, data, max_depth)
 
@@ -14191,6 +14240,7 @@ class FeeBumpTransactionExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             FeeBumpTransactionExt._decode, decode_base64(text), max_depth
@@ -14219,6 +14269,7 @@ class FeeBumpTransactionExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(FeeBumpTransactionExt._from_json, value, max_depth)
 
@@ -14684,6 +14735,7 @@ class TransactionEnvelope(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionEnvelope._decode, data, max_depth)
 
@@ -14701,6 +14753,7 @@ class TransactionEnvelope(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionEnvelope._decode, decode_base64(text), max_depth)
 
@@ -14727,6 +14780,7 @@ class TransactionEnvelope(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionEnvelope._from_json, value, max_depth)
 
@@ -14894,6 +14948,7 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionSignaturePayloadTaggedTransaction._decode, data, max_depth
@@ -14913,6 +14968,7 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionSignaturePayloadTaggedTransaction._decode,
@@ -14945,6 +15001,7 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(
             TransactionSignaturePayloadTaggedTransaction._from_json, value, max_depth
@@ -15783,6 +15840,7 @@ class ClaimAtom(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClaimAtom._decode, data, max_depth)
 
@@ -15800,6 +15858,7 @@ class ClaimAtom(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClaimAtom._decode, decode_base64(text), max_depth)
 
@@ -15823,6 +15882,7 @@ class ClaimAtom(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ClaimAtom._from_json, value, max_depth)
 
@@ -16041,6 +16101,7 @@ class CreateAccountResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(CreateAccountResult._decode, data, max_depth)
 
@@ -16058,6 +16119,7 @@ class CreateAccountResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(CreateAccountResult._decode, decode_base64(text), max_depth)
 
@@ -16084,6 +16146,7 @@ class CreateAccountResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(CreateAccountResult._from_json, value, max_depth)
 
@@ -16484,6 +16547,7 @@ class PaymentResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PaymentResult._decode, data, max_depth)
 
@@ -16501,6 +16565,7 @@ class PaymentResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PaymentResult._decode, decode_base64(text), max_depth)
 
@@ -16524,6 +16589,7 @@ class PaymentResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(PaymentResult._from_json, value, max_depth)
 
@@ -17343,6 +17409,7 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PathPaymentStrictReceiveResult._decode, data, max_depth)
 
@@ -17360,6 +17427,7 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             PathPaymentStrictReceiveResult._decode, decode_base64(text), max_depth
@@ -17390,6 +17458,7 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(PathPaymentStrictReceiveResult._from_json, value, max_depth)
 
@@ -18106,6 +18175,7 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PathPaymentStrictSendResult._decode, data, max_depth)
 
@@ -18123,6 +18193,7 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             PathPaymentStrictSendResult._decode, decode_base64(text), max_depth
@@ -18151,6 +18222,7 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(PathPaymentStrictSendResult._from_json, value, max_depth)
 
@@ -18383,6 +18455,7 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ManageOfferSuccessResultOffer._decode, data, max_depth)
 
@@ -18400,6 +18473,7 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ManageOfferSuccessResultOffer._decode, decode_base64(text), max_depth
@@ -18428,6 +18502,7 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ManageOfferSuccessResultOffer._from_json, value, max_depth)
 
@@ -19080,6 +19155,7 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ManageSellOfferResult._decode, data, max_depth)
 
@@ -19097,6 +19173,7 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ManageSellOfferResult._decode, decode_base64(text), max_depth
@@ -19125,6 +19202,7 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ManageSellOfferResult._from_json, value, max_depth)
 
@@ -19682,6 +19760,7 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ManageBuyOfferResult._decode, data, max_depth)
 
@@ -19699,6 +19778,7 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ManageBuyOfferResult._decode, decode_base64(text), max_depth
@@ -19727,6 +19807,7 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ManageBuyOfferResult._from_json, value, max_depth)
 
@@ -20192,6 +20273,7 @@ class SetOptionsResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SetOptionsResult._decode, data, max_depth)
 
@@ -20209,6 +20291,7 @@ class SetOptionsResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SetOptionsResult._decode, decode_base64(text), max_depth)
 
@@ -20235,6 +20318,7 @@ class SetOptionsResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SetOptionsResult._from_json, value, max_depth)
 
@@ -20625,6 +20709,7 @@ class ChangeTrustResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ChangeTrustResult._decode, data, max_depth)
 
@@ -20642,6 +20727,7 @@ class ChangeTrustResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ChangeTrustResult._decode, decode_base64(text), max_depth)
 
@@ -20668,6 +20754,7 @@ class ChangeTrustResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ChangeTrustResult._from_json, value, max_depth)
 
@@ -20984,6 +21071,7 @@ class AllowTrustResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(AllowTrustResult._decode, data, max_depth)
 
@@ -21001,6 +21089,7 @@ class AllowTrustResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(AllowTrustResult._decode, decode_base64(text), max_depth)
 
@@ -21027,6 +21116,7 @@ class AllowTrustResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(AllowTrustResult._from_json, value, max_depth)
 
@@ -21398,6 +21488,7 @@ class AccountMergeResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(AccountMergeResult._decode, data, max_depth)
 
@@ -21415,6 +21506,7 @@ class AccountMergeResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(AccountMergeResult._decode, decode_base64(text), max_depth)
 
@@ -21441,6 +21533,7 @@ class AccountMergeResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(AccountMergeResult._from_json, value, max_depth)
 
@@ -21706,6 +21799,7 @@ class InflationResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(InflationResult._decode, data, max_depth)
 
@@ -21723,6 +21817,7 @@ class InflationResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(InflationResult._decode, decode_base64(text), max_depth)
 
@@ -21749,6 +21844,7 @@ class InflationResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(InflationResult._from_json, value, max_depth)
 
@@ -21965,6 +22061,7 @@ class ManageDataResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ManageDataResult._decode, data, max_depth)
 
@@ -21982,6 +22079,7 @@ class ManageDataResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ManageDataResult._decode, decode_base64(text), max_depth)
 
@@ -22008,6 +22106,7 @@ class ManageDataResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ManageDataResult._from_json, value, max_depth)
 
@@ -22133,6 +22232,7 @@ class BumpSequenceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(BumpSequenceResult._decode, data, max_depth)
 
@@ -22150,6 +22250,7 @@ class BumpSequenceResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(BumpSequenceResult._decode, decode_base64(text), max_depth)
 
@@ -22176,6 +22277,7 @@ class BumpSequenceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(BumpSequenceResult._from_json, value, max_depth)
 
@@ -22459,6 +22561,7 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(CreateClaimableBalanceResult._decode, data, max_depth)
 
@@ -22476,6 +22579,7 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             CreateClaimableBalanceResult._decode, decode_base64(text), max_depth
@@ -22504,6 +22608,7 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(CreateClaimableBalanceResult._from_json, value, max_depth)
 
@@ -22818,6 +22923,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClaimClaimableBalanceResult._decode, data, max_depth)
 
@@ -22835,6 +22941,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ClaimClaimableBalanceResult._decode, decode_base64(text), max_depth
@@ -22863,6 +22970,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ClaimClaimableBalanceResult._from_json, value, max_depth)
 
@@ -23081,6 +23189,7 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             BeginSponsoringFutureReservesResult._decode, data, max_depth
@@ -23100,6 +23209,7 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             BeginSponsoringFutureReservesResult._decode, decode_base64(text), max_depth
@@ -23130,6 +23240,7 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(
             BeginSponsoringFutureReservesResult._from_json, value, max_depth
@@ -23266,6 +23377,7 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(EndSponsoringFutureReservesResult._decode, data, max_depth)
 
@@ -23283,6 +23395,7 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             EndSponsoringFutureReservesResult._decode, decode_base64(text), max_depth
@@ -23313,6 +23426,7 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(
             EndSponsoringFutureReservesResult._from_json, value, max_depth
@@ -23574,6 +23688,7 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(RevokeSponsorshipResult._decode, data, max_depth)
 
@@ -23591,6 +23706,7 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             RevokeSponsorshipResult._decode, decode_base64(text), max_depth
@@ -23619,6 +23735,7 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(RevokeSponsorshipResult._from_json, value, max_depth)
 
@@ -23856,6 +23973,7 @@ class ClawbackResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClawbackResult._decode, data, max_depth)
 
@@ -23873,6 +23991,7 @@ class ClawbackResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClawbackResult._decode, decode_base64(text), max_depth)
 
@@ -23899,6 +24018,7 @@ class ClawbackResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ClawbackResult._from_json, value, max_depth)
 
@@ -24099,6 +24219,7 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClawbackClaimableBalanceResult._decode, data, max_depth)
 
@@ -24116,6 +24237,7 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ClawbackClaimableBalanceResult._decode, decode_base64(text), max_depth
@@ -24146,6 +24268,7 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ClawbackClaimableBalanceResult._from_json, value, max_depth)
 
@@ -24409,6 +24532,7 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SetTrustLineFlagsResult._decode, data, max_depth)
 
@@ -24426,6 +24550,7 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             SetTrustLineFlagsResult._decode, decode_base64(text), max_depth
@@ -24454,6 +24579,7 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SetTrustLineFlagsResult._from_json, value, max_depth)
 
@@ -24839,6 +24965,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LiquidityPoolDepositResult._decode, data, max_depth)
 
@@ -24856,6 +24983,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             LiquidityPoolDepositResult._decode, decode_base64(text), max_depth
@@ -24884,6 +25012,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LiquidityPoolDepositResult._from_json, value, max_depth)
 
@@ -25210,6 +25339,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LiquidityPoolWithdrawResult._decode, data, max_depth)
 
@@ -25227,6 +25357,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             LiquidityPoolWithdrawResult._decode, decode_base64(text), max_depth
@@ -25255,6 +25386,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LiquidityPoolWithdrawResult._from_json, value, max_depth)
 
@@ -25567,6 +25699,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(InvokeHostFunctionResult._decode, data, max_depth)
 
@@ -25584,6 +25717,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             InvokeHostFunctionResult._decode, decode_base64(text), max_depth
@@ -25612,6 +25746,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(InvokeHostFunctionResult._from_json, value, max_depth)
 
@@ -25823,6 +25958,7 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ExtendFootprintTTLResult._decode, data, max_depth)
 
@@ -25840,6 +25976,7 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             ExtendFootprintTTLResult._decode, decode_base64(text), max_depth
@@ -25868,6 +26005,7 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ExtendFootprintTTLResult._from_json, value, max_depth)
 
@@ -26069,6 +26207,7 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(RestoreFootprintResult._decode, data, max_depth)
 
@@ -26086,6 +26225,7 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             RestoreFootprintResult._decode, decode_base64(text), max_depth
@@ -26114,6 +26254,7 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(RestoreFootprintResult._from_json, value, max_depth)
 
@@ -27976,6 +28117,7 @@ class OperationResultTr(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationResultTr._decode, data, max_depth)
 
@@ -27993,6 +28135,7 @@ class OperationResultTr(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationResultTr._decode, decode_base64(text), max_depth)
 
@@ -28019,6 +28162,7 @@ class OperationResultTr(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(OperationResultTr._from_json, value, max_depth)
 
@@ -28439,6 +28583,7 @@ class OperationResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationResult._decode, data, max_depth)
 
@@ -28456,6 +28601,7 @@ class OperationResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(OperationResult._decode, decode_base64(text), max_depth)
 
@@ -28482,6 +28628,7 @@ class OperationResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(OperationResult._from_json, value, max_depth)
 
@@ -29259,6 +29406,7 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(InnerTransactionResultResult._decode, data, max_depth)
 
@@ -29276,6 +29424,7 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             InnerTransactionResultResult._decode, decode_base64(text), max_depth
@@ -29304,6 +29453,7 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(InnerTransactionResultResult._from_json, value, max_depth)
 
@@ -29442,6 +29592,7 @@ class InnerTransactionResultExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(InnerTransactionResultExt._decode, data, max_depth)
 
@@ -29459,6 +29610,7 @@ class InnerTransactionResultExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             InnerTransactionResultExt._decode, decode_base64(text), max_depth
@@ -29487,6 +29639,7 @@ class InnerTransactionResultExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(InnerTransactionResultExt._from_json, value, max_depth)
 
@@ -30621,6 +30774,7 @@ class TransactionResultResult(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionResultResult._decode, data, max_depth)
 
@@ -30638,6 +30792,7 @@ class TransactionResultResult(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionResultResult._decode, decode_base64(text), max_depth
@@ -30666,6 +30821,7 @@ class TransactionResultResult(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionResultResult._from_json, value, max_depth)
 
@@ -30806,6 +30962,7 @@ class TransactionResultExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionResultExt._decode, data, max_depth)
 
@@ -30823,6 +30980,7 @@ class TransactionResultExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionResultExt._decode, decode_base64(text), max_depth
@@ -30851,6 +31009,7 @@ class TransactionResultExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionResultExt._from_json, value, max_depth)
 

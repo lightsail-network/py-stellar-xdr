@@ -63,7 +63,7 @@ class JsonReader:
         self.depth += 1
         if self.depth > self.max_depth:
             msg = f"JSON nested deeper than max_depth={self.max_depth}"
-            raise XdrJsonError(msg)
+            raise XdrDepthError(msg)
 
 
 def _fail(where: str, message: str) -> NoReturn:

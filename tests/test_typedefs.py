@@ -47,7 +47,7 @@ def test_depth_is_limited() -> None:
     with pytest.raises(xdr.XdrDepthError):
         typedefs.SCVec.to_xdr_bytes([value], max_depth=3)
     data = typedefs.SCVec.to_xdr_bytes([value])
-    with pytest.raises(xdr.XdrDecodeError, match="max_depth=3"):
+    with pytest.raises(xdr.XdrDepthError, match="max_depth=3"):
         typedefs.SCVec.from_xdr_bytes(data, max_depth=3)
 
 

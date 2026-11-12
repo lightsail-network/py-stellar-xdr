@@ -1127,6 +1127,7 @@ _DECODE_BYTES_DOC: Final = [
     "",
     "Raises:",
     "    XdrDecodeError: The data is not a valid encoding of this type.",
+    "    XdrDepthError: The data is nested more deeply than `max_depth`.",
 ]
 _FROM_JSON_DOC: Final = [
     "Convert SEP-51 XDR-JSON to a value.",
@@ -1138,6 +1139,7 @@ _FROM_JSON_DOC: Final = [
     "",
     "Raises:",
     "    XdrJsonError: The JSON is not a valid representation of this type.",
+    "    XdrDepthError: The JSON is nested more deeply than `max_depth`.",
 ]
 _DECODE_BASE64_DOC: Final = [
     "Decode a value from XDR in base64.",
@@ -1150,6 +1152,7 @@ _DECODE_BASE64_DOC: Final = [
     "Raises:",
     "    XdrDecodeError: The text is not valid base64, or not a valid encoding of",
     "        this type.",
+    "    XdrDepthError: The data is nested more deeply than `max_depth`.",
 ]
 
 

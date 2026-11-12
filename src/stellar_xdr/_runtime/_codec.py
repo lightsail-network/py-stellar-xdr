@@ -52,7 +52,8 @@ class Reader:
         """Count one more level of nesting of a recursive type."""
         self.depth += 1
         if self.depth > self.max_depth:
-            raise self.error(f"nesting deeper than max_depth={self.max_depth}")
+            msg = f"nesting deeper than max_depth={self.max_depth} at offset {self.pos}"
+            raise XdrDepthError(msg)
 
     def int32(self) -> int:
         """Read a signed 32-bit integer."""
@@ -219,7 +220,7 @@ def decode_bytes(decode: Callable[[Reader], _T], data: bytes, max_depth: int) ->
 
 
 def decode_from(decode: Callable[[Reader], _T], reader: Reader) -> _T:
-    """Decode one value, turning low-level failures into `XdrDecodeError`."""
+    """Decode one value, turning low-level failures into the package's errors."""
     try:
         return decode(reader)
     except struct.error:
@@ -227,7 +228,8 @@ def decode_from(decode: Callable[[Reader], _T], reader: Reader) -> _T:
     except RecursionError:
         # Only reachable when max_depth is set above what Python's recursion limit
         # allows; the depth check catches everything else first.
-        raise reader.error("nesting deeper than Python's recursion limit") from None
+        msg = f"nesting deeper than Python's recursion limit at offset {reader.pos}"
+        raise XdrDepthError(msg) from None
 
 
 def decode_base64(text: str | bytes) -> bytes:

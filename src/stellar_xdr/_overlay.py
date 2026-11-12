@@ -997,6 +997,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PeerAddressIp._decode, data, max_depth)
 
@@ -1014,6 +1015,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PeerAddressIp._decode, decode_base64(text), max_depth)
 
@@ -1040,6 +1042,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(PeerAddressIp._from_json, value, max_depth)
 
@@ -3521,6 +3524,7 @@ class SurveyResponseBody(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SurveyResponseBody._decode, data, max_depth)
 
@@ -3538,6 +3542,7 @@ class SurveyResponseBody(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SurveyResponseBody._decode, decode_base64(text), max_depth)
 
@@ -3564,6 +3569,7 @@ class SurveyResponseBody(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SurveyResponseBody._from_json, value, max_depth)
 
@@ -5026,6 +5032,7 @@ class StellarMessage(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(StellarMessage._decode, data, max_depth)
 
@@ -5043,6 +5050,7 @@ class StellarMessage(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(StellarMessage._decode, decode_base64(text), max_depth)
 
@@ -5069,6 +5077,7 @@ class StellarMessage(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(StellarMessage._from_json, value, max_depth)
 
@@ -5320,6 +5329,7 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(AuthenticatedMessage._decode, data, max_depth)
 
@@ -5337,6 +5347,7 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             AuthenticatedMessage._decode, decode_base64(text), max_depth
@@ -5365,6 +5376,7 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(AuthenticatedMessage._from_json, value, max_depth)
 

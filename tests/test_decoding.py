@@ -112,7 +112,9 @@ def test_depth_counts_recursive_types() -> None:
     value = nested_vec(5)
     data = value.to_xdr_bytes(max_depth=6)
     assert xdr.SCVal.from_xdr_bytes(data, max_depth=6) == value
-    with pytest.raises(xdr.XdrDecodeError, match="nesting deeper than max_depth=5"):
+    with pytest.raises(
+        xdr.XdrDepthError, match=r"^nesting deeper than max_depth=5 at offset \d+$"
+    ):
         xdr.SCVal.from_xdr_bytes(data, max_depth=5)
     with pytest.raises(xdr.XdrDepthError, match="nested deeper than max_depth=5"):
         value.to_xdr_bytes(max_depth=5)
@@ -127,7 +129,7 @@ def test_the_default_depth_accepts_what_soroban_accepts() -> None:
 
 def test_recursion_beyond_python_limits_is_an_error() -> None:
     data = u32(VEC, 1) * 3000 + u32(xdr.SCValType.SCV_VOID)
-    with pytest.raises(xdr.XdrDecodeError, match="recursion limit"):
+    with pytest.raises(xdr.XdrDepthError, match="recursion limit at offset"):
         xdr.SCVal.from_xdr_bytes(data, max_depth=10_000)
     value = nested_vec(3000)
     with pytest.raises(xdr.XdrDepthError, match="recursion limit"):
@@ -139,6 +141,16 @@ def test_errors_are_value_errors() -> None:
     assert issubclass(xdr.XdrJsonError, xdr.XdrError)
     assert issubclass(xdr.XdrDepthError, xdr.XdrError)
     assert issubclass(xdr.XdrError, ValueError)
+
+
+def test_there_is_one_error_per_cause() -> None:
+    # Input that is too deep is not also a decoding or a JSON error: XdrError is the
+    # class that catches everything.
+    assert not issubclass(xdr.XdrDepthError, xdr.XdrDecodeError | xdr.XdrJsonError)
+    data = nested_vec(3).to_xdr_bytes()
+    with pytest.raises(xdr.XdrError) as excinfo:
+        xdr.SCVal.from_xdr_bytes(data, max_depth=3)
+    assert type(excinfo.value) is xdr.XdrDepthError
 
 
 @pytest.mark.parametrize(

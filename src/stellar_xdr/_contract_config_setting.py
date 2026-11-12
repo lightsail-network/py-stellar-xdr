@@ -4375,6 +4375,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ConfigSettingEntry._decode, data, max_depth)
 
@@ -4392,6 +4393,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ConfigSettingEntry._decode, decode_base64(text), max_depth)
 
@@ -4418,6 +4420,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ConfigSettingEntry._from_json, value, max_depth)
 
