@@ -1,4 +1,4 @@
-"""Errors raised for input data.
+"""Errors raised by decoding, encoding and the JSON conversions.
 
 Constructing a value with a wrong argument raises a plain `TypeError` or `ValueError`,
 as for any Python function, so only errors about encoded input or nesting depth have
@@ -7,7 +7,7 @@ their own classes.
 
 
 class XdrError(ValueError):
-    """Base class of the errors raised for XDR input data."""
+    """Base class of the errors raised when decoding, encoding or converting JSON."""
 
 
 class XdrDecodeError(XdrError):
