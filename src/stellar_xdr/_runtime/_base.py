@@ -265,6 +265,12 @@ class XdrArm(_XdrValue):
 
     __slots__ = ()
 
+    # An arm holds one value at most, and its class already says which arm it is, so
+    # it is shown the way it is written: `SCVal.U32(5)`, not `SCVal.U32(u32=5)`.
+    def __repr__(self) -> str:
+        values = ", ".join([repr(getattr(self, name)) for name in self._fields])
+        return f"{type(self).__qualname__}({values})"
+
 
 class XdrEnum(_Encodable, IntEnum):
     """Base class of the generated enums."""

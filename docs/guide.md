@@ -124,7 +124,19 @@ can change between versions: to store values or send them elsewhere, use XDR or 
 
 A union, such as `SCVal`, groups one class per arm: `SCVal.U32`, `SCVal.Symbol`,
 `SCVal.Vec`. An arm holds the arm's value, if it has one, in a field named as in the
-XDR definition. `match` tells the arms apart:
+XDR definition. Since it holds one value at most, an arm is written, and shown, with the
+value alone:
+
+```python
+import stellar_xdr as xdr
+
+value = xdr.SCVal.U32(7)
+assert value.u32 == 7
+assert repr(value) == "SCVal.U32(7)"
+assert repr(xdr.SCVal.Void()) == "SCVal.Void()"
+```
+
+`match` tells the arms apart:
 
 ```python
 import stellar_xdr as xdr
