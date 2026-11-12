@@ -25,7 +25,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
-    "stellar-strkey>=0.1.0,<2",
+    "stellar-strkey>=0.2.0,<0.3.0",
 ]
 
 [project.urls]

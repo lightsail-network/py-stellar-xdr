@@ -1046,11 +1046,11 @@ wheels = [
 
 [[package]]
 name = "stellar-strkey"
-version = "0.1.0"
+version = "0.2.0"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/6a/a6/5de38075ed7284519b19d821c0c5908eee690bed0b505693b568940f5017/stellar_strkey-0.1.0.tar.gz", hash = "sha256:b7901c38829171b1973fa278f509ae512cd2efd63f5beb8e1f98f72854b46198", size = 33562, upload-time = "2026-11-07T11:18:18.262Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/0c/05/4c93a8ac9ae30662255853a4dc9b6130859296f3bb62540bc9da82bb2d51/stellar_strkey-0.2.0.tar.gz", hash = "sha256:1b1c89bbb0a64cf9e6ec332e80e72d272300f61f9a628a84cf16994a4effc433", size = 36078, upload-time = "2026-11-12T03:42:00.441Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/64/c6/32a71b52ca90d8b7b35084881c5015db1fd805e8d4f9edbd037e178a5524/stellar_strkey-0.1.0-py3-none-any.whl", hash = "sha256:a02bc88263354bde0b0d7fd1fedf52de987081f6d9c0e06453770113a4f71f23", size = 17123, upload-time = "2026-11-07T11:18:16.814Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/cd/71bafcc0c2324e03a2c6ff06b0674a9f70d570ccad26d3420650666902db/stellar_strkey-0.2.0-py3-none-any.whl", hash = "sha256:59f2acbb8b3dc6ecdb2742980b864163ff9d2477aabef14b2bc42acae12a42ae", size = 18046, upload-time = "2026-11-12T03:41:59.058Z" },
 ]
 
 [[package]]
@@ -1084,7 +1084,7 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "stellar-strkey", specifier = ">=0.1.0,<2" }]
+requires-dist = [{ name = "stellar-strkey", specifier = ">=0.2.0,<0.3.0" }]
 
 [package.metadata.requires-dev]
 dev = [
