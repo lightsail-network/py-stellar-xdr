@@ -5,6 +5,13 @@ name it has in the `.x` files: `SCVal`, `TransactionEnvelope`, `LedgerEntry`. Im
 types from there only. The modules behind it are private, because a definition can move
 from one `.x` file to another between releases.
 
+Two kinds of types get a name that the `.x` files don't spell out:
+
+- A struct or union defined inside another type is named after that type and its own
+  field: the `ext` of an `AccountEntry` is an `AccountEntryExt`, and the `result` of a
+  `TransactionResult` is a `TransactionResultResult`.
+- A typedef that starts with a lower-case letter is capitalized: `uint32` is `Uint32`.
+
 The package's version follows semantic versioning of its API. The protocol version of
 its definitions is `stellar_xdr.PROTOCOL_VERSION`:
 
