@@ -73,10 +73,7 @@ class SCEnvMetaEntryInterfaceVersion(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "protocol",
-        "pre_release",
-    )
+    __slots__ = ("protocol", "pre_release")
 
     protocol: Uint32
     pre_release: Uint32
@@ -99,13 +96,7 @@ class SCEnvMetaEntryInterfaceVersion(XdrStruct):
         return self.protocol == other.protocol and self.pre_release == other.pre_release
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCEnvMetaEntryInterfaceVersion,
-                self.protocol,
-                self.pre_release,
-            )
-        )
+        return hash((SCEnvMetaEntryInterfaceVersion, self.protocol, self.pre_release))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.protocol)
@@ -124,12 +115,7 @@ class SCEnvMetaEntryInterfaceVersion(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCEnvMetaEntryInterfaceVersion",
-            (
-                "protocol",
-                "pre_release",
-            ),
+            value, "SCEnvMetaEntryInterfaceVersion", ("protocol", "pre_release")
         )
         obj = new(cls)
         set_field(
@@ -192,12 +178,7 @@ class SCEnvMetaEntry(metaclass=UnionNamespace):
             return self.interface_version == other.interface_version
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCEnvMetaEntry.InterfaceVersion,
-                    self.interface_version,
-                )
-            )
+            return hash((SCEnvMetaEntry.InterfaceVersion, self.interface_version))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -308,7 +289,7 @@ _SC_ENV_META_ENTRY_CLASSES: Final = frozenset(_SC_ENV_META_ENTRY_ARMS.values())
 _SC_ENV_META_ENTRY_JSON_ARMS: Final[dict[str, type[SCEnvMetaEntry.Any]]] = {
     "sc_env_meta_kind_interface_version": SCEnvMetaEntry.InterfaceVersion
 }
-_SC_ENV_META_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SC_ENV_META_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 __all__ = [

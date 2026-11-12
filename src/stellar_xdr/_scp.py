@@ -99,10 +99,7 @@ class SCPBallot(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "counter",
-        "value",
-    )
+    __slots__ = ("counter", "value")
 
     counter: Uint32
     value: Value
@@ -117,13 +114,7 @@ class SCPBallot(XdrStruct):
         return self.counter == other.counter and self.value == other.value
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCPBallot,
-                self.counter,
-                self.value,
-            )
-        )
+        return hash((SCPBallot, self.counter, self.value))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.counter)
@@ -141,14 +132,7 @@ class SCPBallot(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCPBallot",
-            (
-                "counter",
-                "value",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCPBallot", ("counter", "value"))
         obj = new(cls)
         set_field(
             obj, "counter", xdr_json.uint32(fields["counter"], "SCPBallot.counter")
@@ -173,11 +157,7 @@ class SCPNomination(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "quorum_set_hash",
-        "votes",
-        "accepted",
-    )
+    __slots__ = ("quorum_set_hash", "votes", "accepted")
 
     quorum_set_hash: Hash
     votes: tuple[Value, ...]
@@ -214,14 +194,7 @@ class SCPNomination(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCPNomination,
-                self.quorum_set_hash,
-                self.votes,
-                self.accepted,
-            )
-        )
+        return hash((SCPNomination, self.quorum_set_hash, self.votes, self.accepted))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.quorum_set_hash)
@@ -258,13 +231,7 @@ class SCPNomination(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCPNomination",
-            (
-                "quorum_set_hash",
-                "votes",
-                "accepted",
-            ),
+            value, "SCPNomination", ("quorum_set_hash", "votes", "accepted")
         )
         obj = new(cls)
         set_field(
@@ -448,14 +415,7 @@ class SCPStatementPrepare(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SCPStatementPrepare",
-            (
-                "quorum_set_hash",
-                "ballot",
-                "prepared",
-                "prepared_prime",
-                "n_c",
-                "n_h",
-            ),
+            ("quorum_set_hash", "ballot", "prepared", "prepared_prime", "n_c", "n_h"),
             frozenset({"prepared", "prepared_prime"}),
         )
         obj = new(cls)
@@ -506,13 +466,7 @@ class SCPStatementConfirm(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ballot",
-        "n_prepared",
-        "n_commit",
-        "n_h",
-        "quorum_set_hash",
-    )
+    __slots__ = ("ballot", "n_prepared", "n_commit", "n_h", "quorum_set_hash")
 
     ballot: SCPBallot
     n_prepared: Uint32
@@ -604,13 +558,7 @@ class SCPStatementConfirm(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SCPStatementConfirm",
-            (
-                "ballot",
-                "n_prepared",
-                "n_commit",
-                "n_h",
-                "quorum_set_hash",
-            ),
+            ("ballot", "n_prepared", "n_commit", "n_h", "quorum_set_hash"),
         )
         obj = new(cls)
         set_field(obj, "ballot", SCPBallot._from_json(fields["ballot"], ctx))
@@ -649,11 +597,7 @@ class SCPStatementExternalize(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "commit",
-        "n_h",
-        "commit_quorum_set_hash",
-    )
+    __slots__ = ("commit", "n_h", "commit_quorum_set_hash")
 
     commit: SCPBallot
     n_h: Uint32
@@ -722,11 +666,7 @@ class SCPStatementExternalize(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SCPStatementExternalize",
-            (
-                "commit",
-                "n_h",
-                "commit_quorum_set_hash",
-            ),
+            ("commit", "n_h", "commit_quorum_set_hash"),
         )
         obj = new(cls)
         set_field(obj, "commit", SCPBallot._from_json(fields["commit"], ctx))
@@ -809,12 +749,7 @@ class SCPStatementPledges(metaclass=UnionNamespace):
             return self.prepare == other.prepare
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCPStatementPledges.Prepare,
-                    self.prepare,
-                )
-            )
+            return hash((SCPStatementPledges.Prepare, self.prepare))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -861,12 +796,7 @@ class SCPStatementPledges(metaclass=UnionNamespace):
             return self.confirm == other.confirm
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCPStatementPledges.Confirm,
-                    self.confirm,
-                )
-            )
+            return hash((SCPStatementPledges.Confirm, self.confirm))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -915,12 +845,7 @@ class SCPStatementPledges(metaclass=UnionNamespace):
             return self.externalize == other.externalize
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCPStatementPledges.Externalize,
-                    self.externalize,
-                )
-            )
+            return hash((SCPStatementPledges.Externalize, self.externalize))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -969,12 +894,7 @@ class SCPStatementPledges(metaclass=UnionNamespace):
             return self.nominate == other.nominate
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCPStatementPledges.Nominate,
-                    self.nominate,
-                )
-            )
+            return hash((SCPStatementPledges.Nominate, self.nominate))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -1081,7 +1001,7 @@ _SCP_STATEMENT_PLEDGES_JSON_ARMS: Final[dict[str, type[SCPStatementPledges.Any]]
     "externalize": SCPStatementPledges.Externalize,
     "nominate": SCPStatementPledges.Nominate,
 }
-_SCP_STATEMENT_PLEDGES_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SCP_STATEMENT_PLEDGES_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -1130,11 +1050,7 @@ class SCPStatement(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "node_id",
-        "slot_index",
-        "pledges",
-    )
+    __slots__ = ("node_id", "slot_index", "pledges")
 
     node_id: NodeID
     slot_index: Uint64
@@ -1174,14 +1090,7 @@ class SCPStatement(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCPStatement,
-                self.node_id,
-                self.slot_index,
-                self.pledges,
-            )
-        )
+        return hash((SCPStatement, self.node_id, self.slot_index, self.pledges))
 
     def _encode(self, writer: Writer) -> None:
         self.node_id._encode(writer)
@@ -1206,13 +1115,7 @@ class SCPStatement(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCPStatement",
-            (
-                "node_id",
-                "slot_index",
-                "pledges",
-            ),
+            value, "SCPStatement", ("node_id", "slot_index", "pledges")
         )
         obj = new(cls)
         set_field(obj, "node_id", PublicKey._from_json(fields["node_id"], ctx))
@@ -1240,10 +1143,7 @@ class SCPEnvelope(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "statement",
-        "signature",
-    )
+    __slots__ = ("statement", "signature")
 
     statement: SCPStatement
     signature: Signature
@@ -1264,13 +1164,7 @@ class SCPEnvelope(XdrStruct):
         return self.statement == other.statement and self.signature == other.signature
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCPEnvelope,
-                self.statement,
-                self.signature,
-            )
-        )
+        return hash((SCPEnvelope, self.statement, self.signature))
 
     def _encode(self, writer: Writer) -> None:
         self.statement._encode(writer)
@@ -1291,14 +1185,7 @@ class SCPEnvelope(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCPEnvelope",
-            (
-                "statement",
-                "signature",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCPEnvelope", ("statement", "signature"))
         obj = new(cls)
         set_field(obj, "statement", SCPStatement._from_json(fields["statement"], ctx))
         set_field(
@@ -1323,11 +1210,7 @@ class SCPQuorumSet(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "threshold",
-        "validators",
-        "inner_sets",
-    )
+    __slots__ = ("threshold", "validators", "inner_sets")
 
     threshold: Uint32
     validators: tuple[NodeID, ...]
@@ -1374,14 +1257,7 @@ class SCPQuorumSet(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCPQuorumSet,
-                self.threshold,
-                self.validators,
-                self.inner_sets,
-            )
-        )
+        return hash((SCPQuorumSet, self.threshold, self.validators, self.inner_sets))
 
     def _encode(self, writer: Writer) -> None:
         writer.enter()
@@ -1428,13 +1304,7 @@ class SCPQuorumSet(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         ctx.enter()
         fields = xdr_json.fields(
-            value,
-            "SCPQuorumSet",
-            (
-                "threshold",
-                "validators",
-                "inner_sets",
-            ),
+            value, "SCPQuorumSet", ("threshold", "validators", "inner_sets")
         )
         obj = new(cls)
         set_field(

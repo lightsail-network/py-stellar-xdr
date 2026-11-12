@@ -79,12 +79,7 @@ class StoredTransactionSet(metaclass=UnionNamespace):
             return self.tx_set == other.tx_set
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StoredTransactionSet.V0,
-                    self.tx_set,
-                )
-            )
+            return hash((StoredTransactionSet.V0, self.tx_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -132,12 +127,7 @@ class StoredTransactionSet(metaclass=UnionNamespace):
             return self.generalized_tx_set == other.generalized_tx_set
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    StoredTransactionSet.V1,
-                    self.generalized_tx_set,
-                )
-            )
+            return hash((StoredTransactionSet.V1, self.generalized_tx_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -250,7 +240,7 @@ _STORED_TRANSACTION_SET_JSON_ARMS: Final[dict[str, type[StoredTransactionSet.Any
     "v0": StoredTransactionSet.V0,
     "v1": StoredTransactionSet.V1,
 }
-_STORED_TRANSACTION_SET_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_STORED_TRANSACTION_SET_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -267,11 +257,7 @@ class StoredDebugTransactionSet(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "tx_set",
-        "ledger_seq",
-        "scp_value",
-    )
+    __slots__ = ("tx_set", "ledger_seq", "scp_value")
 
     tx_set: StoredTransactionSet.Any
     ledger_seq: Uint32
@@ -317,12 +303,7 @@ class StoredDebugTransactionSet(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                StoredDebugTransactionSet,
-                self.tx_set,
-                self.ledger_seq,
-                self.scp_value,
-            )
+            (StoredDebugTransactionSet, self.tx_set, self.ledger_seq, self.scp_value)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -348,13 +329,7 @@ class StoredDebugTransactionSet(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "StoredDebugTransactionSet",
-            (
-                "tx_set",
-                "ledger_seq",
-                "scp_value",
-            ),
+            value, "StoredDebugTransactionSet", ("tx_set", "ledger_seq", "scp_value")
         )
         obj = new(cls)
         set_field(obj, "tx_set", StoredTransactionSet._from_json(fields["tx_set"], ctx))
@@ -383,11 +358,7 @@ class PersistedSCPStateV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "scp_envelopes",
-        "quorum_sets",
-        "tx_sets",
-    )
+    __slots__ = ("scp_envelopes", "quorum_sets", "tx_sets")
 
     scp_envelopes: tuple[SCPEnvelope, ...]
     quorum_sets: tuple[SCPQuorumSet, ...]
@@ -445,12 +416,7 @@ class PersistedSCPStateV0(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (
-                PersistedSCPStateV0,
-                self.scp_envelopes,
-                self.quorum_sets,
-                self.tx_sets,
-            )
+            (PersistedSCPStateV0, self.scp_envelopes, self.quorum_sets, self.tx_sets)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -501,13 +467,7 @@ class PersistedSCPStateV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "PersistedSCPStateV0",
-            (
-                "scp_envelopes",
-                "quorum_sets",
-                "tx_sets",
-            ),
+            value, "PersistedSCPStateV0", ("scp_envelopes", "quorum_sets", "tx_sets")
         )
         obj = new(cls)
         set_field(
@@ -558,10 +518,7 @@ class PersistedSCPStateV1(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "scp_envelopes",
-        "quorum_sets",
-    )
+    __slots__ = ("scp_envelopes", "quorum_sets")
 
     scp_envelopes: tuple[SCPEnvelope, ...]
     quorum_sets: tuple[SCPQuorumSet, ...]
@@ -601,13 +558,7 @@ class PersistedSCPStateV1(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                PersistedSCPStateV1,
-                self.scp_envelopes,
-                self.quorum_sets,
-            )
-        )
+        return hash((PersistedSCPStateV1, self.scp_envelopes, self.quorum_sets))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.scp_envelopes))
@@ -643,12 +594,7 @@ class PersistedSCPStateV1(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "PersistedSCPStateV1",
-            (
-                "scp_envelopes",
-                "quorum_sets",
-            ),
+            value, "PersistedSCPStateV1", ("scp_envelopes", "quorum_sets")
         )
         obj = new(cls)
         set_field(
@@ -712,12 +658,7 @@ class PersistedSCPState(metaclass=UnionNamespace):
             return self.v0 == other.v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    PersistedSCPState.V0,
-                    self.v0,
-                )
-            )
+            return hash((PersistedSCPState.V0, self.v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -760,12 +701,7 @@ class PersistedSCPState(metaclass=UnionNamespace):
             return self.v1 == other.v1
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    PersistedSCPState.V1,
-                    self.v1,
-                )
-            )
+            return hash((PersistedSCPState.V1, self.v1))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -868,7 +804,7 @@ _PERSISTED_SCP_STATE_JSON_ARMS: Final[dict[str, type[PersistedSCPState.Any]]] = 
     "v0": PersistedSCPState.V0,
     "v1": PersistedSCPState.V1,
 }
-_PERSISTED_SCP_STATE_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_PERSISTED_SCP_STATE_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 __all__ = [

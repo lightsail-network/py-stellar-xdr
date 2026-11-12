@@ -338,12 +338,7 @@ class SCSpecTypeOption(XdrStruct):
         return self.value_type == other.value_type
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeOption,
-                self.value_type,
-            )
-        )
+        return hash((SCSpecTypeOption, self.value_type))
 
     def _encode(self, writer: Writer) -> None:
         self.value_type._encode(writer)
@@ -380,10 +375,7 @@ class SCSpecTypeResult(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "ok_type",
-        "error_type",
-    )
+    __slots__ = ("ok_type", "error_type")
 
     ok_type: SCSpecTypeDef.Any
     error_type: SCSpecTypeDef.Any
@@ -418,13 +410,7 @@ class SCSpecTypeResult(XdrStruct):
         return self.ok_type == other.ok_type and self.error_type == other.error_type
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeResult,
-                self.ok_type,
-                self.error_type,
-            )
-        )
+        return hash((SCSpecTypeResult, self.ok_type, self.error_type))
 
     def _encode(self, writer: Writer) -> None:
         self.ok_type._encode(writer)
@@ -445,14 +431,7 @@ class SCSpecTypeResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCSpecTypeResult",
-            (
-                "ok_type",
-                "error_type",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCSpecTypeResult", ("ok_type", "error_type"))
         obj = new(cls)
         set_field(obj, "ok_type", SCSpecTypeDef._from_json(fields["ok_type"], ctx))
         set_field(
@@ -495,12 +474,7 @@ class SCSpecTypeVec(XdrStruct):
         return self.element_type == other.element_type
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeVec,
-                self.element_type,
-            )
-        )
+        return hash((SCSpecTypeVec, self.element_type))
 
     def _encode(self, writer: Writer) -> None:
         self.element_type._encode(writer)
@@ -537,10 +511,7 @@ class SCSpecTypeMap(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "key_type",
-        "value_type",
-    )
+    __slots__ = ("key_type", "value_type")
 
     key_type: SCSpecTypeDef.Any
     value_type: SCSpecTypeDef.Any
@@ -575,13 +546,7 @@ class SCSpecTypeMap(XdrStruct):
         return self.key_type == other.key_type and self.value_type == other.value_type
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeMap,
-                self.key_type,
-                self.value_type,
-            )
-        )
+        return hash((SCSpecTypeMap, self.key_type, self.value_type))
 
     def _encode(self, writer: Writer) -> None:
         self.key_type._encode(writer)
@@ -602,14 +567,7 @@ class SCSpecTypeMap(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCSpecTypeMap",
-            (
-                "key_type",
-                "value_type",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCSpecTypeMap", ("key_type", "value_type"))
         obj = new(cls)
         set_field(obj, "key_type", SCSpecTypeDef._from_json(fields["key_type"], ctx))
         set_field(
@@ -654,12 +612,7 @@ class SCSpecTypeTuple(XdrStruct):
         return self.value_types == other.value_types
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeTuple,
-                self.value_types,
-            )
-        )
+        return hash((SCSpecTypeTuple, self.value_types))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(len(self.value_types))
@@ -722,12 +675,7 @@ class SCSpecTypeBytesN(XdrStruct):
         return self.n == other.n
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeBytesN,
-                self.n,
-            )
-        )
+        return hash((SCSpecTypeBytesN, self.n))
 
     def _encode(self, writer: Writer) -> None:
         writer.uint32(self.n)
@@ -774,12 +722,7 @@ class SCSpecTypeUDT(XdrStruct):
         return self.name == other.name
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecTypeUDT,
-                self.name,
-            )
-        )
+        return hash((SCSpecTypeUDT, self.name))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.name)
@@ -1574,12 +1517,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.option == other.option
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Option,
-                    self.option,
-                )
-            )
+            return hash((SCSpecTypeDef.Option, self.option))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1629,12 +1567,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.result == other.result
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Result,
-                    self.result,
-                )
-            )
+            return hash((SCSpecTypeDef.Result, self.result))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1682,12 +1615,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.vec == other.vec
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Vec,
-                    self.vec,
-                )
-            )
+            return hash((SCSpecTypeDef.Vec, self.vec))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1735,12 +1663,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.map == other.map
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Map,
-                    self.map,
-                )
-            )
+            return hash((SCSpecTypeDef.Map, self.map))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1790,12 +1713,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.tuple == other.tuple
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Tuple,
-                    self.tuple,
-                )
-            )
+            return hash((SCSpecTypeDef.Tuple, self.tuple))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1847,12 +1765,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.bytes_n == other.bytes_n
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.BytesN,
-                    self.bytes_n,
-                )
-            )
+            return hash((SCSpecTypeDef.BytesN, self.bytes_n))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1900,12 +1813,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return self.udt == other.udt
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecTypeDef.Udt,
-                    self.udt,
-                )
-            )
+            return hash((SCSpecTypeDef.Udt, self.udt))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2133,11 +2041,7 @@ class SCSpecUDTStructFieldV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "type",
-    )
+    __slots__ = ("doc", "name", "type")
 
     doc: bytes
     name: bytes
@@ -2169,14 +2073,7 @@ class SCSpecUDTStructFieldV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTStructFieldV0,
-                self.doc,
-                self.name,
-                self.type,
-            )
-        )
+        return hash((SCSpecUDTStructFieldV0, self.doc, self.name, self.type))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2201,13 +2098,7 @@ class SCSpecUDTStructFieldV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTStructFieldV0",
-            (
-                "doc",
-                "name",
-                "type",
-            ),
+            value, "SCSpecUDTStructFieldV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
@@ -2239,12 +2130,7 @@ class SCSpecUDTStructV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "lib",
-        "name",
-        "fields",
-    )
+    __slots__ = ("doc", "lib", "name", "fields")
 
     doc: bytes
     lib: bytes
@@ -2284,15 +2170,7 @@ class SCSpecUDTStructV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTStructV0,
-                self.doc,
-                self.lib,
-                self.name,
-                self.fields,
-            )
-        )
+        return hash((SCSpecUDTStructV0, self.doc, self.lib, self.name, self.fields))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2331,14 +2209,7 @@ class SCSpecUDTStructV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTStructV0",
-            (
-                "doc",
-                "lib",
-                "name",
-                "fields",
-            ),
+            value, "SCSpecUDTStructV0", ("doc", "lib", "name", "fields")
         )
         obj = new(cls)
         set_field(
@@ -2375,10 +2246,7 @@ class SCSpecUDTUnionCaseVoidV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-    )
+    __slots__ = ("doc", "name")
 
     doc: bytes
     name: bytes
@@ -2393,13 +2261,7 @@ class SCSpecUDTUnionCaseVoidV0(XdrStruct):
         return self.doc == other.doc and self.name == other.name
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTUnionCaseVoidV0,
-                self.doc,
-                self.name,
-            )
-        )
+        return hash((SCSpecUDTUnionCaseVoidV0, self.doc, self.name))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2417,14 +2279,7 @@ class SCSpecUDTUnionCaseVoidV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCSpecUDTUnionCaseVoidV0",
-            (
-                "doc",
-                "name",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCSpecUDTUnionCaseVoidV0", ("doc", "name"))
         obj = new(cls)
         set_field(
             obj,
@@ -2453,11 +2308,7 @@ class SCSpecUDTUnionCaseTupleV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "type",
-    )
+    __slots__ = ("doc", "name", "type")
 
     doc: bytes
     name: bytes
@@ -2493,14 +2344,7 @@ class SCSpecUDTUnionCaseTupleV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTUnionCaseTupleV0,
-                self.doc,
-                self.name,
-                self.type,
-            )
-        )
+        return hash((SCSpecUDTUnionCaseTupleV0, self.doc, self.name, self.type))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2533,13 +2377,7 @@ class SCSpecUDTUnionCaseTupleV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTUnionCaseTupleV0",
-            (
-                "doc",
-                "name",
-                "type",
-            ),
+            value, "SCSpecUDTUnionCaseTupleV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
@@ -2606,12 +2444,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
             return self.void_case == other.void_case
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecUDTUnionCaseV0.VoidV0,
-                    self.void_case,
-                )
-            )
+            return hash((SCSpecUDTUnionCaseV0.VoidV0, self.void_case))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -2660,12 +2493,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
             return self.tuple_case == other.tuple_case
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecUDTUnionCaseV0.TupleV0,
-                    self.tuple_case,
-                )
-            )
+            return hash((SCSpecUDTUnionCaseV0.TupleV0, self.tuple_case))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -2773,7 +2601,7 @@ _SC_SPEC_UDT_UNION_CASE_V0_CLASSES: Final = frozenset(
 _SC_SPEC_UDT_UNION_CASE_V0_JSON_ARMS: Final[
     dict[str, type[SCSpecUDTUnionCaseV0.Any]]
 ] = {"void_v0": SCSpecUDTUnionCaseV0.VoidV0, "tuple_v0": SCSpecUDTUnionCaseV0.TupleV0}
-_SC_SPEC_UDT_UNION_CASE_V0_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SC_SPEC_UDT_UNION_CASE_V0_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 @final
@@ -2791,12 +2619,7 @@ class SCSpecUDTUnionV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "lib",
-        "name",
-        "cases",
-    )
+    __slots__ = ("doc", "lib", "name", "cases")
 
     doc: bytes
     lib: bytes
@@ -2837,15 +2660,7 @@ class SCSpecUDTUnionV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTUnionV0,
-                self.doc,
-                self.lib,
-                self.name,
-                self.cases,
-            )
-        )
+        return hash((SCSpecUDTUnionV0, self.doc, self.lib, self.name, self.cases))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2884,14 +2699,7 @@ class SCSpecUDTUnionV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTUnionV0",
-            (
-                "doc",
-                "lib",
-                "name",
-                "cases",
-            ),
+            value, "SCSpecUDTUnionV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
@@ -2929,11 +2737,7 @@ class SCSpecUDTEnumCaseV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "value",
-    )
+    __slots__ = ("doc", "name", "value")
 
     doc: bytes
     name: bytes
@@ -2954,14 +2758,7 @@ class SCSpecUDTEnumCaseV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTEnumCaseV0,
-                self.doc,
-                self.name,
-                self.value,
-            )
-        )
+        return hash((SCSpecUDTEnumCaseV0, self.doc, self.name, self.value))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -2985,15 +2782,7 @@ class SCSpecUDTEnumCaseV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCSpecUDTEnumCaseV0",
-            (
-                "doc",
-                "name",
-                "value",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCSpecUDTEnumCaseV0", ("doc", "name", "value"))
         obj = new(cls)
         set_field(
             obj, "doc", xdr_json.string(fields["doc"], "SCSpecUDTEnumCaseV0.doc", 1024)
@@ -3022,12 +2811,7 @@ class SCSpecUDTEnumV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "lib",
-        "name",
-        "cases",
-    )
+    __slots__ = ("doc", "lib", "name", "cases")
 
     doc: bytes
     lib: bytes
@@ -3067,15 +2851,7 @@ class SCSpecUDTEnumV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTEnumV0,
-                self.doc,
-                self.lib,
-                self.name,
-                self.cases,
-            )
-        )
+        return hash((SCSpecUDTEnumV0, self.doc, self.lib, self.name, self.cases))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3114,14 +2890,7 @@ class SCSpecUDTEnumV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTEnumV0",
-            (
-                "doc",
-                "lib",
-                "name",
-                "cases",
-            ),
+            value, "SCSpecUDTEnumV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
@@ -3157,11 +2926,7 @@ class SCSpecUDTErrorEnumCaseV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "value",
-    )
+    __slots__ = ("doc", "name", "value")
 
     doc: bytes
     name: bytes
@@ -3182,14 +2947,7 @@ class SCSpecUDTErrorEnumCaseV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTErrorEnumCaseV0,
-                self.doc,
-                self.name,
-                self.value,
-            )
-        )
+        return hash((SCSpecUDTErrorEnumCaseV0, self.doc, self.name, self.value))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3214,13 +2972,7 @@ class SCSpecUDTErrorEnumCaseV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTErrorEnumCaseV0",
-            (
-                "doc",
-                "name",
-                "value",
-            ),
+            value, "SCSpecUDTErrorEnumCaseV0", ("doc", "name", "value")
         )
         obj = new(cls)
         set_field(
@@ -3256,12 +3008,7 @@ class SCSpecUDTErrorEnumV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "lib",
-        "name",
-        "cases",
-    )
+    __slots__ = ("doc", "lib", "name", "cases")
 
     doc: bytes
     lib: bytes
@@ -3301,15 +3048,7 @@ class SCSpecUDTErrorEnumV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecUDTErrorEnumV0,
-                self.doc,
-                self.lib,
-                self.name,
-                self.cases,
-            )
-        )
+        return hash((SCSpecUDTErrorEnumV0, self.doc, self.lib, self.name, self.cases))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3348,14 +3087,7 @@ class SCSpecUDTErrorEnumV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecUDTErrorEnumV0",
-            (
-                "doc",
-                "lib",
-                "name",
-                "cases",
-            ),
+            value, "SCSpecUDTErrorEnumV0", ("doc", "lib", "name", "cases")
         )
         obj = new(cls)
         set_field(
@@ -3395,11 +3127,7 @@ class SCSpecFunctionInputV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "type",
-    )
+    __slots__ = ("doc", "name", "type")
 
     doc: bytes
     name: bytes
@@ -3431,14 +3159,7 @@ class SCSpecFunctionInputV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecFunctionInputV0,
-                self.doc,
-                self.name,
-                self.type,
-            )
-        )
+        return hash((SCSpecFunctionInputV0, self.doc, self.name, self.type))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3463,13 +3184,7 @@ class SCSpecFunctionInputV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecFunctionInputV0",
-            (
-                "doc",
-                "name",
-                "type",
-            ),
+            value, "SCSpecFunctionInputV0", ("doc", "name", "type")
         )
         obj = new(cls)
         set_field(
@@ -3501,12 +3216,7 @@ class SCSpecFunctionV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "inputs",
-        "outputs",
-    )
+    __slots__ = ("doc", "name", "inputs", "outputs")
 
     doc: bytes
     name: SCSymbol
@@ -3557,15 +3267,7 @@ class SCSpecFunctionV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecFunctionV0,
-                self.doc,
-                self.name,
-                self.inputs,
-                self.outputs,
-            )
-        )
+        return hash((SCSpecFunctionV0, self.doc, self.name, self.inputs, self.outputs))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3610,14 +3312,7 @@ class SCSpecFunctionV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecFunctionV0",
-            (
-                "doc",
-                "name",
-                "inputs",
-                "outputs",
-            ),
+            value, "SCSpecFunctionV0", ("doc", "name", "inputs", "outputs")
         )
         obj = new(cls)
         set_field(
@@ -3662,12 +3357,7 @@ class SCSpecEventParamV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "name",
-        "type",
-        "location",
-    )
+    __slots__ = ("doc", "name", "type", "location")
 
     doc: bytes
     name: bytes
@@ -3712,15 +3402,7 @@ class SCSpecEventParamV0(XdrStruct):
         )
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCSpecEventParamV0,
-                self.doc,
-                self.name,
-                self.type,
-                self.location,
-            )
-        )
+        return hash((SCSpecEventParamV0, self.doc, self.name, self.type, self.location))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.doc)
@@ -3748,14 +3430,7 @@ class SCSpecEventParamV0(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.fields(
-            value,
-            "SCSpecEventParamV0",
-            (
-                "doc",
-                "name",
-                "type",
-                "location",
-            ),
+            value, "SCSpecEventParamV0", ("doc", "name", "type", "location")
         )
         obj = new(cls)
         set_field(
@@ -3790,14 +3465,7 @@ class SCSpecEventV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "doc",
-        "lib",
-        "name",
-        "prefix_topics",
-        "params",
-        "data_format",
-    )
+    __slots__ = ("doc", "lib", "name", "prefix_topics", "params", "data_format")
 
     doc: bytes
     lib: bytes
@@ -3916,14 +3584,7 @@ class SCSpecEventV0(XdrStruct):
         fields = xdr_json.fields(
             value,
             "SCSpecEventV0",
-            (
-                "doc",
-                "lib",
-                "name",
-                "prefix_topics",
-                "params",
-                "data_format",
-            ),
+            ("doc", "lib", "name", "prefix_topics", "params", "data_format"),
         )
         obj = new(cls)
         set_field(obj, "doc", xdr_json.string(fields["doc"], "SCSpecEventV0.doc", 1024))
@@ -4007,12 +3668,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.function_v0 == other.function_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.FunctionV0,
-                    self.function_v0,
-                )
-            )
+            return hash((SCSpecEntry.FunctionV0, self.function_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -4061,12 +3717,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.udt_struct_v0 == other.udt_struct_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.UdtStructV0,
-                    self.udt_struct_v0,
-                )
-            )
+            return hash((SCSpecEntry.UdtStructV0, self.udt_struct_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -4115,12 +3766,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.udt_union_v0 == other.udt_union_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.UdtUnionV0,
-                    self.udt_union_v0,
-                )
-            )
+            return hash((SCSpecEntry.UdtUnionV0, self.udt_union_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -4167,12 +3813,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.udt_enum_v0 == other.udt_enum_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.UdtEnumV0,
-                    self.udt_enum_v0,
-                )
-            )
+            return hash((SCSpecEntry.UdtEnumV0, self.udt_enum_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -4221,12 +3862,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.udt_error_enum_v0 == other.udt_error_enum_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.UdtErrorEnumV0,
-                    self.udt_error_enum_v0,
-                )
-            )
+            return hash((SCSpecEntry.UdtErrorEnumV0, self.udt_error_enum_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -4273,12 +3909,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return self.event_v0 == other.event_v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCSpecEntry.EventV0,
-                    self.event_v0,
-                )
-            )
+            return hash((SCSpecEntry.EventV0, self.event_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(5)
@@ -4388,7 +4019,7 @@ _SC_SPEC_ENTRY_JSON_ARMS: Final[dict[str, type[SCSpecEntry.Any]]] = {
     "udt_error_enum_v0": SCSpecEntry.UdtErrorEnumV0,
     "event_v0": SCSpecEntry.EventV0,
 }
-_SC_SPEC_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SC_SPEC_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 __all__ = [

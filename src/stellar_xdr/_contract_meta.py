@@ -73,10 +73,7 @@ class SCMetaV0(XdrStruct):
     ```
     """
 
-    __slots__ = (
-        "key",
-        "val",
-    )
+    __slots__ = ("key", "val")
 
     key: bytes
     val: bytes
@@ -91,13 +88,7 @@ class SCMetaV0(XdrStruct):
         return self.key == other.key and self.val == other.val
 
     def __hash__(self) -> int:
-        return hash(
-            (
-                SCMetaV0,
-                self.key,
-                self.val,
-            )
-        )
+        return hash((SCMetaV0, self.key, self.val))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_var(self.key)
@@ -115,14 +106,7 @@ class SCMetaV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
-            value,
-            "SCMetaV0",
-            (
-                "key",
-                "val",
-            ),
-        )
+        fields = xdr_json.fields(value, "SCMetaV0", ("key", "val"))
         obj = new(cls)
         set_field(obj, "key", xdr_json.string(fields["key"], "SCMetaV0.key", None))
         set_field(obj, "val", xdr_json.string(fields["val"], "SCMetaV0.val", None))
@@ -159,12 +143,7 @@ class SCMetaEntry(metaclass=UnionNamespace):
             return self.v0 == other.v0
 
         def __hash__(self) -> int:
-            return hash(
-                (
-                    SCMetaEntry.V0,
-                    self.v0,
-                )
-            )
+            return hash((SCMetaEntry.V0, self.v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -260,7 +239,7 @@ _SC_META_ENTRY_CLASSES: Final = frozenset(_SC_META_ENTRY_ARMS.values())
 _SC_META_ENTRY_JSON_ARMS: Final[dict[str, type[SCMetaEntry.Any]]] = {
     "sc_meta_v0": SCMetaEntry.V0
 }
-_SC_META_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset({})
+_SC_META_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
 __all__ = [
