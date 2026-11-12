@@ -82,9 +82,10 @@ ignore = [
 ]
 
 [tool.ruff.lint.per-file-ignores]
-# Generated modules (every module of the package except _runtime): the code follows
-# the XDR definitions, not these style rules.
-"src/stellar_xdr/[!_]*.py" = [
+# Generated modules (the private module of each .x file, and typedefs): the code
+# follows the XDR definitions, not these style rules. The modules are listed by name,
+# since a pattern such as `_*.py` would also match the hand-written `_runtime/_*.py`.
+"src/stellar_xdr/{_contract,_contract_config_setting,_contract_env_meta,_contract_meta,_contract_spec,_exporter,_internal,_ledger,_ledger_entries,_overlay,_scp,_transaction,_types,typedefs}.py" = [
     "A002",    # fields are named as in XDR, such as `type` and `hash`
     "ANN401",  # JSON values are Any, as from json.loads
     "ARG001",  # every converter takes the depth context, even when it doesn't nest

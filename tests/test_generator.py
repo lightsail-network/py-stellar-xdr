@@ -6,11 +6,13 @@ are tested here, and the JSON names against the reference's schemas (see
 """
 
 import json
+import pkgutil
 from pathlib import Path
 from typing import Any
 
 import pytest
 
+import stellar_xdr
 from generator import names
 from generator.emit import GenerationError, Generator, counted_types
 from generator.model import Enum, InputError, Model, Struct, Union, load
@@ -85,8 +87,20 @@ def test_field_and_type_names() -> None:
     assert names.type_name("uint32") == "Uint32"
     assert names.type_name("SCVal") == "SCVal"
     assert names.module_name("xdr/Stellar-contract-config-setting.x") == (
-        "contract_config_setting"
+        "_contract_config_setting"
     )
+
+
+def test_the_modules_of_the_x_files_are_private() -> None:
+    # A definition can move to another `.x` file, so its module is not part of the
+    # API: every type is imported from the package itself.
+    public = {
+        module.name
+        for module in pkgutil.iter_modules(stellar_xdr.__path__)
+        if not module.name.startswith("_")
+    }
+    assert public == {"typedefs"}
+    assert stellar_xdr.SCVal.__module__ == "stellar_xdr._contract"
 
 
 def arm(union: str, case: str) -> str:
@@ -306,6 +320,14 @@ def test_invalid_numbers_are_rejected(
                 ),
             ),
             "encode to no bytes",
+        ),
+        # A `.x` file whose module would take the place of the runtime.
+        (
+            document(
+                typedef("A", {"kind": "int"}),
+                files=[{"name": "xdr/Stellar-runtime.x", "sha256": ""}],
+            ),
+            "would replace stellar_xdr._runtime",
         ),
     ],
 )
