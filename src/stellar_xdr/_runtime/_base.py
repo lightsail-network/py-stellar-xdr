@@ -125,6 +125,8 @@ class _XdrValue(_Encodable):
             msg = f"{cls.__qualname__} must define __slots__"
             raise TypeError(msg)
         cls._fields = tuple(cls.__dict__["__slots__"])
+        # Not `cls.__match_args__ = ...`: mypy refuses to assign to that name on a class
+        # that `dataclass_transform` covers.
         type.__setattr__(cls, "__match_args__", cls._fields)
 
     def __repr__(self) -> str:
