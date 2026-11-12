@@ -6,6 +6,7 @@ annotation, the constructor check, the decoder and the encoder of a type can't d
 apart.
 """
 
+import ast
 import itertools
 import keyword
 import re
@@ -1285,8 +1286,15 @@ def _is_simple_typedef(d: Typedef) -> bool:
     return isinstance(d.type, Primitive | OpaqueFixed | OpaqueVar | String)
 
 
-def _uses(text: str, name: str) -> bool:
-    return re.search(rf"(?<![\w.]){re.escape(name)}\b", text) is not None
+def _names_used(body: str) -> frozenset[str]:
+    """The names that the code of a module refers to, which decide its imports.
+
+    The code is parsed rather than searched: its docstrings and comments quote the XDR
+    source, where a word such as `Sequence` is not a use of the name.
+    """
+    return frozenset(
+        node.id for node in ast.walk(ast.parse(body)) if isinstance(node, ast.Name)
+    )
 
 
 class Generator(_Emitter):
@@ -1365,20 +1373,23 @@ class Generator(_Emitter):
             ]
         )
 
-    def _imports(self, module: _Module, body: str) -> list[str]:
+    def _imports(
+        self, module: _Module, body: str, typing_names: tuple[str, ...] = TYPING_NAMES
+    ) -> list[str]:
+        used = _names_used(body)
         lines: list[str] = []
-        if "builtins." in body:
+        if "builtins" in used:
             lines.append("import builtins")
-        if re.search(r"(?<![\w.])strkey\.", body):
+        if "strkey" in used:
             lines.append("import stellar_strkey as strkey")
-        if _uses(body, "Sequence"):
+        if "Sequence" in used:
             lines.append("from collections.abc import Sequence")
-        used_typing = [n for n in TYPING_NAMES if _uses(body, n)]
+        used_typing = sorted(used.intersection(typing_names))
         if used_typing:
-            lines.append(f"from typing import {', '.join(sorted(used_typing))}")
+            lines.append(f"from typing import {', '.join(used_typing)}")
         lines.append("")
-        runtime = [n for n in RUNTIME_NAMES if _uses(body, n)]
-        lines.append(f"from ._runtime import {', '.join(sorted(runtime))}")
+        runtime = sorted(used.intersection(RUNTIME_NAMES))
+        lines.append(f"from ._runtime import {', '.join(runtime)}")
         for other in sorted(module.imports):
             if self.ctx.qualify:
                 lines.append(f"from . import {other}")
@@ -1486,11 +1497,8 @@ class Generator(_Emitter):
             blocks.append("\n".join(lines))
             exported.append(name)
         body = "\n\n\n".join(blocks)
-        imports = self._imports(module, body)
+        imports = self._imports(module, body, (*TYPING_NAMES, "cast"))
         self.ctx.qualify = False
-        typing_names = [n for n in ("Any", "cast") if _uses(body, n)]
-        if typing_names:
-            imports.insert(0, f"from typing import {', '.join(typing_names)}")
         exports = "\n".join(f"    {n!r}," for n in sorted(exported))
         return "\n".join(
             [
