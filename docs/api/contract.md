@@ -1,6 +1,6 @@
-# `stellar_xdr.contract`
+# `Stellar-contract.x`
 
-::: stellar_xdr.contract
+::: stellar_xdr._contract
     options:
       inherited_members: false
       show_root_heading: false

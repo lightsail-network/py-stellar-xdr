@@ -112,6 +112,10 @@ _RESERVED_FIELDS: Final = frozenset(
 )
 
 
+# The modules of the package that are not generated from a `.x` file.
+_HAND_WRITTEN_MODULES: Final = frozenset({"_runtime"})
+
+
 class GenerationError(Exception):
     """The model can't be turned into valid, unambiguous Python."""
 
@@ -162,7 +166,7 @@ class _Context:
     counted: set[str]
     current: _Module | None = None
     # In `typedefs.py` the codecs take the names of the typedefs, so other names are
-    # qualified by their module.
+    # qualified by their module, such as `_contract.SCVec`.
     qualify: bool = False
 
     def use(self, xdr_name: str, python_name: str | None = None) -> str:
@@ -172,7 +176,7 @@ class _Context:
         assert self.current is not None  # noqa: S101
         if self.qualify:
             self.current.imports.setdefault(module, set())
-            return f"_{module}.{python_name}"
+            return f"{module}.{python_name}"
         if module != self.current.name:
             self.current.imports.setdefault(module, set()).add(python_name)
         return python_name
@@ -563,6 +567,9 @@ class _Emitter:
         module_of: dict[str, str] = {}
         for d in model.definitions:
             name = names.module_name(d.file)
+            if name in _HAND_WRITTEN_MODULES:
+                msg = f"{d.file}: its module would replace stellar_xdr.{name}"
+                raise GenerationError(msg)
             module = self.modules.setdefault(name, _Module(name, d.file))
             module.definitions.append(d)
             module_of[d.name] = name
@@ -1212,7 +1219,12 @@ class Generator(_Emitter):
         return "\n".join(
             [
                 HEADER.rstrip(),
-                f'"""The types of ``{module.xdr_file.rsplit("/", 1)[-1]}``."""',
+                f'"""The types of ``{module.xdr_file.rsplit("/", 1)[-1]}``.',
+                "",
+                "Import them from `stellar_xdr`. This module is private: it follows",
+                "the layout of the `.x` files, and a definition can move to another",
+                "file between releases.",
+                '"""',
                 "",
                 "# The code uses private parts of the runtime and of other modules.",
                 "# pyright: reportPrivateUsage=false",
@@ -1246,7 +1258,7 @@ class Generator(_Emitter):
         lines.append(f"from ._runtime import {', '.join(sorted(runtime))}")
         for other in sorted(module.imports):
             if self.ctx.qualify:
-                lines.append(f"from . import {other} as _{other}")
+                lines.append(f"from . import {other}")
                 continue
             imported = ", ".join(sorted(module.imports[other]))
             lines.append(f"from .{other} import {imported}")
@@ -1258,8 +1270,9 @@ class Generator(_Emitter):
             HEADER.rstrip(),
             '"""Strict, fully typed encoding and decoding of Stellar XDR.',
             "",
-            "Every type is importable from here and from the module of its `.x` file,",
-            "such as `stellar_xdr.contract`.",
+            "Every type is importable from here, and this is the only place to import",
+            "one from: the modules that define them are private. The codecs of the",
+            "typedefs are in `stellar_xdr.typedefs`.",
             '"""',
             "",
             "from typing import Final",

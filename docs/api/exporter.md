@@ -1,6 +1,6 @@
-# `stellar_xdr.exporter`
+# `Stellar-exporter.x`
 
-::: stellar_xdr.exporter
+::: stellar_xdr._exporter
     options:
       inherited_members: false
       show_root_heading: false

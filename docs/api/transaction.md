@@ -1,6 +1,6 @@
-# `stellar_xdr.transaction`
+# `Stellar-transaction.x`
 
-::: stellar_xdr.transaction
+::: stellar_xdr._transaction
     options:
       inherited_members: false
       show_root_heading: false

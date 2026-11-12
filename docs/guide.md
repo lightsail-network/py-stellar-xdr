@@ -1,9 +1,9 @@
 # Guide
 
 Every type of the network's XDR definitions is importable from `stellar_xdr`, under the
-name it has in the `.x` files: `SCVal`, `TransactionEnvelope`, `LedgerEntry`. Each type
-is also importable from the module of its `.x` file, such as `stellar_xdr.contract` for
-`Stellar-contract.x`.
+name it has in the `.x` files: `SCVal`, `TransactionEnvelope`, `LedgerEntry`. Import
+types from there only. The modules behind it are private, because a definition can move
+from one `.x` file to another between releases.
 
 The package's version follows semantic versioning of its API. The protocol version of
 its definitions is `stellar_xdr.PROTOCOL_VERSION`:

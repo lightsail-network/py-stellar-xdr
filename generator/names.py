@@ -88,9 +88,14 @@ def discriminant_name(xdr_name: str) -> str:
 
 
 def module_name(xdr_file: str) -> str:
-    """`xdr/Stellar-contract-config-setting.x` -> `contract_config_setting`."""
+    """`xdr/Stellar-contract-config-setting.x` -> `_contract_config_setting`.
+
+    The modules are private: upstream moves definitions between `.x` files without
+    changing the protocol, so only `stellar_xdr` itself is a stable place to import a
+    type from.
+    """
     stem = xdr_file.rsplit("/", 1)[-1].removesuffix(".x").removeprefix("Stellar-")
-    return snake(stem)
+    return f"_{snake(stem)}"
 
 
 def _strip(member: str, enum: Enum) -> str:

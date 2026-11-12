@@ -1,6 +1,6 @@
-# `stellar_xdr.overlay`
+# `Stellar-overlay.x`
 
-::: stellar_xdr.overlay
+::: stellar_xdr._overlay
     options:
       inherited_members: false
       show_root_heading: false
