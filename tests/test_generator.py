@@ -335,6 +335,10 @@ def test_invalid_numbers_are_rejected(
             ),
             "encode to no bytes",
         ),
+        # Definitions named like something else the package exports.
+        (document(const("PROTOCOL_VERSION", 31)), "PROTOCOL_VERSION is reserved"),
+        (document(const("typedefs", 1)), "typedefs is reserved"),
+        (document(typedef("xdrError", {"kind": "int"})), "XdrError is reserved"),
         # A `.x` file whose module would take the place of the runtime.
         (
             document(
