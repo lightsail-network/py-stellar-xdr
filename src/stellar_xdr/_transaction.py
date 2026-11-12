@@ -163,7 +163,7 @@ class OperationType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> OperationType:
-        return xdr_json.enum(value, "OperationType", _OPERATION_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "OperationType", _OPERATION_TYPE_JSON_MEMBERS)
 
 
 _OPERATION_TYPE_JSON_NAMES: Final[dict[OperationType, str]] = {
@@ -218,7 +218,7 @@ class RevokeSponsorshipType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> RevokeSponsorshipType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "RevokeSponsorshipType", _REVOKE_SPONSORSHIP_TYPE_JSON_MEMBERS
         )
 
@@ -256,7 +256,7 @@ class HostFunctionType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> HostFunctionType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "HostFunctionType", _HOST_FUNCTION_TYPE_JSON_MEMBERS
         )
 
@@ -292,7 +292,7 @@ class ContractIDPreimageType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ContractIDPreimageType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ContractIDPreimageType", _CONTRACT_ID_PREIMAGE_TYPE_JSON_MEMBERS
         )
 
@@ -330,7 +330,7 @@ class SorobanAuthorizedFunctionType(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> SorobanAuthorizedFunctionType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "SorobanAuthorizedFunctionType",
             _SOROBAN_AUTHORIZED_FUNCTION_TYPE_JSON_MEMBERS,
@@ -373,7 +373,7 @@ class SorobanCredentialsType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SorobanCredentialsType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "SorobanCredentialsType", _SOROBAN_CREDENTIALS_TYPE_JSON_MEMBERS
         )
 
@@ -415,7 +415,7 @@ class MemoType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> MemoType:
-        return xdr_json.enum(value, "MemoType", _MEMO_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "MemoType", _MEMO_TYPE_JSON_MEMBERS)
 
 
 _MEMO_TYPE_JSON_NAMES: Final[dict[MemoType, str]] = {
@@ -450,7 +450,9 @@ class PreconditionType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> PreconditionType:
-        return xdr_json.enum(value, "PreconditionType", _PRECONDITION_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(
+            value, "PreconditionType", _PRECONDITION_TYPE_JSON_MEMBERS
+        )
 
 
 _PRECONDITION_TYPE_JSON_NAMES: Final[dict[PreconditionType, str]] = {
@@ -483,7 +485,7 @@ class ClaimAtomType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ClaimAtomType:
-        return xdr_json.enum(value, "ClaimAtomType", _CLAIM_ATOM_TYPE_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "ClaimAtomType", _CLAIM_ATOM_TYPE_JSON_MEMBERS)
 
 
 _CLAIM_ATOM_TYPE_JSON_NAMES: Final[dict[ClaimAtomType, str]] = {
@@ -524,7 +526,7 @@ class CreateAccountResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> CreateAccountResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "CreateAccountResultCode", _CREATE_ACCOUNT_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -580,7 +582,7 @@ class PaymentResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> PaymentResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "PaymentResultCode", _PAYMENT_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -658,7 +660,7 @@ class PathPaymentStrictReceiveResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> PathPaymentStrictReceiveResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "PathPaymentStrictReceiveResultCode",
             _PATH_PAYMENT_STRICT_RECEIVE_RESULT_CODE_JSON_MEMBERS,
@@ -742,7 +744,7 @@ class PathPaymentStrictSendResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> PathPaymentStrictSendResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "PathPaymentStrictSendResultCode",
             _PATH_PAYMENT_STRICT_SEND_RESULT_CODE_JSON_MEMBERS,
@@ -823,7 +825,7 @@ class ManageSellOfferResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ManageSellOfferResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "ManageSellOfferResultCode",
             _MANAGE_SELL_OFFER_RESULT_CODE_JSON_MEMBERS,
@@ -874,7 +876,7 @@ class ManageOfferEffect(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ManageOfferEffect:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ManageOfferEffect", _MANAGE_OFFER_EFFECT_JSON_MEMBERS
         )
 
@@ -938,7 +940,7 @@ class ManageBuyOfferResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ManageBuyOfferResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "ManageBuyOfferResultCode",
             _MANAGE_BUY_OFFER_RESULT_CODE_JSON_MEMBERS,
@@ -1006,7 +1008,7 @@ class SetOptionsResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SetOptionsResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "SetOptionsResultCode", _SET_OPTIONS_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1069,7 +1071,7 @@ class ChangeTrustResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ChangeTrustResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ChangeTrustResultCode", _CHANGE_TRUST_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1124,7 +1126,7 @@ class AllowTrustResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> AllowTrustResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "AllowTrustResultCode", _ALLOW_TRUST_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1178,7 +1180,7 @@ class AccountMergeResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> AccountMergeResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "AccountMergeResultCode", _ACCOUNT_MERGE_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1220,7 +1222,7 @@ class InflationResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> InflationResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "InflationResultCode", _INFLATION_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1264,7 +1266,7 @@ class ManageDataResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ManageDataResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ManageDataResultCode", _MANAGE_DATA_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1303,7 +1305,7 @@ class BumpSequenceResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> BumpSequenceResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "BumpSequenceResultCode", _BUMP_SEQUENCE_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1347,7 +1349,7 @@ class CreateClaimableBalanceResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> CreateClaimableBalanceResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "CreateClaimableBalanceResultCode",
             _CREATE_CLAIMABLE_BALANCE_RESULT_CODE_JSON_MEMBERS,
@@ -1401,7 +1403,7 @@ class ClaimClaimableBalanceResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> ClaimClaimableBalanceResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "ClaimClaimableBalanceResultCode",
             _CLAIM_CLAIMABLE_BALANCE_RESULT_CODE_JSON_MEMBERS,
@@ -1453,7 +1455,7 @@ class BeginSponsoringFutureReservesResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> BeginSponsoringFutureReservesResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "BeginSponsoringFutureReservesResultCode",
             _BEGIN_SPONSORING_FUTURE_RESERVES_RESULT_CODE_JSON_MEMBERS,
@@ -1498,7 +1500,7 @@ class EndSponsoringFutureReservesResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> EndSponsoringFutureReservesResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "EndSponsoringFutureReservesResultCode",
             _END_SPONSORING_FUTURE_RESERVES_RESULT_CODE_JSON_MEMBERS,
@@ -1547,7 +1549,7 @@ class RevokeSponsorshipResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> RevokeSponsorshipResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "RevokeSponsorshipResultCode",
             _REVOKE_SPONSORSHIP_RESULT_CODE_JSON_MEMBERS,
@@ -1598,7 +1600,7 @@ class ClawbackResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ClawbackResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ClawbackResultCode", _CLAWBACK_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -1644,7 +1646,7 @@ class ClawbackClaimableBalanceResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> ClawbackClaimableBalanceResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "ClawbackClaimableBalanceResultCode",
             _CLAWBACK_CLAIMABLE_BALANCE_RESULT_CODE_JSON_MEMBERS,
@@ -1696,7 +1698,7 @@ class SetTrustLineFlagsResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SetTrustLineFlagsResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "SetTrustLineFlagsResultCode",
             _SET_TRUST_LINE_FLAGS_RESULT_CODE_JSON_MEMBERS,
@@ -1762,7 +1764,7 @@ class LiquidityPoolDepositResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> LiquidityPoolDepositResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "LiquidityPoolDepositResultCode",
             _LIQUIDITY_POOL_DEPOSIT_RESULT_CODE_JSON_MEMBERS,
@@ -1826,7 +1828,7 @@ class LiquidityPoolWithdrawResultCode(XdrEnum):
     def _from_json(
         cls, value: object, ctx: JsonReader
     ) -> LiquidityPoolWithdrawResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "LiquidityPoolWithdrawResultCode",
             _LIQUIDITY_POOL_WITHDRAW_RESULT_CODE_JSON_MEMBERS,
@@ -1880,7 +1882,7 @@ class InvokeHostFunctionResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> InvokeHostFunctionResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "InvokeHostFunctionResultCode",
             _INVOKE_HOST_FUNCTION_RESULT_CODE_JSON_MEMBERS,
@@ -1929,7 +1931,7 @@ class ExtendFootprintTTLResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ExtendFootprintTTLResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "ExtendFootprintTTLResultCode",
             _EXTEND_FOOTPRINT_TTL_RESULT_CODE_JSON_MEMBERS,
@@ -1976,7 +1978,7 @@ class RestoreFootprintResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> RestoreFootprintResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value,
             "RestoreFootprintResultCode",
             _RESTORE_FOOTPRINT_RESULT_CODE_JSON_MEMBERS,
@@ -2027,7 +2029,7 @@ class OperationResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> OperationResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "OperationResultCode", _OPERATION_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -2106,7 +2108,7 @@ class TransactionResultCode(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> TransactionResultCode:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "TransactionResultCode", _TRANSACTION_RESULT_CODE_JSON_MEMBERS
         )
 
@@ -2262,7 +2264,7 @@ class LiquidityPoolParameters(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LiquidityPoolParameters.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LiquidityPoolParameters",
             _LIQUIDITY_POOL_PARAMETERS_JSON_ARMS,
@@ -2346,7 +2348,7 @@ class MuxedAccountMed25519(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return xdr_json.muxed_account(self.ed25519, self.id)
+        return xdr_json.write_muxed_account(self.ed25519, self.id)
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
@@ -2412,7 +2414,7 @@ class MuxedAccount(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return xdr_json.account(self.ed25519)
+            return xdr_json.write_account(self.ed25519)
 
     @final
     class MuxedEd25519(XdrArm):
@@ -2502,7 +2504,7 @@ class MuxedAccount(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> MuxedAccount.Any:
-        key = xdr_json.parse_strkey(value, "MuxedAccount")
+        key = xdr_json.read_strkey(value, "MuxedAccount")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(MuxedAccount.Ed25519)
             set_field(arm0, "ed25519", key.key)
@@ -2591,17 +2593,21 @@ class DecoratedSignature(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "DecoratedSignature", ("hint", "signature"))
+        fields = xdr_json.read_fields(
+            value, "DecoratedSignature", ("hint", "signature")
+        )
         obj = new(cls)
         set_field(
             obj,
             "hint",
-            xdr_json.hex_fixed(fields["hint"], "DecoratedSignature.hint", 4),
+            xdr_json.read_hex_fixed(fields["hint"], "DecoratedSignature.hint", 4),
         )
         set_field(
             obj,
             "signature",
-            xdr_json.hex_var(fields["signature"], "DecoratedSignature.signature", 64),
+            xdr_json.read_hex_var(
+                fields["signature"], "DecoratedSignature.signature", 64
+            ),
         )
         return obj
 
@@ -2671,7 +2677,7 @@ class CreateAccountOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "CreateAccountOp", ("destination", "starting_balance")
         )
         obj = new(cls)
@@ -2679,7 +2685,7 @@ class CreateAccountOp(XdrStruct):
         set_field(
             obj,
             "starting_balance",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["starting_balance"], "CreateAccountOp.starting_balance"
             ),
         )
@@ -2760,13 +2766,17 @@ class PaymentOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "PaymentOp", ("destination", "asset", "amount"))
+        fields = xdr_json.read_fields(
+            value, "PaymentOp", ("destination", "asset", "amount")
+        )
         obj = new(cls)
         set_field(
             obj, "destination", MuxedAccount._from_json(fields["destination"], ctx)
         )
         set_field(obj, "asset", Asset._from_json(fields["asset"], ctx))
-        set_field(obj, "amount", xdr_json.int64(fields["amount"], "PaymentOp.amount"))
+        set_field(
+            obj, "amount", xdr_json.read_int64(fields["amount"], "PaymentOp.amount")
+        )
         return obj
 
 
@@ -2931,7 +2941,7 @@ class PathPaymentStrictReceiveOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "PathPaymentStrictReceiveOp",
             (
@@ -2948,7 +2958,9 @@ class PathPaymentStrictReceiveOp(XdrStruct):
         set_field(
             obj,
             "send_max",
-            xdr_json.int64(fields["send_max"], "PathPaymentStrictReceiveOp.send_max"),
+            xdr_json.read_int64(
+                fields["send_max"], "PathPaymentStrictReceiveOp.send_max"
+            ),
         )
         set_field(
             obj, "destination", MuxedAccount._from_json(fields["destination"], ctx)
@@ -2957,15 +2969,17 @@ class PathPaymentStrictReceiveOp(XdrStruct):
         set_field(
             obj,
             "dest_amount",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["dest_amount"], "PathPaymentStrictReceiveOp.dest_amount"
             ),
         )
         set_field(
             obj,
             "path",
-            xdr_json.items(
-                xdr_json.array(fields["path"], "PathPaymentStrictReceiveOp.path", 5),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["path"], "PathPaymentStrictReceiveOp.path", 5
+                ),
                 "PathPaymentStrictReceiveOp.path",
                 lambda item0: Asset._from_json(item0, ctx),
             ),
@@ -3132,7 +3146,7 @@ class PathPaymentStrictSendOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "PathPaymentStrictSendOp",
             (
@@ -3149,7 +3163,7 @@ class PathPaymentStrictSendOp(XdrStruct):
         set_field(
             obj,
             "send_amount",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["send_amount"], "PathPaymentStrictSendOp.send_amount"
             ),
         )
@@ -3160,13 +3174,13 @@ class PathPaymentStrictSendOp(XdrStruct):
         set_field(
             obj,
             "dest_min",
-            xdr_json.int64(fields["dest_min"], "PathPaymentStrictSendOp.dest_min"),
+            xdr_json.read_int64(fields["dest_min"], "PathPaymentStrictSendOp.dest_min"),
         )
         set_field(
             obj,
             "path",
-            xdr_json.items(
-                xdr_json.array(fields["path"], "PathPaymentStrictSendOp.path", 5),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["path"], "PathPaymentStrictSendOp.path", 5),
                 "PathPaymentStrictSendOp.path",
                 lambda item0: Asset._from_json(item0, ctx),
             ),
@@ -3275,7 +3289,7 @@ class ManageSellOfferOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ManageSellOfferOp",
             ("selling", "buying", "amount", "price", "offer_id"),
@@ -3284,13 +3298,15 @@ class ManageSellOfferOp(XdrStruct):
         set_field(obj, "selling", Asset._from_json(fields["selling"], ctx))
         set_field(obj, "buying", Asset._from_json(fields["buying"], ctx))
         set_field(
-            obj, "amount", xdr_json.int64(fields["amount"], "ManageSellOfferOp.amount")
+            obj,
+            "amount",
+            xdr_json.read_int64(fields["amount"], "ManageSellOfferOp.amount"),
         )
         set_field(obj, "price", Price._from_json(fields["price"], ctx))
         set_field(
             obj,
             "offer_id",
-            xdr_json.int64(fields["offer_id"], "ManageSellOfferOp.offer_id"),
+            xdr_json.read_int64(fields["offer_id"], "ManageSellOfferOp.offer_id"),
         )
         return obj
 
@@ -3397,7 +3413,7 @@ class ManageBuyOfferOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ManageBuyOfferOp",
             ("selling", "buying", "buy_amount", "price", "offer_id"),
@@ -3408,13 +3424,13 @@ class ManageBuyOfferOp(XdrStruct):
         set_field(
             obj,
             "buy_amount",
-            xdr_json.int64(fields["buy_amount"], "ManageBuyOfferOp.buy_amount"),
+            xdr_json.read_int64(fields["buy_amount"], "ManageBuyOfferOp.buy_amount"),
         )
         set_field(obj, "price", Price._from_json(fields["price"], ctx))
         set_field(
             obj,
             "offer_id",
-            xdr_json.int64(fields["offer_id"], "ManageBuyOfferOp.offer_id"),
+            xdr_json.read_int64(fields["offer_id"], "ManageBuyOfferOp.offer_id"),
         )
         return obj
 
@@ -3513,7 +3529,7 @@ class CreatePassiveSellOfferOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "CreatePassiveSellOfferOp", ("selling", "buying", "amount", "price")
         )
         obj = new(cls)
@@ -3522,7 +3538,7 @@ class CreatePassiveSellOfferOp(XdrStruct):
         set_field(
             obj,
             "amount",
-            xdr_json.int64(fields["amount"], "CreatePassiveSellOfferOp.amount"),
+            xdr_json.read_int64(fields["amount"], "CreatePassiveSellOfferOp.amount"),
         )
         set_field(obj, "price", Price._from_json(fields["price"], ctx))
         return obj
@@ -3763,14 +3779,16 @@ class SetOptionsOp(XdrStruct):
                 None if self.high_threshold is None else self.high_threshold
             ),
             "home_domain": (
-                None if self.home_domain is None else xdr_json.escape(self.home_domain)
+                None
+                if self.home_domain is None
+                else xdr_json.write_string(self.home_domain)
             ),
             "signer": (None if self.signer is None else self.signer._to_json(ctx)),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SetOptionsOp",
             (
@@ -3814,7 +3832,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("clear_flags") is None
-                else xdr_json.uint32(
+                else xdr_json.read_uint32(
                     fields.get("clear_flags"), "SetOptionsOp.clear_flags"
                 )
             ),
@@ -3825,7 +3843,9 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("set_flags") is None
-                else xdr_json.uint32(fields.get("set_flags"), "SetOptionsOp.set_flags")
+                else xdr_json.read_uint32(
+                    fields.get("set_flags"), "SetOptionsOp.set_flags"
+                )
             ),
         )
         set_field(
@@ -3834,7 +3854,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("master_weight") is None
-                else xdr_json.uint32(
+                else xdr_json.read_uint32(
                     fields.get("master_weight"), "SetOptionsOp.master_weight"
                 )
             ),
@@ -3845,7 +3865,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("low_threshold") is None
-                else xdr_json.uint32(
+                else xdr_json.read_uint32(
                     fields.get("low_threshold"), "SetOptionsOp.low_threshold"
                 )
             ),
@@ -3856,7 +3876,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("med_threshold") is None
-                else xdr_json.uint32(
+                else xdr_json.read_uint32(
                     fields.get("med_threshold"), "SetOptionsOp.med_threshold"
                 )
             ),
@@ -3867,7 +3887,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("high_threshold") is None
-                else xdr_json.uint32(
+                else xdr_json.read_uint32(
                     fields.get("high_threshold"), "SetOptionsOp.high_threshold"
                 )
             ),
@@ -3878,7 +3898,7 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("home_domain") is None
-                else xdr_json.string(
+                else xdr_json.read_string(
                     fields.get("home_domain"), "SetOptionsOp.home_domain", 32
                 )
             ),
@@ -4145,7 +4165,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ChangeTrustAsset.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ChangeTrustAsset",
             _CHANGE_TRUST_ASSET_JSON_ARMS,
@@ -4244,10 +4264,12 @@ class ChangeTrustOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ChangeTrustOp", ("line", "limit"))
+        fields = xdr_json.read_fields(value, "ChangeTrustOp", ("line", "limit"))
         obj = new(cls)
         set_field(obj, "line", ChangeTrustAsset._from_json(fields["line"], ctx))
-        set_field(obj, "limit", xdr_json.int64(fields["limit"], "ChangeTrustOp.limit"))
+        set_field(
+            obj, "limit", xdr_json.read_int64(fields["limit"], "ChangeTrustOp.limit")
+        )
         return obj
 
 
@@ -4324,7 +4346,7 @@ class AllowTrustOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "AllowTrustOp", ("trustor", "asset", "authorize")
         )
         obj = new(cls)
@@ -4333,7 +4355,7 @@ class AllowTrustOp(XdrStruct):
         set_field(
             obj,
             "authorize",
-            xdr_json.uint32(fields["authorize"], "AllowTrustOp.authorize"),
+            xdr_json.read_uint32(fields["authorize"], "AllowTrustOp.authorize"),
         )
         return obj
 
@@ -4393,13 +4415,13 @@ class ManageDataOp(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "data_name": xdr_json.escape(self.data_name),
+            "data_name": xdr_json.write_string(self.data_name),
             "data_value": (None if self.data_value is None else self.data_value.hex()),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ManageDataOp",
             ("data_name", "data_value"),
@@ -4409,7 +4431,7 @@ class ManageDataOp(XdrStruct):
         set_field(
             obj,
             "data_name",
-            xdr_json.string(fields["data_name"], "ManageDataOp.data_name", 64),
+            xdr_json.read_string(fields["data_name"], "ManageDataOp.data_name", 64),
         )
         set_field(
             obj,
@@ -4417,7 +4439,7 @@ class ManageDataOp(XdrStruct):
             (
                 None
                 if fields.get("data_value") is None
-                else xdr_json.hex_var(
+                else xdr_json.read_hex_var(
                     fields.get("data_value"), "ManageDataOp.data_value", 64
                 )
             ),
@@ -4466,10 +4488,12 @@ class BumpSequenceOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "BumpSequenceOp", ("bump_to",))
+        fields = xdr_json.read_fields(value, "BumpSequenceOp", ("bump_to",))
         obj = new(cls)
         set_field(
-            obj, "bump_to", xdr_json.int64(fields["bump_to"], "BumpSequenceOp.bump_to")
+            obj,
+            "bump_to",
+            xdr_json.read_int64(fields["bump_to"], "BumpSequenceOp.bump_to"),
         )
         return obj
 
@@ -4560,7 +4584,7 @@ class CreateClaimableBalanceOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "CreateClaimableBalanceOp", ("asset", "amount", "claimants")
         )
         obj = new(cls)
@@ -4568,13 +4592,13 @@ class CreateClaimableBalanceOp(XdrStruct):
         set_field(
             obj,
             "amount",
-            xdr_json.int64(fields["amount"], "CreateClaimableBalanceOp.amount"),
+            xdr_json.read_int64(fields["amount"], "CreateClaimableBalanceOp.amount"),
         )
         set_field(
             obj,
             "claimants",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["claimants"], "CreateClaimableBalanceOp.claimants", 10
                 ),
                 "CreateClaimableBalanceOp.claimants",
@@ -4634,7 +4658,7 @@ class ClaimClaimableBalanceOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ClaimClaimableBalanceOp", ("balance_id",))
+        fields = xdr_json.read_fields(value, "ClaimClaimableBalanceOp", ("balance_id",))
         obj = new(cls)
         set_field(
             obj, "balance_id", ClaimableBalanceID._from_json(fields["balance_id"], ctx)
@@ -4692,7 +4716,7 @@ class BeginSponsoringFutureReservesOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "BeginSponsoringFutureReservesOp", ("sponsored_id",)
         )
         obj = new(cls)
@@ -4771,7 +4795,7 @@ class RevokeSponsorshipOpSigner(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "RevokeSponsorshipOpSigner", ("account_id", "signer_key")
         )
         obj = new(cls)
@@ -4944,7 +4968,7 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> RevokeSponsorshipOp.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "RevokeSponsorshipOp",
             _REVOKE_SPONSORSHIP_OP_JSON_ARMS,
@@ -5053,11 +5077,13 @@ class ClawbackOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ClawbackOp", ("asset", "from", "amount"))
+        fields = xdr_json.read_fields(value, "ClawbackOp", ("asset", "from", "amount"))
         obj = new(cls)
         set_field(obj, "asset", Asset._from_json(fields["asset"], ctx))
         set_field(obj, "from_", MuxedAccount._from_json(fields["from"], ctx))
-        set_field(obj, "amount", xdr_json.int64(fields["amount"], "ClawbackOp.amount"))
+        set_field(
+            obj, "amount", xdr_json.read_int64(fields["amount"], "ClawbackOp.amount")
+        )
         return obj
 
 
@@ -5111,7 +5137,9 @@ class ClawbackClaimableBalanceOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ClawbackClaimableBalanceOp", ("balance_id",))
+        fields = xdr_json.read_fields(
+            value, "ClawbackClaimableBalanceOp", ("balance_id",)
+        )
         obj = new(cls)
         set_field(
             obj, "balance_id", ClaimableBalanceID._from_json(fields["balance_id"], ctx)
@@ -5216,7 +5244,7 @@ class SetTrustLineFlagsOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SetTrustLineFlagsOp",
             ("trustor", "asset", "clear_flags", "set_flags"),
@@ -5227,12 +5255,14 @@ class SetTrustLineFlagsOp(XdrStruct):
         set_field(
             obj,
             "clear_flags",
-            xdr_json.uint32(fields["clear_flags"], "SetTrustLineFlagsOp.clear_flags"),
+            xdr_json.read_uint32(
+                fields["clear_flags"], "SetTrustLineFlagsOp.clear_flags"
+            ),
         )
         set_field(
             obj,
             "set_flags",
-            xdr_json.uint32(fields["set_flags"], "SetTrustLineFlagsOp.set_flags"),
+            xdr_json.read_uint32(fields["set_flags"], "SetTrustLineFlagsOp.set_flags"),
         )
         return obj
 
@@ -5345,7 +5375,7 @@ class LiquidityPoolDepositOp(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "liquidity_pool_id": xdr_json.liquidity_pool(self.liquidity_pool_id),
+            "liquidity_pool_id": xdr_json.write_liquidity_pool(self.liquidity_pool_id),
             "max_amount_a": str(self.max_amount_a),
             "max_amount_b": str(self.max_amount_b),
             "min_price": self.min_price._to_json(ctx),
@@ -5354,7 +5384,7 @@ class LiquidityPoolDepositOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LiquidityPoolDepositOp",
             (
@@ -5376,14 +5406,14 @@ class LiquidityPoolDepositOp(XdrStruct):
         set_field(
             obj,
             "max_amount_a",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["max_amount_a"], "LiquidityPoolDepositOp.max_amount_a"
             ),
         )
         set_field(
             obj,
             "max_amount_b",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["max_amount_b"], "LiquidityPoolDepositOp.max_amount_b"
             ),
         )
@@ -5478,7 +5508,7 @@ class LiquidityPoolWithdrawOp(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "liquidity_pool_id": xdr_json.liquidity_pool(self.liquidity_pool_id),
+            "liquidity_pool_id": xdr_json.write_liquidity_pool(self.liquidity_pool_id),
             "amount": str(self.amount),
             "min_amount_a": str(self.min_amount_a),
             "min_amount_b": str(self.min_amount_b),
@@ -5486,7 +5516,7 @@ class LiquidityPoolWithdrawOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LiquidityPoolWithdrawOp",
             ("liquidity_pool_id", "amount", "min_amount_a", "min_amount_b"),
@@ -5502,19 +5532,19 @@ class LiquidityPoolWithdrawOp(XdrStruct):
         set_field(
             obj,
             "amount",
-            xdr_json.int64(fields["amount"], "LiquidityPoolWithdrawOp.amount"),
+            xdr_json.read_int64(fields["amount"], "LiquidityPoolWithdrawOp.amount"),
         )
         set_field(
             obj,
             "min_amount_a",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["min_amount_a"], "LiquidityPoolWithdrawOp.min_amount_a"
             ),
         )
         set_field(
             obj,
             "min_amount_b",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["min_amount_b"], "LiquidityPoolWithdrawOp.min_amount_b"
             ),
         )
@@ -5580,7 +5610,7 @@ class ContractIDPreimageFromAddress(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ContractIDPreimageFromAddress", ("address", "salt")
         )
         obj = new(cls)
@@ -5588,7 +5618,7 @@ class ContractIDPreimageFromAddress(XdrStruct):
         set_field(
             obj,
             "salt",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["salt"], "ContractIDPreimageFromAddress.salt", 32
             ),
         )
@@ -5765,7 +5795,7 @@ class ContractIDPreimage(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ContractIDPreimage.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ContractIDPreimage",
             _CONTRACT_ID_PREIMAGE_JSON_ARMS,
@@ -5877,7 +5907,7 @@ class CreateContractArgs(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "CreateContractArgs", ("contract_id_preimage", "executable")
         )
         obj = new(cls)
@@ -6001,7 +6031,7 @@ class CreateContractArgsV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "CreateContractArgsV2",
             ("contract_id_preimage", "executable", "constructor_args"),
@@ -6018,8 +6048,8 @@ class CreateContractArgsV2(XdrStruct):
         set_field(
             obj,
             "constructor_args",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["constructor_args"],
                     "CreateContractArgsV2.constructor_args",
                     None,
@@ -6120,13 +6150,13 @@ class InvokeContractArgs(XdrStruct):
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
             "contract_address": self.contract_address._to_json(ctx),
-            "function_name": xdr_json.escape(self.function_name),
+            "function_name": xdr_json.write_string(self.function_name),
             "args": [item0._to_json(ctx) for item0 in self.args],
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "InvokeContractArgs", ("contract_address", "function_name", "args")
         )
         obj = new(cls)
@@ -6138,15 +6168,15 @@ class InvokeContractArgs(XdrStruct):
         set_field(
             obj,
             "function_name",
-            xdr_json.string(
+            xdr_json.read_string(
                 fields["function_name"], "InvokeContractArgs.function_name", 32
             ),
         )
         set_field(
             obj,
             "args",
-            xdr_json.items(
-                xdr_json.array(fields["args"], "InvokeContractArgs.args", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["args"], "InvokeContractArgs.args", None),
                 "InvokeContractArgs.args",
                 lambda item0: SCVal._from_json(item0, ctx),
             ),
@@ -6315,7 +6345,9 @@ class HostFunction(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "wasm",
-                xdr_json.hex_var(value, "HostFunction.UploadContractWasm.wasm", None),
+                xdr_json.read_hex_var(
+                    value, "HostFunction.UploadContractWasm.wasm", None
+                ),
             )
             return obj
 
@@ -6419,7 +6451,7 @@ class HostFunction(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> HostFunction.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "HostFunction", _HOST_FUNCTION_JSON_ARMS, _HOST_FUNCTION_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -6712,7 +6744,7 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SorobanAuthorizedFunction.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SorobanAuthorizedFunction",
             _SOROBAN_AUTHORIZED_FUNCTION_JSON_ARMS,
@@ -6852,7 +6884,7 @@ class SorobanAuthorizedInvocation(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         ctx.enter()
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SorobanAuthorizedInvocation", ("function", "sub_invocations")
         )
         obj = new(cls)
@@ -6864,8 +6896,8 @@ class SorobanAuthorizedInvocation(XdrStruct):
         set_field(
             obj,
             "sub_invocations",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["sub_invocations"],
                     "SorobanAuthorizedInvocation.sub_invocations",
                     None,
@@ -6984,7 +7016,7 @@ class SorobanAddressCredentials(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanAddressCredentials",
             ("address", "nonce", "signature_expiration_ledger", "signature"),
@@ -6994,12 +7026,12 @@ class SorobanAddressCredentials(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.int64(fields["nonce"], "SorobanAddressCredentials.nonce"),
+            xdr_json.read_int64(fields["nonce"], "SorobanAddressCredentials.nonce"),
         )
         set_field(
             obj,
             "signature_expiration_ledger",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["signature_expiration_ledger"],
                 "SorobanAddressCredentials.signature_expiration_ledger",
             ),
@@ -7128,7 +7160,7 @@ class SorobanDelegateSignature(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         ctx.enter()
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanDelegateSignature",
             ("address", "signature", "nested_delegates"),
@@ -7139,8 +7171,8 @@ class SorobanDelegateSignature(XdrStruct):
         set_field(
             obj,
             "nested_delegates",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["nested_delegates"],
                     "SorobanDelegateSignature.nested_delegates",
                     None,
@@ -7245,7 +7277,7 @@ class SorobanAddressCredentialsWithDelegates(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanAddressCredentialsWithDelegates",
             ("address_credentials", "delegates"),
@@ -7259,8 +7291,8 @@ class SorobanAddressCredentialsWithDelegates(XdrStruct):
         set_field(
             obj,
             "delegates",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["delegates"],
                     "SorobanAddressCredentialsWithDelegates.delegates",
                     None,
@@ -7530,7 +7562,7 @@ class SorobanCredentials(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SorobanCredentials.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SorobanCredentials",
             _SOROBAN_CREDENTIALS_JSON_ARMS,
@@ -7645,7 +7677,7 @@ class SorobanAuthorizationEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SorobanAuthorizationEntry", ("credentials", "root_invocation")
         )
         obj = new(cls)
@@ -7745,7 +7777,7 @@ class InvokeHostFunctionOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "InvokeHostFunctionOp", ("host_function", "auth")
         )
         obj = new(cls)
@@ -7755,8 +7787,8 @@ class InvokeHostFunctionOp(XdrStruct):
         set_field(
             obj,
             "auth",
-            xdr_json.items(
-                xdr_json.array(fields["auth"], "InvokeHostFunctionOp.auth", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["auth"], "InvokeHostFunctionOp.auth", None),
                 "InvokeHostFunctionOp.auth",
                 lambda item0: SorobanAuthorizationEntry._from_json(item0, ctx),
             ),
@@ -7821,13 +7853,15 @@ class ExtendFootprintTTLOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ExtendFootprintTTLOp", ("ext", "extend_to"))
+        fields = xdr_json.read_fields(
+            value, "ExtendFootprintTTLOp", ("ext", "extend_to")
+        )
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
         set_field(
             obj,
             "extend_to",
-            xdr_json.uint32(fields["extend_to"], "ExtendFootprintTTLOp.extend_to"),
+            xdr_json.read_uint32(fields["extend_to"], "ExtendFootprintTTLOp.extend_to"),
         )
         return obj
 
@@ -7882,7 +7916,7 @@ class RestoreFootprintOp(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "RestoreFootprintOp", ("ext",))
+        fields = xdr_json.read_fields(value, "RestoreFootprintOp", ("ext",))
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
         return obj
@@ -9483,7 +9517,7 @@ class OperationBody(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> OperationBody.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "OperationBody", _OPERATION_BODY_JSON_ARMS, _OPERATION_BODY_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -9710,7 +9744,7 @@ class Operation(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "Operation",
             ("source_account", "body"),
@@ -9806,7 +9840,7 @@ class HashIDPreimageOperationId(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "HashIDPreimageOperationId", ("source_account", "seq_num", "op_num")
         )
         obj = new(cls)
@@ -9816,12 +9850,12 @@ class HashIDPreimageOperationId(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.int64(fields["seq_num"], "HashIDPreimageOperationId.seq_num"),
+            xdr_json.read_int64(fields["seq_num"], "HashIDPreimageOperationId.seq_num"),
         )
         set_field(
             obj,
             "op_num",
-            xdr_json.uint32(fields["op_num"], "HashIDPreimageOperationId.op_num"),
+            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageOperationId.op_num"),
         )
         return obj
 
@@ -9930,13 +9964,13 @@ class HashIDPreimageRevokeId(XdrStruct):
             "source_account": self.source_account._to_json(ctx),
             "seq_num": str(self.seq_num),
             "op_num": self.op_num,
-            "liquidity_pool_id": xdr_json.liquidity_pool(self.liquidity_pool_id),
+            "liquidity_pool_id": xdr_json.write_liquidity_pool(self.liquidity_pool_id),
             "asset": self.asset._to_json(ctx),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "HashIDPreimageRevokeId",
             ("source_account", "seq_num", "op_num", "liquidity_pool_id", "asset"),
@@ -9948,12 +9982,12 @@ class HashIDPreimageRevokeId(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.int64(fields["seq_num"], "HashIDPreimageRevokeId.seq_num"),
+            xdr_json.read_int64(fields["seq_num"], "HashIDPreimageRevokeId.seq_num"),
         )
         set_field(
             obj,
             "op_num",
-            xdr_json.uint32(fields["op_num"], "HashIDPreimageRevokeId.op_num"),
+            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageRevokeId.op_num"),
         )
         set_field(
             obj,
@@ -10035,14 +10069,14 @@ class HashIDPreimageContractId(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "HashIDPreimageContractId", ("network_id", "contract_id_preimage")
         )
         obj = new(cls)
         set_field(
             obj,
             "network_id",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["network_id"], "HashIDPreimageContractId.network_id", 32
             ),
         )
@@ -10159,7 +10193,7 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "HashIDPreimageSorobanAuthorization",
             ("network_id", "nonce", "signature_expiration_ledger", "invocation"),
@@ -10168,7 +10202,7 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["network_id"],
                 "HashIDPreimageSorobanAuthorization.network_id",
                 32,
@@ -10177,12 +10211,14 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.int64(fields["nonce"], "HashIDPreimageSorobanAuthorization.nonce"),
+            xdr_json.read_int64(
+                fields["nonce"], "HashIDPreimageSorobanAuthorization.nonce"
+            ),
         )
         set_field(
             obj,
             "signature_expiration_ledger",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["signature_expiration_ledger"],
                 "HashIDPreimageSorobanAuthorization.signature_expiration_ledger",
             ),
@@ -10326,7 +10362,7 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "HashIDPreimageSorobanAuthorizationWithAddress",
             (
@@ -10341,7 +10377,7 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["network_id"],
                 "HashIDPreimageSorobanAuthorizationWithAddress.network_id",
                 32,
@@ -10350,14 +10386,14 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
         set_field(
             obj,
             "nonce",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["nonce"], "HashIDPreimageSorobanAuthorizationWithAddress.nonce"
             ),
         )
         set_field(
             obj,
             "signature_expiration_ledger",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["signature_expiration_ledger"],
                 "HashIDPreimageSorobanAuthorizationWithAddress.signature_expiration_ledger",
             ),
@@ -10759,7 +10795,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> HashIDPreimage.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "HashIDPreimage",
             _HASH_ID_PREIMAGE_JSON_ARMS,
@@ -10884,12 +10920,12 @@ class Memo(metaclass=UnionNamespace):
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
-            return {"text": xdr_json.escape(self.text)}
+            return {"text": xdr_json.write_string(self.text)}
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "text", xdr_json.string(value, "Memo.Text.text", 28))
+            set_field(obj, "text", xdr_json.read_string(value, "Memo.Text.text", 28))
             return obj
 
     @final
@@ -10928,7 +10964,7 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "id", xdr_json.uint64(value, "Memo.Id.id"))
+            set_field(obj, "id", xdr_json.read_uint64(value, "Memo.Id.id"))
             return obj
 
     @final
@@ -10967,7 +11003,7 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "hash", xdr_json.hex_fixed(value, "Memo.Hash.hash", 32))
+            set_field(obj, "hash", xdr_json.read_hex_fixed(value, "Memo.Hash.hash", 32))
             return obj
 
     @final
@@ -11011,7 +11047,9 @@ class Memo(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "ret_hash", xdr_json.hex_fixed(value, "Memo.Return.ret_hash", 32)
+                obj,
+                "ret_hash",
+                xdr_json.read_hex_fixed(value, "Memo.Return.ret_hash", 32),
             )
             return obj
 
@@ -11060,7 +11098,9 @@ class Memo(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> Memo.Any:
-        arm, payload = xdr_json.union(value, "Memo", _MEMO_JSON_ARMS, _MEMO_JSON_VOID)
+        arm, payload = xdr_json.read_union(
+            value, "Memo", _MEMO_JSON_ARMS, _MEMO_JSON_VOID
+        )
         return arm._from_json_payload(payload, ctx)
 
     @staticmethod
@@ -11145,13 +11185,17 @@ class TimeBounds(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "TimeBounds", ("min_time", "max_time"))
+        fields = xdr_json.read_fields(value, "TimeBounds", ("min_time", "max_time"))
         obj = new(cls)
         set_field(
-            obj, "min_time", xdr_json.uint64(fields["min_time"], "TimeBounds.min_time")
+            obj,
+            "min_time",
+            xdr_json.read_uint64(fields["min_time"], "TimeBounds.min_time"),
         )
         set_field(
-            obj, "max_time", xdr_json.uint64(fields["max_time"], "TimeBounds.max_time")
+            obj,
+            "max_time",
+            xdr_json.read_uint64(fields["max_time"], "TimeBounds.max_time"),
         )
         return obj
 
@@ -11208,17 +11252,19 @@ class LedgerBounds(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "LedgerBounds", ("min_ledger", "max_ledger"))
+        fields = xdr_json.read_fields(
+            value, "LedgerBounds", ("min_ledger", "max_ledger")
+        )
         obj = new(cls)
         set_field(
             obj,
             "min_ledger",
-            xdr_json.uint32(fields["min_ledger"], "LedgerBounds.min_ledger"),
+            xdr_json.read_uint32(fields["min_ledger"], "LedgerBounds.min_ledger"),
         )
         set_field(
             obj,
             "max_ledger",
-            xdr_json.uint32(fields["max_ledger"], "LedgerBounds.max_ledger"),
+            xdr_json.read_uint32(fields["max_ledger"], "LedgerBounds.max_ledger"),
         )
         return obj
 
@@ -11421,7 +11467,7 @@ class PreconditionsV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "PreconditionsV2",
             (
@@ -11459,7 +11505,7 @@ class PreconditionsV2(XdrStruct):
             (
                 None
                 if fields.get("min_seq_num") is None
-                else xdr_json.int64(
+                else xdr_json.read_int64(
                     fields.get("min_seq_num"), "PreconditionsV2.min_seq_num"
                 )
             ),
@@ -11467,20 +11513,20 @@ class PreconditionsV2(XdrStruct):
         set_field(
             obj,
             "min_seq_age",
-            xdr_json.uint64(fields["min_seq_age"], "PreconditionsV2.min_seq_age"),
+            xdr_json.read_uint64(fields["min_seq_age"], "PreconditionsV2.min_seq_age"),
         )
         set_field(
             obj,
             "min_seq_ledger_gap",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["min_seq_ledger_gap"], "PreconditionsV2.min_seq_ledger_gap"
             ),
         )
         set_field(
             obj,
             "extra_signers",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["extra_signers"], "PreconditionsV2.extra_signers", 2
                 ),
                 "PreconditionsV2.extra_signers",
@@ -11675,7 +11721,7 @@ class Preconditions(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> Preconditions.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "Preconditions", _PRECONDITIONS_JSON_ARMS, _PRECONDITIONS_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -11797,13 +11843,17 @@ class LedgerFootprint(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "LedgerFootprint", ("read_only", "read_write"))
+        fields = xdr_json.read_fields(
+            value, "LedgerFootprint", ("read_only", "read_write")
+        )
         obj = new(cls)
         set_field(
             obj,
             "read_only",
-            xdr_json.items(
-                xdr_json.array(fields["read_only"], "LedgerFootprint.read_only", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["read_only"], "LedgerFootprint.read_only", None
+                ),
                 "LedgerFootprint.read_only",
                 lambda item0: LedgerKey._from_json(item0, ctx),
             ),
@@ -11811,8 +11861,8 @@ class LedgerFootprint(XdrStruct):
         set_field(
             obj,
             "read_write",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["read_write"], "LedgerFootprint.read_write", None
                 ),
                 "LedgerFootprint.read_write",
@@ -11923,7 +11973,7 @@ class SorobanResources(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanResources",
             ("footprint", "instructions", "disk_read_bytes", "write_bytes"),
@@ -11935,19 +11985,21 @@ class SorobanResources(XdrStruct):
         set_field(
             obj,
             "instructions",
-            xdr_json.uint32(fields["instructions"], "SorobanResources.instructions"),
+            xdr_json.read_uint32(
+                fields["instructions"], "SorobanResources.instructions"
+            ),
         )
         set_field(
             obj,
             "disk_read_bytes",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["disk_read_bytes"], "SorobanResources.disk_read_bytes"
             ),
         )
         set_field(
             obj,
             "write_bytes",
-            xdr_json.uint32(fields["write_bytes"], "SorobanResources.write_bytes"),
+            xdr_json.read_uint32(fields["write_bytes"], "SorobanResources.write_bytes"),
         )
         return obj
 
@@ -12011,21 +12063,21 @@ class SorobanResourcesExtV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SorobanResourcesExtV0", ("archived_soroban_entries",)
         )
         obj = new(cls)
         set_field(
             obj,
             "archived_soroban_entries",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["archived_soroban_entries"],
                     "SorobanResourcesExtV0.archived_soroban_entries",
                     None,
                 ),
                 "SorobanResourcesExtV0.archived_soroban_entries",
-                lambda item0: xdr_json.uint32(
+                lambda item0: xdr_json.read_uint32(
                     item0, "SorobanResourcesExtV0.archived_soroban_entries"
                 ),
             ),
@@ -12173,7 +12225,7 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SorobanTransactionDataExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SorobanTransactionDataExt",
             _SOROBAN_TRANSACTION_DATA_EXT_JSON_ARMS,
@@ -12311,7 +12363,7 @@ class SorobanTransactionData(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SorobanTransactionData", ("ext", "resources", "resource_fee")
         )
         obj = new(cls)
@@ -12322,7 +12374,7 @@ class SorobanTransactionData(XdrStruct):
         set_field(
             obj,
             "resource_fee",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["resource_fee"], "SorobanTransactionData.resource_fee"
             ),
         )
@@ -12418,7 +12470,7 @@ class TransactionV0Ext(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionV0Ext.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionV0Ext",
             _TRANSACTION_V0_EXT_JSON_ARMS,
@@ -12619,7 +12671,7 @@ class TransactionV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionV0",
             (
@@ -12637,15 +12689,17 @@ class TransactionV0(XdrStruct):
         set_field(
             obj,
             "source_account_ed25519",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["source_account_ed25519"],
                 "TransactionV0.source_account_ed25519",
                 32,
             ),
         )
-        set_field(obj, "fee", xdr_json.uint32(fields["fee"], "TransactionV0.fee"))
+        set_field(obj, "fee", xdr_json.read_uint32(fields["fee"], "TransactionV0.fee"))
         set_field(
-            obj, "seq_num", xdr_json.int64(fields["seq_num"], "TransactionV0.seq_num")
+            obj,
+            "seq_num",
+            xdr_json.read_int64(fields["seq_num"], "TransactionV0.seq_num"),
         )
         set_field(
             obj,
@@ -12660,8 +12714,10 @@ class TransactionV0(XdrStruct):
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(fields["operations"], "TransactionV0.operations", 100),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["operations"], "TransactionV0.operations", 100
+                ),
                 "TransactionV0.operations",
                 lambda item0: Operation._from_json(item0, ctx),
             ),
@@ -12743,14 +12799,16 @@ class TransactionV0Envelope(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "TransactionV0Envelope", ("tx", "signatures"))
+        fields = xdr_json.read_fields(
+            value, "TransactionV0Envelope", ("tx", "signatures")
+        )
         obj = new(cls)
         set_field(obj, "tx", TransactionV0._from_json(fields["tx"], ctx))
         set_field(
             obj,
             "signatures",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["signatures"], "TransactionV0Envelope.signatures", 20
                 ),
                 "TransactionV0Envelope.signatures",
@@ -12900,7 +12958,7 @@ class TransactionExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionExt",
             _TRANSACTION_EXT_JSON_ARMS,
@@ -13105,7 +13163,7 @@ class Transaction(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "Transaction",
             ("source_account", "fee", "seq_num", "cond", "memo", "operations", "ext"),
@@ -13116,17 +13174,21 @@ class Transaction(XdrStruct):
             "source_account",
             MuxedAccount._from_json(fields["source_account"], ctx),
         )
-        set_field(obj, "fee", xdr_json.uint32(fields["fee"], "Transaction.fee"))
+        set_field(obj, "fee", xdr_json.read_uint32(fields["fee"], "Transaction.fee"))
         set_field(
-            obj, "seq_num", xdr_json.int64(fields["seq_num"], "Transaction.seq_num")
+            obj,
+            "seq_num",
+            xdr_json.read_int64(fields["seq_num"], "Transaction.seq_num"),
         )
         set_field(obj, "cond", Preconditions._from_json(fields["cond"], ctx))
         set_field(obj, "memo", Memo._from_json(fields["memo"], ctx))
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(fields["operations"], "Transaction.operations", 100),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["operations"], "Transaction.operations", 100
+                ),
                 "Transaction.operations",
                 lambda item0: Operation._from_json(item0, ctx),
             ),
@@ -13208,14 +13270,16 @@ class TransactionV1Envelope(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "TransactionV1Envelope", ("tx", "signatures"))
+        fields = xdr_json.read_fields(
+            value, "TransactionV1Envelope", ("tx", "signatures")
+        )
         obj = new(cls)
         set_field(obj, "tx", Transaction._from_json(fields["tx"], ctx))
         set_field(
             obj,
             "signatures",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["signatures"], "TransactionV1Envelope.signatures", 20
                 ),
                 "TransactionV1Envelope.signatures",
@@ -13333,7 +13397,7 @@ class FeeBumpTransactionInnerTx(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> FeeBumpTransactionInnerTx.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "FeeBumpTransactionInnerTx",
             _FEE_BUMP_TRANSACTION_INNER_TX_JSON_ARMS,
@@ -13462,7 +13526,7 @@ class FeeBumpTransactionExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> FeeBumpTransactionExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "FeeBumpTransactionExt",
             _FEE_BUMP_TRANSACTION_EXT_JSON_ARMS,
@@ -13611,12 +13675,14 @@ class FeeBumpTransaction(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "FeeBumpTransaction", ("fee_source", "fee", "inner_tx", "ext")
         )
         obj = new(cls)
         set_field(obj, "fee_source", MuxedAccount._from_json(fields["fee_source"], ctx))
-        set_field(obj, "fee", xdr_json.int64(fields["fee"], "FeeBumpTransaction.fee"))
+        set_field(
+            obj, "fee", xdr_json.read_int64(fields["fee"], "FeeBumpTransaction.fee")
+        )
         set_field(
             obj,
             "inner_tx",
@@ -13701,7 +13767,7 @@ class FeeBumpTransactionEnvelope(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "FeeBumpTransactionEnvelope", ("tx", "signatures")
         )
         obj = new(cls)
@@ -13709,8 +13775,8 @@ class FeeBumpTransactionEnvelope(XdrStruct):
         set_field(
             obj,
             "signatures",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["signatures"], "FeeBumpTransactionEnvelope.signatures", 20
                 ),
                 "FeeBumpTransactionEnvelope.signatures",
@@ -13926,7 +13992,7 @@ class TransactionEnvelope(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionEnvelope.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionEnvelope",
             _TRANSACTION_ENVELOPE_JSON_ARMS,
@@ -14139,7 +14205,7 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> TransactionSignaturePayloadTaggedTransaction.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionSignaturePayloadTaggedTransaction",
             _TRANSACTION_SIGNATURE_PAYLOAD_TAGGED_TRANSACTION_JSON_ARMS,
@@ -14272,14 +14338,14 @@ class TransactionSignaturePayload(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionSignaturePayload", ("network_id", "tagged_transaction")
         )
         obj = new(cls)
         set_field(
             obj,
             "network_id",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["network_id"], "TransactionSignaturePayload.network_id", 32
             ),
         )
@@ -14427,7 +14493,7 @@ class ClaimOfferAtomV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ClaimOfferAtomV0",
             (
@@ -14443,26 +14509,28 @@ class ClaimOfferAtomV0(XdrStruct):
         set_field(
             obj,
             "seller_ed25519",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["seller_ed25519"], "ClaimOfferAtomV0.seller_ed25519", 32
             ),
         )
         set_field(
             obj,
             "offer_id",
-            xdr_json.int64(fields["offer_id"], "ClaimOfferAtomV0.offer_id"),
+            xdr_json.read_int64(fields["offer_id"], "ClaimOfferAtomV0.offer_id"),
         )
         set_field(obj, "asset_sold", Asset._from_json(fields["asset_sold"], ctx))
         set_field(
             obj,
             "amount_sold",
-            xdr_json.int64(fields["amount_sold"], "ClaimOfferAtomV0.amount_sold"),
+            xdr_json.read_int64(fields["amount_sold"], "ClaimOfferAtomV0.amount_sold"),
         )
         set_field(obj, "asset_bought", Asset._from_json(fields["asset_bought"], ctx))
         set_field(
             obj,
             "amount_bought",
-            xdr_json.int64(fields["amount_bought"], "ClaimOfferAtomV0.amount_bought"),
+            xdr_json.read_int64(
+                fields["amount_bought"], "ClaimOfferAtomV0.amount_bought"
+            ),
         )
         return obj
 
@@ -14601,7 +14669,7 @@ class ClaimOfferAtom(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ClaimOfferAtom",
             (
@@ -14618,19 +14686,21 @@ class ClaimOfferAtom(XdrStruct):
         set_field(
             obj,
             "offer_id",
-            xdr_json.int64(fields["offer_id"], "ClaimOfferAtom.offer_id"),
+            xdr_json.read_int64(fields["offer_id"], "ClaimOfferAtom.offer_id"),
         )
         set_field(obj, "asset_sold", Asset._from_json(fields["asset_sold"], ctx))
         set_field(
             obj,
             "amount_sold",
-            xdr_json.int64(fields["amount_sold"], "ClaimOfferAtom.amount_sold"),
+            xdr_json.read_int64(fields["amount_sold"], "ClaimOfferAtom.amount_sold"),
         )
         set_field(obj, "asset_bought", Asset._from_json(fields["asset_bought"], ctx))
         set_field(
             obj,
             "amount_bought",
-            xdr_json.int64(fields["amount_bought"], "ClaimOfferAtom.amount_bought"),
+            xdr_json.read_int64(
+                fields["amount_bought"], "ClaimOfferAtom.amount_bought"
+            ),
         )
         return obj
 
@@ -14751,7 +14821,7 @@ class ClaimLiquidityAtom(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "liquidity_pool_id": xdr_json.liquidity_pool(self.liquidity_pool_id),
+            "liquidity_pool_id": xdr_json.write_liquidity_pool(self.liquidity_pool_id),
             "asset_sold": self.asset_sold._to_json(ctx),
             "amount_sold": str(self.amount_sold),
             "asset_bought": self.asset_bought._to_json(ctx),
@@ -14760,7 +14830,7 @@ class ClaimLiquidityAtom(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ClaimLiquidityAtom",
             (
@@ -14783,13 +14853,17 @@ class ClaimLiquidityAtom(XdrStruct):
         set_field(
             obj,
             "amount_sold",
-            xdr_json.int64(fields["amount_sold"], "ClaimLiquidityAtom.amount_sold"),
+            xdr_json.read_int64(
+                fields["amount_sold"], "ClaimLiquidityAtom.amount_sold"
+            ),
         )
         set_field(obj, "asset_bought", Asset._from_json(fields["asset_bought"], ctx))
         set_field(
             obj,
             "amount_bought",
-            xdr_json.int64(fields["amount_bought"], "ClaimLiquidityAtom.amount_bought"),
+            xdr_json.read_int64(
+                fields["amount_bought"], "ClaimLiquidityAtom.amount_bought"
+            ),
         )
         return obj
 
@@ -14996,7 +15070,7 @@ class ClaimAtom(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ClaimAtom.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "ClaimAtom", _CLAIM_ATOM_JSON_ARMS, _CLAIM_ATOM_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -15257,7 +15331,7 @@ class CreateAccountResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> CreateAccountResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "CreateAccountResult",
             _CREATE_ACCOUNT_RESULT_JSON_ARMS,
@@ -15703,7 +15777,7 @@ class PaymentResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> PaymentResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "PaymentResult", _PAYMENT_RESULT_JSON_ARMS, _PAYMENT_RESULT_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -15839,7 +15913,7 @@ class SimplePaymentResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SimplePaymentResult", ("destination", "asset", "amount")
         )
         obj = new(cls)
@@ -15848,7 +15922,7 @@ class SimplePaymentResult(XdrStruct):
         set_field(
             obj,
             "amount",
-            xdr_json.int64(fields["amount"], "SimplePaymentResult.amount"),
+            xdr_json.read_int64(fields["amount"], "SimplePaymentResult.amount"),
         )
         return obj
 
@@ -15927,15 +16001,15 @@ class PathPaymentStrictReceiveResultSuccess(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "PathPaymentStrictReceiveResultSuccess", ("offers", "last")
         )
         obj = new(cls)
         set_field(
             obj,
             "offers",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["offers"],
                     "PathPaymentStrictReceiveResultSuccess.offers",
                     None,
@@ -16528,7 +16602,7 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> PathPaymentStrictReceiveResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "PathPaymentStrictReceiveResult",
             _PATH_PAYMENT_STRICT_RECEIVE_RESULT_JSON_ARMS,
@@ -16682,15 +16756,15 @@ class PathPaymentStrictSendResultSuccess(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "PathPaymentStrictSendResultSuccess", ("offers", "last")
         )
         obj = new(cls)
         set_field(
             obj,
             "offers",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["offers"], "PathPaymentStrictSendResultSuccess.offers", None
                 ),
                 "PathPaymentStrictSendResultSuccess.offers",
@@ -17268,7 +17342,7 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> PathPaymentStrictSendResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "PathPaymentStrictSendResult",
             _PATH_PAYMENT_STRICT_SEND_RESULT_JSON_ARMS,
@@ -17538,7 +17612,7 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ManageOfferSuccessResultOffer.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ManageOfferSuccessResultOffer",
             _MANAGE_OFFER_SUCCESS_RESULT_OFFER_JSON_ARMS,
@@ -17675,15 +17749,15 @@ class ManageOfferSuccessResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ManageOfferSuccessResult", ("offers_claimed", "offer")
         )
         obj = new(cls)
         set_field(
             obj,
             "offers_claimed",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["offers_claimed"],
                     "ManageOfferSuccessResult.offers_claimed",
                     None,
@@ -18219,7 +18293,7 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ManageSellOfferResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ManageSellOfferResult",
             _MANAGE_SELL_OFFER_RESULT_JSON_ARMS,
@@ -18819,7 +18893,7 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ManageBuyOfferResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ManageBuyOfferResult",
             _MANAGE_BUY_OFFER_RESULT_JSON_ARMS,
@@ -19330,7 +19404,7 @@ class SetOptionsResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SetOptionsResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SetOptionsResult",
             _SET_OPTIONS_RESULT_JSON_ARMS,
@@ -19766,7 +19840,7 @@ class ChangeTrustResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ChangeTrustResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ChangeTrustResult",
             _CHANGE_TRUST_RESULT_JSON_ARMS,
@@ -20128,7 +20202,7 @@ class AllowTrustResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> AllowTrustResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "AllowTrustResult",
             _ALLOW_TRUST_RESULT_JSON_ARMS,
@@ -20254,7 +20328,7 @@ class AccountMergeResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "source_account_balance",
-                xdr_json.int64(
+                xdr_json.read_int64(
                     value, "AccountMergeResult.Success.source_account_balance"
                 ),
             )
@@ -20540,7 +20614,7 @@ class AccountMergeResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> AccountMergeResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "AccountMergeResult",
             _ACCOUNT_MERGE_RESULT_JSON_ARMS,
@@ -20658,11 +20732,15 @@ class InflationPayout(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "InflationPayout", ("destination", "amount"))
+        fields = xdr_json.read_fields(
+            value, "InflationPayout", ("destination", "amount")
+        )
         obj = new(cls)
         set_field(obj, "destination", PublicKey._from_json(fields["destination"], ctx))
         set_field(
-            obj, "amount", xdr_json.int64(fields["amount"], "InflationPayout.amount")
+            obj,
+            "amount",
+            xdr_json.read_int64(fields["amount"], "InflationPayout.amount"),
         )
         return obj
 
@@ -20743,8 +20821,8 @@ class InflationResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "payouts",
-                xdr_json.items(
-                    xdr_json.array(value, "InflationResult.Success.payouts", None),
+                xdr_json.read_items(
+                    xdr_json.read_array(value, "InflationResult.Success.payouts", None),
                     "InflationResult.Success.payouts",
                     lambda item0: InflationPayout._from_json(item0, ctx),
                 ),
@@ -20830,7 +20908,7 @@ class InflationResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> InflationResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "InflationResult",
             _INFLATION_RESULT_JSON_ARMS,
@@ -21092,7 +21170,7 @@ class ManageDataResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ManageDataResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ManageDataResult",
             _MANAGE_DATA_RESULT_JSON_ARMS,
@@ -21263,7 +21341,7 @@ class BumpSequenceResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> BumpSequenceResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "BumpSequenceResult",
             _BUMP_SEQUENCE_RESULT_JSON_ARMS,
@@ -21589,7 +21667,7 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> CreateClaimableBalanceResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "CreateClaimableBalanceResult",
             _CREATE_CLAIMABLE_BALANCE_RESULT_JSON_ARMS,
@@ -21951,7 +22029,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ClaimClaimableBalanceResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ClaimClaimableBalanceResult",
             _CLAIM_CLAIMABLE_BALANCE_RESULT_JSON_ARMS,
@@ -22221,7 +22299,7 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> BeginSponsoringFutureReservesResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "BeginSponsoringFutureReservesResult",
             _BEGIN_SPONSORING_FUTURE_RESERVES_RESULT_JSON_ARMS,
@@ -22407,7 +22485,7 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> EndSponsoringFutureReservesResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "EndSponsoringFutureReservesResult",
             _END_SPONSORING_FUTURE_RESERVES_RESULT_JSON_ARMS,
@@ -22716,7 +22794,7 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> RevokeSponsorshipResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "RevokeSponsorshipResult",
             _REVOKE_SPONSORSHIP_RESULT_JSON_ARMS,
@@ -22999,7 +23077,7 @@ class ClawbackResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ClawbackResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ClawbackResult",
             _CLAWBACK_RESULT_JSON_ARMS,
@@ -23249,7 +23327,7 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> ClawbackClaimableBalanceResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ClawbackClaimableBalanceResult",
             _CLAWBACK_CLAIMABLE_BALANCE_RESULT_JSON_ARMS,
@@ -23560,7 +23638,7 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SetTrustLineFlagsResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SetTrustLineFlagsResult",
             _SET_TRUST_LINE_FLAGS_RESULT_JSON_ARMS,
@@ -23993,7 +24071,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LiquidityPoolDepositResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LiquidityPoolDepositResult",
             _LIQUIDITY_POOL_DEPOSIT_RESULT_JSON_ARMS,
@@ -24367,7 +24445,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LiquidityPoolWithdrawResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LiquidityPoolWithdrawResult",
             _LIQUIDITY_POOL_WITHDRAW_RESULT_JSON_ARMS,
@@ -24496,7 +24574,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "success",
-                xdr_json.hex_fixed(
+                xdr_json.read_hex_fixed(
                     value, "InvokeHostFunctionResult.Success.success", 32
                 ),
             )
@@ -24722,7 +24800,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> InvokeHostFunctionResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "InvokeHostFunctionResult",
             _INVOKE_HOST_FUNCTION_RESULT_JSON_ARMS,
@@ -24981,7 +25059,7 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ExtendFootprintTTLResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ExtendFootprintTTLResult",
             _EXTEND_FOOTPRINT_TTL_RESULT_JSON_ARMS,
@@ -25230,7 +25308,7 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> RestoreFootprintResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "RestoreFootprintResult",
             _RESTORE_FOOTPRINT_RESULT_JSON_ARMS,
@@ -27067,7 +27145,7 @@ class OperationResultTr(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> OperationResultTr.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "OperationResultTr",
             _OPERATION_RESULT_TR_JSON_ARMS,
@@ -27528,7 +27606,7 @@ class OperationResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> OperationResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "OperationResult",
             _OPERATION_RESULT_JSON_ARMS,
@@ -27680,8 +27758,8 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "results",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value, "InnerTransactionResultResult.TxSuccess.results", None
                     ),
                     "InnerTransactionResultResult.TxSuccess.results",
@@ -27753,8 +27831,8 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "results",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value, "InnerTransactionResultResult.TxFailed.results", None
                     ),
                     "InnerTransactionResultResult.TxFailed.results",
@@ -28343,7 +28421,7 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> InnerTransactionResultResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "InnerTransactionResultResult",
             _INNER_TRANSACTION_RESULT_RESULT_JSON_ARMS,
@@ -28529,7 +28607,7 @@ class InnerTransactionResultExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> InnerTransactionResultExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "InnerTransactionResultExt",
             _INNER_TRANSACTION_RESULT_EXT_JSON_ARMS,
@@ -28687,14 +28765,16 @@ class InnerTransactionResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "InnerTransactionResult", ("fee_charged", "result", "ext")
         )
         obj = new(cls)
         set_field(
             obj,
             "fee_charged",
-            xdr_json.int64(fields["fee_charged"], "InnerTransactionResult.fee_charged"),
+            xdr_json.read_int64(
+                fields["fee_charged"], "InnerTransactionResult.fee_charged"
+            ),
         )
         set_field(
             obj,
@@ -28769,14 +28849,14 @@ class InnerTransactionResultPair(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "InnerTransactionResultPair", ("transaction_hash", "result")
         )
         obj = new(cls)
         set_field(
             obj,
             "transaction_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["transaction_hash"],
                 "InnerTransactionResultPair.transaction_hash",
                 32,
@@ -28999,8 +29079,8 @@ class TransactionResultResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "results",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value, "TransactionResultResult.TxSuccess.results", None
                     ),
                     "TransactionResultResult.TxSuccess.results",
@@ -29072,8 +29152,8 @@ class TransactionResultResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "results",
-                xdr_json.items(
-                    xdr_json.array(
+                xdr_json.read_items(
+                    xdr_json.read_array(
                         value, "TransactionResultResult.TxFailed.results", None
                     ),
                     "TransactionResultResult.TxFailed.results",
@@ -29664,7 +29744,7 @@ class TransactionResultResult(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionResultResult.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionResultResult",
             _TRANSACTION_RESULT_RESULT_JSON_ARMS,
@@ -29852,7 +29932,7 @@ class TransactionResultExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionResultExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionResultExt",
             _TRANSACTION_RESULT_EXT_JSON_ARMS,
@@ -30011,14 +30091,14 @@ class TransactionResult(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionResult", ("fee_charged", "result", "ext")
         )
         obj = new(cls)
         set_field(
             obj,
             "fee_charged",
-            xdr_json.int64(fields["fee_charged"], "TransactionResult.fee_charged"),
+            xdr_json.read_int64(fields["fee_charged"], "TransactionResult.fee_charged"),
         )
         set_field(
             obj, "result", TransactionResultResult._from_json(fields["result"], ctx)

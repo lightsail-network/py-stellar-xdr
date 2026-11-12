@@ -387,18 +387,30 @@ def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
     [
         # A rule for a definition that was renamed or removed upstream.
         (
-            {"typedefs": {"Gone": sep51.TypedefRule("contract", "read_contract")}},
+            {
+                "typedefs": {
+                    "Gone": sep51.TypedefRule("write_contract", "read_contract")
+                }
+            },
             "SEP-51 rule for Gone: the definitions have no such Typedef",
         ),
         (
-            {"structs": {"SCVal": sep51.StructRule("join128", "int128", ("hi", "lo"))}},
+            {
+                "structs": {
+                    "SCVal": sep51.StructRule(
+                        "write_int128", "read_int128", ("hi", "lo")
+                    )
+                }
+            },
             "SEP-51 rule for SCVal: the definitions have no such Struct",
         ),
         # A struct that gained a field its rule doesn't know.
         (
             {
                 "structs": {
-                    "Int128Parts": sep51.StructRule("join128", "int128", ("hi",))
+                    "Int128Parts": sep51.StructRule(
+                        "write_int128", "read_int128", ("hi",)
+                    )
                 }
             },
             "SEP-51 rule for Int128Parts: it doesn't name exactly its fields",
@@ -471,4 +483,4 @@ def test_a_python_name_does_not_change_the_json_form(
     arm = source.split("class PublicKeyTypeEd25519(XdrArm):")[1].split(
         "Any: TypeAlias"
     )[0]
-    assert "return xdr_json.account(self.ed25519)" in arm
+    assert "return xdr_json.write_account(self.ed25519)" in arm

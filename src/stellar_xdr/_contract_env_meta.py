@@ -52,7 +52,9 @@ class SCEnvMetaKind(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCEnvMetaKind:
-        return xdr_json.enum(value, "SCEnvMetaKind", _SC_ENV_META_KIND_JSON_MEMBERS)
+        return xdr_json.read_enum(
+            value, "SCEnvMetaKind", _SC_ENV_META_KIND_JSON_MEMBERS
+        )
 
 
 _SC_ENV_META_KIND_JSON_NAMES: Final[dict[SCEnvMetaKind, str]] = {
@@ -114,21 +116,21 @@ class SCEnvMetaEntryInterfaceVersion(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCEnvMetaEntryInterfaceVersion", ("protocol", "pre_release")
         )
         obj = new(cls)
         set_field(
             obj,
             "protocol",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["protocol"], "SCEnvMetaEntryInterfaceVersion.protocol"
             ),
         )
         set_field(
             obj,
             "pre_release",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["pre_release"], "SCEnvMetaEntryInterfaceVersion.pre_release"
             ),
         )
@@ -256,7 +258,7 @@ class SCEnvMetaEntry(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCEnvMetaEntry.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SCEnvMetaEntry",
             _SC_ENV_META_ENTRY_JSON_ARMS,

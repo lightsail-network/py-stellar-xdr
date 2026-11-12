@@ -51,7 +51,7 @@ class SCMetaKind(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> SCMetaKind:
-        return xdr_json.enum(value, "SCMetaKind", _SC_META_KIND_JSON_MEMBERS)
+        return xdr_json.read_enum(value, "SCMetaKind", _SC_META_KIND_JSON_MEMBERS)
 
 
 _SC_META_KIND_JSON_NAMES: Final[dict[SCMetaKind, str]] = {
@@ -102,14 +102,17 @@ class SCMetaV0(XdrStruct):
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {"key": xdr_json.escape(self.key), "val": xdr_json.escape(self.val)}
+        return {
+            "key": xdr_json.write_string(self.key),
+            "val": xdr_json.write_string(self.val),
+        }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "SCMetaV0", ("key", "val"))
+        fields = xdr_json.read_fields(value, "SCMetaV0", ("key", "val"))
         obj = new(cls)
-        set_field(obj, "key", xdr_json.string(fields["key"], "SCMetaV0.key", None))
-        set_field(obj, "val", xdr_json.string(fields["val"], "SCMetaV0.val", None))
+        set_field(obj, "key", xdr_json.read_string(fields["key"], "SCMetaV0.key", None))
+        set_field(obj, "val", xdr_json.read_string(fields["val"], "SCMetaV0.val", None))
         return obj
 
 
@@ -211,7 +214,7 @@ class SCMetaEntry(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCMetaEntry.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "SCMetaEntry", _SC_META_ENTRY_JSON_ARMS, _SC_META_ENTRY_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)

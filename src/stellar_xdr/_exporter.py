@@ -137,7 +137,7 @@ class LedgerCloseMetaBatch(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LedgerCloseMetaBatch",
             ("start_sequence", "end_sequence", "ledger_close_metas"),
@@ -146,22 +146,22 @@ class LedgerCloseMetaBatch(XdrStruct):
         set_field(
             obj,
             "start_sequence",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["start_sequence"], "LedgerCloseMetaBatch.start_sequence"
             ),
         )
         set_field(
             obj,
             "end_sequence",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["end_sequence"], "LedgerCloseMetaBatch.end_sequence"
             ),
         )
         set_field(
             obj,
             "ledger_close_metas",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["ledger_close_metas"],
                     "LedgerCloseMetaBatch.ledger_close_metas",
                     None,

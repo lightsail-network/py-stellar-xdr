@@ -203,7 +203,7 @@ class StoredTransactionSet(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> StoredTransactionSet.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "StoredTransactionSet",
             _STORED_TRANSACTION_SET_JSON_ARMS,
@@ -328,7 +328,7 @@ class StoredDebugTransactionSet(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "StoredDebugTransactionSet", ("tx_set", "ledger_seq", "scp_value")
         )
         obj = new(cls)
@@ -336,7 +336,7 @@ class StoredDebugTransactionSet(XdrStruct):
         set_field(
             obj,
             "ledger_seq",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_seq"], "StoredDebugTransactionSet.ledger_seq"
             ),
         )
@@ -466,15 +466,15 @@ class PersistedSCPStateV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "PersistedSCPStateV0", ("scp_envelopes", "quorum_sets", "tx_sets")
         )
         obj = new(cls)
         set_field(
             obj,
             "scp_envelopes",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["scp_envelopes"], "PersistedSCPStateV0.scp_envelopes", None
                 ),
                 "PersistedSCPStateV0.scp_envelopes",
@@ -484,8 +484,8 @@ class PersistedSCPStateV0(XdrStruct):
         set_field(
             obj,
             "quorum_sets",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["quorum_sets"], "PersistedSCPStateV0.quorum_sets", None
                 ),
                 "PersistedSCPStateV0.quorum_sets",
@@ -495,8 +495,10 @@ class PersistedSCPStateV0(XdrStruct):
         set_field(
             obj,
             "tx_sets",
-            xdr_json.items(
-                xdr_json.array(fields["tx_sets"], "PersistedSCPStateV0.tx_sets", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["tx_sets"], "PersistedSCPStateV0.tx_sets", None
+                ),
                 "PersistedSCPStateV0.tx_sets",
                 lambda item0: StoredTransactionSet._from_json(item0, ctx),
             ),
@@ -593,15 +595,15 @@ class PersistedSCPStateV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "PersistedSCPStateV1", ("scp_envelopes", "quorum_sets")
         )
         obj = new(cls)
         set_field(
             obj,
             "scp_envelopes",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["scp_envelopes"], "PersistedSCPStateV1.scp_envelopes", None
                 ),
                 "PersistedSCPStateV1.scp_envelopes",
@@ -611,8 +613,8 @@ class PersistedSCPStateV1(XdrStruct):
         set_field(
             obj,
             "quorum_sets",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["quorum_sets"], "PersistedSCPStateV1.quorum_sets", None
                 ),
                 "PersistedSCPStateV1.quorum_sets",
@@ -769,7 +771,7 @@ class PersistedSCPState(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> PersistedSCPState.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "PersistedSCPState",
             _PERSISTED_SCP_STATE_JSON_ARMS,

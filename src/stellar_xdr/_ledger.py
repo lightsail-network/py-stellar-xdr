@@ -86,7 +86,7 @@ class StellarValueType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> StellarValueType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "StellarValueType", _STELLAR_VALUE_TYPE_JSON_MEMBERS
         )
 
@@ -125,7 +125,7 @@ class LedgerHeaderFlags(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> LedgerHeaderFlags:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "LedgerHeaderFlags", _LEDGER_HEADER_FLAGS_JSON_MEMBERS
         )
 
@@ -170,7 +170,7 @@ class LedgerUpgradeType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> LedgerUpgradeType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "LedgerUpgradeType", _LEDGER_UPGRADE_TYPE_JSON_MEMBERS
         )
 
@@ -209,7 +209,7 @@ class TxSetComponentType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> TxSetComponentType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "TxSetComponentType", _TX_SET_COMPONENT_TYPE_JSON_MEMBERS
         )
 
@@ -248,7 +248,7 @@ class LedgerEntryChangeType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> LedgerEntryChangeType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "LedgerEntryChangeType", _LEDGER_ENTRY_CHANGE_TYPE_JSON_MEMBERS
         )
 
@@ -287,7 +287,7 @@ class ContractEventType(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> ContractEventType:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "ContractEventType", _CONTRACT_EVENT_TYPE_JSON_MEMBERS
         )
 
@@ -329,7 +329,7 @@ class TransactionEventStage(XdrEnum):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> TransactionEventStage:
-        return xdr_json.enum(
+        return xdr_json.read_enum(
             value, "TransactionEventStage", _TRANSACTION_EVENT_STAGE_JSON_MEMBERS
         )
 
@@ -409,7 +409,7 @@ class LedgerCloseValueSignature(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "LedgerCloseValueSignature", ("node_id", "signature")
         )
         obj = new(cls)
@@ -417,7 +417,7 @@ class LedgerCloseValueSignature(XdrStruct):
         set_field(
             obj,
             "signature",
-            xdr_json.hex_var(
+            xdr_json.read_hex_var(
                 fields["signature"], "LedgerCloseValueSignature.signature", 64
             ),
         )
@@ -538,7 +538,7 @@ class StellarValueProposedValue(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "StellarValueProposedValue",
             (
@@ -552,14 +552,14 @@ class StellarValueProposedValue(XdrStruct):
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["tx_set_hash"], "StellarValueProposedValue.tx_set_hash", 32
             ),
         )
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["previous_ledger_hash"],
                 "StellarValueProposedValue.previous_ledger_hash",
                 32,
@@ -568,7 +568,7 @@ class StellarValueProposedValue(XdrStruct):
         set_field(
             obj,
             "previous_ledger_version",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["previous_ledger_version"],
                 "StellarValueProposedValue.previous_ledger_version",
             ),
@@ -649,14 +649,14 @@ class StellarValueSignedMsValue(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "StellarValueSignedMsValue", ("close_time_ms", "lc_value_signature")
         )
         obj = new(cls)
         set_field(
             obj,
             "close_time_ms",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["close_time_ms"], "StellarValueSignedMsValue.close_time_ms"
             ),
         )
@@ -796,7 +796,7 @@ class StellarValueProposedMsValue(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "StellarValueProposedMsValue",
             (
@@ -811,21 +811,21 @@ class StellarValueProposedMsValue(XdrStruct):
         set_field(
             obj,
             "close_time_ms",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["close_time_ms"], "StellarValueProposedMsValue.close_time_ms"
             ),
         )
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["tx_set_hash"], "StellarValueProposedMsValue.tx_set_hash", 32
             ),
         )
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["previous_ledger_hash"],
                 "StellarValueProposedMsValue.previous_ledger_hash",
                 32,
@@ -834,7 +834,7 @@ class StellarValueProposedMsValue(XdrStruct):
         set_field(
             obj,
             "previous_ledger_version",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["previous_ledger_version"],
                 "StellarValueProposedMsValue.previous_ledger_version",
             ),
@@ -1175,7 +1175,7 @@ class StellarValueExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> StellarValueExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "StellarValueExt",
             _STELLAR_VALUE_EXT_JSON_ARMS,
@@ -1353,27 +1353,31 @@ class StellarValue(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "StellarValue", ("tx_set_hash", "close_time", "upgrades", "ext")
         )
         obj = new(cls)
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.hex_fixed(fields["tx_set_hash"], "StellarValue.tx_set_hash", 32),
+            xdr_json.read_hex_fixed(
+                fields["tx_set_hash"], "StellarValue.tx_set_hash", 32
+            ),
         )
         set_field(
             obj,
             "close_time",
-            xdr_json.uint64(fields["close_time"], "StellarValue.close_time"),
+            xdr_json.read_uint64(fields["close_time"], "StellarValue.close_time"),
         )
         set_field(
             obj,
             "upgrades",
-            xdr_json.items(
-                xdr_json.array(fields["upgrades"], "StellarValue.upgrades", 6),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["upgrades"], "StellarValue.upgrades", 6),
                 "StellarValue.upgrades",
-                lambda item0: xdr_json.hex_var(item0, "StellarValue.upgrades", 128),
+                lambda item0: xdr_json.read_hex_var(
+                    item0, "StellarValue.upgrades", 128
+                ),
             ),
         )
         set_field(obj, "ext", StellarValueExt._from_json(fields["ext"], ctx))
@@ -1471,7 +1475,7 @@ class LedgerHeaderExtensionV1Ext(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerHeaderExtensionV1Ext.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerHeaderExtensionV1Ext",
             _LEDGER_HEADER_EXTENSION_V1_EXT_JSON_ARMS,
@@ -1570,12 +1574,14 @@ class LedgerHeaderExtensionV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "LedgerHeaderExtensionV1", ("flags", "ext"))
+        fields = xdr_json.read_fields(
+            value, "LedgerHeaderExtensionV1", ("flags", "ext")
+        )
         obj = new(cls)
         set_field(
             obj,
             "flags",
-            xdr_json.uint32(fields["flags"], "LedgerHeaderExtensionV1.flags"),
+            xdr_json.read_uint32(fields["flags"], "LedgerHeaderExtensionV1.flags"),
         )
         set_field(obj, "ext", LedgerHeaderExtensionV1Ext._from_json(fields["ext"], ctx))
         return obj
@@ -1715,7 +1721,7 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerHeaderExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerHeaderExt",
             _LEDGER_HEADER_EXT_JSON_ARMS,
@@ -2024,7 +2030,7 @@ class LedgerHeader(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LedgerHeader",
             (
@@ -2049,12 +2055,14 @@ class LedgerHeader(XdrStruct):
         set_field(
             obj,
             "ledger_version",
-            xdr_json.uint32(fields["ledger_version"], "LedgerHeader.ledger_version"),
+            xdr_json.read_uint32(
+                fields["ledger_version"], "LedgerHeader.ledger_version"
+            ),
         )
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["previous_ledger_hash"], "LedgerHeader.previous_ledger_hash", 32
             ),
         )
@@ -2062,60 +2070,70 @@ class LedgerHeader(XdrStruct):
         set_field(
             obj,
             "tx_set_result_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["tx_set_result_hash"], "LedgerHeader.tx_set_result_hash", 32
             ),
         )
         set_field(
             obj,
             "bucket_list_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["bucket_list_hash"], "LedgerHeader.bucket_list_hash", 32
             ),
         )
         set_field(
             obj,
             "ledger_seq",
-            xdr_json.uint32(fields["ledger_seq"], "LedgerHeader.ledger_seq"),
+            xdr_json.read_uint32(fields["ledger_seq"], "LedgerHeader.ledger_seq"),
         )
         set_field(
             obj,
             "total_coins",
-            xdr_json.int64(fields["total_coins"], "LedgerHeader.total_coins"),
+            xdr_json.read_int64(fields["total_coins"], "LedgerHeader.total_coins"),
         )
         set_field(
-            obj, "fee_pool", xdr_json.int64(fields["fee_pool"], "LedgerHeader.fee_pool")
+            obj,
+            "fee_pool",
+            xdr_json.read_int64(fields["fee_pool"], "LedgerHeader.fee_pool"),
         )
         set_field(
             obj,
             "inflation_seq",
-            xdr_json.uint32(fields["inflation_seq"], "LedgerHeader.inflation_seq"),
+            xdr_json.read_uint32(fields["inflation_seq"], "LedgerHeader.inflation_seq"),
         )
         set_field(
-            obj, "id_pool", xdr_json.uint64(fields["id_pool"], "LedgerHeader.id_pool")
+            obj,
+            "id_pool",
+            xdr_json.read_uint64(fields["id_pool"], "LedgerHeader.id_pool"),
         )
         set_field(
             obj,
             "base_fee",
-            xdr_json.uint32(fields["base_fee"], "LedgerHeader.base_fee"),
+            xdr_json.read_uint32(fields["base_fee"], "LedgerHeader.base_fee"),
         )
         set_field(
             obj,
             "base_reserve",
-            xdr_json.uint32(fields["base_reserve"], "LedgerHeader.base_reserve"),
+            xdr_json.read_uint32(fields["base_reserve"], "LedgerHeader.base_reserve"),
         )
         set_field(
             obj,
             "max_tx_set_size",
-            xdr_json.uint32(fields["max_tx_set_size"], "LedgerHeader.max_tx_set_size"),
+            xdr_json.read_uint32(
+                fields["max_tx_set_size"], "LedgerHeader.max_tx_set_size"
+            ),
         )
         set_field(
             obj,
             "skip_list",
-            xdr_json.items(
-                xdr_json.array_fixed(fields["skip_list"], "LedgerHeader.skip_list", 4),
+            xdr_json.read_items(
+                xdr_json.read_array_fixed(
+                    fields["skip_list"], "LedgerHeader.skip_list", 4
+                ),
                 "LedgerHeader.skip_list",
-                lambda item0: xdr_json.hex_fixed(item0, "LedgerHeader.skip_list", 32),
+                lambda item0: xdr_json.read_hex_fixed(
+                    item0, "LedgerHeader.skip_list", 32
+                ),
             ),
         )
         set_field(obj, "ext", LedgerHeaderExt._from_json(fields["ext"], ctx))
@@ -2175,13 +2193,13 @@ class ConfigUpgradeSetKey(XdrStruct):
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         return {
-            "contract_id": xdr_json.contract(self.contract_id),
+            "contract_id": xdr_json.write_contract(self.contract_id),
             "content_hash": self.content_hash.hex(),
         }
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "ConfigUpgradeSetKey", ("contract_id", "content_hash")
         )
         obj = new(cls)
@@ -2195,7 +2213,7 @@ class ConfigUpgradeSetKey(XdrStruct):
         set_field(
             obj,
             "content_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["content_hash"], "ConfigUpgradeSetKey.content_hash", 32
             ),
         )
@@ -2276,7 +2294,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_ledger_version",
-                xdr_json.uint32(value, "LedgerUpgrade.Version.new_ledger_version"),
+                xdr_json.read_uint32(value, "LedgerUpgrade.Version.new_ledger_version"),
             )
             return obj
 
@@ -2325,7 +2343,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_base_fee",
-                xdr_json.uint32(value, "LedgerUpgrade.BaseFee.new_base_fee"),
+                xdr_json.read_uint32(value, "LedgerUpgrade.BaseFee.new_base_fee"),
             )
             return obj
 
@@ -2377,7 +2395,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_max_tx_set_size",
-                xdr_json.uint32(
+                xdr_json.read_uint32(
                     value, "LedgerUpgrade.MaxTxSetSize.new_max_tx_set_size"
                 ),
             )
@@ -2430,7 +2448,9 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_base_reserve",
-                xdr_json.uint32(value, "LedgerUpgrade.BaseReserve.new_base_reserve"),
+                xdr_json.read_uint32(
+                    value, "LedgerUpgrade.BaseReserve.new_base_reserve"
+                ),
             )
             return obj
 
@@ -2479,7 +2499,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_flags",
-                xdr_json.uint32(value, "LedgerUpgrade.Flags.new_flags"),
+                xdr_json.read_uint32(value, "LedgerUpgrade.Flags.new_flags"),
             )
             return obj
 
@@ -2580,7 +2600,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "new_max_soroban_tx_set_size",
-                xdr_json.uint32(
+                xdr_json.read_uint32(
                     value,
                     "LedgerUpgrade.MaxSorobanTxSetSize.new_max_soroban_tx_set_size",
                 ),
@@ -2642,7 +2662,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerUpgrade.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value, "LedgerUpgrade", _LEDGER_UPGRADE_JSON_ARMS, _LEDGER_UPGRADE_JSON_VOID
         )
         return arm._from_json_payload(payload, ctx)
@@ -2749,13 +2769,13 @@ class ConfigUpgradeSet(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ConfigUpgradeSet", ("updated_entry",))
+        fields = xdr_json.read_fields(value, "ConfigUpgradeSet", ("updated_entry",))
         obj = new(cls)
         set_field(
             obj,
             "updated_entry",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["updated_entry"], "ConfigUpgradeSet.updated_entry", None
                 ),
                 "ConfigUpgradeSet.updated_entry",
@@ -2875,7 +2895,7 @@ class ParallelTxsComponent(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ParallelTxsComponent",
             ("base_fee", "execution_stages"),
@@ -2888,7 +2908,7 @@ class ParallelTxsComponent(XdrStruct):
             (
                 None
                 if fields.get("base_fee") is None
-                else xdr_json.int64(
+                else xdr_json.read_int64(
                     fields.get("base_fee"), "ParallelTxsComponent.base_fee"
                 )
             ),
@@ -2896,20 +2916,20 @@ class ParallelTxsComponent(XdrStruct):
         set_field(
             obj,
             "execution_stages",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["execution_stages"],
                     "ParallelTxsComponent.execution_stages",
                     None,
                 ),
                 "ParallelTxsComponent.execution_stages",
-                lambda item0: xdr_json.items(
-                    xdr_json.array(
+                lambda item0: xdr_json.read_items(
+                    xdr_json.read_array(
                         item0, "ParallelTxsComponent.execution_stages", None
                     ),
                     "ParallelTxsComponent.execution_stages",
-                    lambda item1: xdr_json.items(
-                        xdr_json.array(
+                    lambda item1: xdr_json.read_items(
+                        xdr_json.read_array(
                             item1, "ParallelTxsComponent.execution_stages", None
                         ),
                         "ParallelTxsComponent.execution_stages",
@@ -3004,7 +3024,7 @@ class TxSetComponentTxsMaybeDiscountedFee(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TxSetComponentTxsMaybeDiscountedFee",
             ("base_fee", "txs"),
@@ -3017,7 +3037,7 @@ class TxSetComponentTxsMaybeDiscountedFee(XdrStruct):
             (
                 None
                 if fields.get("base_fee") is None
-                else xdr_json.int64(
+                else xdr_json.read_int64(
                     fields.get("base_fee"),
                     "TxSetComponentTxsMaybeDiscountedFee.base_fee",
                 )
@@ -3026,8 +3046,8 @@ class TxSetComponentTxsMaybeDiscountedFee(XdrStruct):
         set_field(
             obj,
             "txs",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["txs"], "TxSetComponentTxsMaybeDiscountedFee.txs", None
                 ),
                 "TxSetComponentTxsMaybeDiscountedFee.txs",
@@ -3165,7 +3185,7 @@ class TxSetComponent(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TxSetComponent.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TxSetComponent",
             _TX_SET_COMPONENT_JSON_ARMS,
@@ -3276,8 +3296,10 @@ class TransactionPhase(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "v0_components",
-                xdr_json.items(
-                    xdr_json.array(value, "TransactionPhase.V0.v0_components", None),
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        value, "TransactionPhase.V0.v0_components", None
+                    ),
                     "TransactionPhase.V0.v0_components",
                     lambda item0: TxSetComponent._from_json(item0, ctx),
                 ),
@@ -3384,7 +3406,7 @@ class TransactionPhase(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionPhase.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionPhase",
             _TRANSACTION_PHASE_JSON_ARMS,
@@ -3504,14 +3526,14 @@ class TransactionSet(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionSet", ("previous_ledger_hash", "txs")
         )
         obj = new(cls)
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["previous_ledger_hash"],
                 "TransactionSet.previous_ledger_hash",
                 32,
@@ -3520,8 +3542,8 @@ class TransactionSet(XdrStruct):
         set_field(
             obj,
             "txs",
-            xdr_json.items(
-                xdr_json.array(fields["txs"], "TransactionSet.txs", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["txs"], "TransactionSet.txs", None),
                 "TransactionSet.txs",
                 lambda item0: TransactionEnvelope._from_json(item0, ctx),
             ),
@@ -3608,14 +3630,14 @@ class TransactionSetV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionSetV1", ("previous_ledger_hash", "phases")
         )
         obj = new(cls)
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["previous_ledger_hash"],
                 "TransactionSetV1.previous_ledger_hash",
                 32,
@@ -3624,8 +3646,8 @@ class TransactionSetV1(XdrStruct):
         set_field(
             obj,
             "phases",
-            xdr_json.items(
-                xdr_json.array(fields["phases"], "TransactionSetV1.phases", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["phases"], "TransactionSetV1.phases", None),
                 "TransactionSetV1.phases",
                 lambda item0: TransactionPhase._from_json(item0, ctx),
             ),
@@ -3742,7 +3764,7 @@ class GeneralizedTransactionSet(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> GeneralizedTransactionSet.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "GeneralizedTransactionSet",
             _GENERALIZED_TRANSACTION_SET_JSON_ARMS,
@@ -3842,14 +3864,14 @@ class TransactionResultPair(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionResultPair", ("transaction_hash", "result")
         )
         obj = new(cls)
         set_field(
             obj,
             "transaction_hash",
-            xdr_json.hex_fixed(
+            xdr_json.read_hex_fixed(
                 fields["transaction_hash"], "TransactionResultPair.transaction_hash", 32
             ),
         )
@@ -3919,13 +3941,15 @@ class TransactionResultSet(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "TransactionResultSet", ("results",))
+        fields = xdr_json.read_fields(value, "TransactionResultSet", ("results",))
         obj = new(cls)
         set_field(
             obj,
             "results",
-            xdr_json.items(
-                xdr_json.array(fields["results"], "TransactionResultSet.results", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["results"], "TransactionResultSet.results", None
+                ),
                 "TransactionResultSet.results",
                 lambda item0: TransactionResultPair._from_json(item0, ctx),
             ),
@@ -4080,7 +4104,7 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionHistoryEntryExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionHistoryEntryExt",
             _TRANSACTION_HISTORY_ENTRY_EXT_JSON_ARMS,
@@ -4208,14 +4232,16 @@ class TransactionHistoryEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionHistoryEntry", ("ledger_seq", "tx_set", "ext")
         )
         obj = new(cls)
         set_field(
             obj,
             "ledger_seq",
-            xdr_json.uint32(fields["ledger_seq"], "TransactionHistoryEntry.ledger_seq"),
+            xdr_json.read_uint32(
+                fields["ledger_seq"], "TransactionHistoryEntry.ledger_seq"
+            ),
         )
         set_field(obj, "tx_set", TransactionSet._from_json(fields["tx_set"], ctx))
         set_field(obj, "ext", TransactionHistoryEntryExt._from_json(fields["ext"], ctx))
@@ -4315,7 +4341,7 @@ class TransactionHistoryResultEntryExt(metaclass=UnionNamespace):
     def _from_json(
         value: object, ctx: JsonReader
     ) -> TransactionHistoryResultEntryExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionHistoryResultEntryExt",
             _TRANSACTION_HISTORY_RESULT_ENTRY_EXT_JSON_ARMS,
@@ -4456,7 +4482,7 @@ class TransactionHistoryResultEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionHistoryResultEntry",
             ("ledger_seq", "tx_result_set", "ext"),
@@ -4465,7 +4491,7 @@ class TransactionHistoryResultEntry(XdrStruct):
         set_field(
             obj,
             "ledger_seq",
-            xdr_json.uint32(
+            xdr_json.read_uint32(
                 fields["ledger_seq"], "TransactionHistoryResultEntry.ledger_seq"
             ),
         )
@@ -4571,7 +4597,7 @@ class LedgerHeaderHistoryEntryExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerHeaderHistoryEntryExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerHeaderHistoryEntryExt",
             _LEDGER_HEADER_HISTORY_ENTRY_EXT_JSON_ARMS,
@@ -4692,14 +4718,16 @@ class LedgerHeaderHistoryEntry(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "LedgerHeaderHistoryEntry", ("hash", "header", "ext")
         )
         obj = new(cls)
         set_field(
             obj,
             "hash",
-            xdr_json.hex_fixed(fields["hash"], "LedgerHeaderHistoryEntry.hash", 32),
+            xdr_json.read_hex_fixed(
+                fields["hash"], "LedgerHeaderHistoryEntry.hash", 32
+            ),
         )
         set_field(obj, "header", LedgerHeader._from_json(fields["header"], ctx))
         set_field(
@@ -4775,18 +4803,22 @@ class LedgerSCPMessages(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "LedgerSCPMessages", ("ledger_seq", "messages"))
+        fields = xdr_json.read_fields(
+            value, "LedgerSCPMessages", ("ledger_seq", "messages")
+        )
         obj = new(cls)
         set_field(
             obj,
             "ledger_seq",
-            xdr_json.uint32(fields["ledger_seq"], "LedgerSCPMessages.ledger_seq"),
+            xdr_json.read_uint32(fields["ledger_seq"], "LedgerSCPMessages.ledger_seq"),
         )
         set_field(
             obj,
             "messages",
-            xdr_json.items(
-                xdr_json.array(fields["messages"], "LedgerSCPMessages.messages", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["messages"], "LedgerSCPMessages.messages", None
+                ),
                 "LedgerSCPMessages.messages",
                 lambda item0: SCPEnvelope._from_json(item0, ctx),
             ),
@@ -4872,15 +4904,15 @@ class SCPHistoryEntryV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "SCPHistoryEntryV0", ("quorum_sets", "ledger_messages")
         )
         obj = new(cls)
         set_field(
             obj,
             "quorum_sets",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["quorum_sets"], "SCPHistoryEntryV0.quorum_sets", None
                 ),
                 "SCPHistoryEntryV0.quorum_sets",
@@ -4997,7 +5029,7 @@ class SCPHistoryEntry(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SCPHistoryEntry.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SCPHistoryEntry",
             _SCP_HISTORY_ENTRY_JSON_ARMS,
@@ -5336,7 +5368,7 @@ class LedgerEntryChange(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerEntryChange.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerEntryChange",
             _LEDGER_ENTRY_CHANGE_JSON_ARMS,
@@ -5443,13 +5475,13 @@ class OperationMeta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "OperationMeta", ("changes",))
+        fields = xdr_json.read_fields(value, "OperationMeta", ("changes",))
         obj = new(cls)
         set_field(
             obj,
             "changes",
-            xdr_json.items(
-                xdr_json.array(fields["changes"], "OperationMeta.changes", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["changes"], "OperationMeta.changes", None),
                 "OperationMeta.changes",
                 lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
@@ -5552,15 +5584,15 @@ class TransactionMetaV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "TransactionMetaV1", ("tx_changes", "operations")
         )
         obj = new(cls)
         set_field(
             obj,
             "tx_changes",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes"], "TransactionMetaV1.tx_changes", None
                 ),
                 "TransactionMetaV1.tx_changes",
@@ -5570,8 +5602,8 @@ class TransactionMetaV1(XdrStruct):
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["operations"], "TransactionMetaV1.operations", None
                 ),
                 "TransactionMetaV1.operations",
@@ -5720,7 +5752,7 @@ class TransactionMetaV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionMetaV2",
             ("tx_changes_before", "operations", "tx_changes_after"),
@@ -5729,8 +5761,8 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_before"],
                     "TransactionMetaV2.tx_changes_before",
                     None,
@@ -5742,8 +5774,8 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["operations"], "TransactionMetaV2.operations", None
                 ),
                 "TransactionMetaV2.operations",
@@ -5753,8 +5785,8 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_after"],
                     "TransactionMetaV2.tx_changes_after",
                     None,
@@ -5836,13 +5868,13 @@ class ContractEventV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "ContractEventV0", ("topics", "data"))
+        fields = xdr_json.read_fields(value, "ContractEventV0", ("topics", "data"))
         obj = new(cls)
         set_field(
             obj,
             "topics",
-            xdr_json.items(
-                xdr_json.array(fields["topics"], "ContractEventV0.topics", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["topics"], "ContractEventV0.topics", None),
                 "ContractEventV0.topics",
                 lambda item0: SCVal._from_json(item0, ctx),
             ),
@@ -5957,7 +5989,7 @@ class ContractEventBody(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> ContractEventBody.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "ContractEventBody",
             _CONTRACT_EVENT_BODY_JSON_ARMS,
@@ -6105,7 +6137,7 @@ class ContractEvent(XdrStruct):
             "contract_id": (
                 None
                 if self.contract_id is None
-                else xdr_json.contract(self.contract_id)
+                else xdr_json.write_contract(self.contract_id)
             ),
             "type": self.type._to_json(ctx),
             "body": self.body._to_json(ctx),
@@ -6113,7 +6145,7 @@ class ContractEvent(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "ContractEvent",
             ("ext", "contract_id", "type", "body"),
@@ -6198,14 +6230,14 @@ class DiagnosticEvent(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "DiagnosticEvent", ("in_successful_contract_call", "event")
         )
         obj = new(cls)
         set_field(
             obj,
             "in_successful_contract_call",
-            xdr_json.boolean(
+            xdr_json.read_boolean(
                 fields["in_successful_contract_call"],
                 "DiagnosticEvent.in_successful_contract_call",
             ),
@@ -6360,7 +6392,7 @@ class SorobanTransactionMetaExtV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanTransactionMetaExtV1",
             (
@@ -6375,7 +6407,7 @@ class SorobanTransactionMetaExtV1(XdrStruct):
         set_field(
             obj,
             "total_non_refundable_resource_fee_charged",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["total_non_refundable_resource_fee_charged"],
                 "SorobanTransactionMetaExtV1.total_non_refundable_resource_fee_charged",
             ),
@@ -6383,7 +6415,7 @@ class SorobanTransactionMetaExtV1(XdrStruct):
         set_field(
             obj,
             "total_refundable_resource_fee_charged",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["total_refundable_resource_fee_charged"],
                 "SorobanTransactionMetaExtV1.total_refundable_resource_fee_charged",
             ),
@@ -6391,7 +6423,7 @@ class SorobanTransactionMetaExtV1(XdrStruct):
         set_field(
             obj,
             "rent_fee_charged",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["rent_fee_charged"],
                 "SorobanTransactionMetaExtV1.rent_fee_charged",
             ),
@@ -6537,7 +6569,7 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> SorobanTransactionMetaExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "SorobanTransactionMetaExt",
             _SOROBAN_TRANSACTION_META_EXT_JSON_ARMS,
@@ -6717,7 +6749,7 @@ class SorobanTransactionMeta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanTransactionMeta",
             ("ext", "events", "return_value", "diagnostic_events"),
@@ -6727,8 +6759,10 @@ class SorobanTransactionMeta(XdrStruct):
         set_field(
             obj,
             "events",
-            xdr_json.items(
-                xdr_json.array(fields["events"], "SorobanTransactionMeta.events", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["events"], "SorobanTransactionMeta.events", None
+                ),
                 "SorobanTransactionMeta.events",
                 lambda item0: ContractEvent._from_json(item0, ctx),
             ),
@@ -6737,8 +6771,8 @@ class SorobanTransactionMeta(XdrStruct):
         set_field(
             obj,
             "diagnostic_events",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["diagnostic_events"],
                     "SorobanTransactionMeta.diagnostic_events",
                     None,
@@ -6940,7 +6974,7 @@ class TransactionMetaV3(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionMetaV3",
             (
@@ -6957,8 +6991,8 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_before"],
                     "TransactionMetaV3.tx_changes_before",
                     None,
@@ -6970,8 +7004,8 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["operations"], "TransactionMetaV3.operations", None
                 ),
                 "TransactionMetaV3.operations",
@@ -6981,8 +7015,8 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_after"],
                     "TransactionMetaV3.tx_changes_after",
                     None,
@@ -7111,14 +7145,16 @@ class OperationMetaV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "OperationMetaV2", ("ext", "changes", "events"))
+        fields = xdr_json.read_fields(
+            value, "OperationMetaV2", ("ext", "changes", "events")
+        )
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._from_json(fields["ext"], ctx))
         set_field(
             obj,
             "changes",
-            xdr_json.items(
-                xdr_json.array(fields["changes"], "OperationMetaV2.changes", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["changes"], "OperationMetaV2.changes", None),
                 "OperationMetaV2.changes",
                 lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
@@ -7126,8 +7162,8 @@ class OperationMetaV2(XdrStruct):
         set_field(
             obj,
             "events",
-            xdr_json.items(
-                xdr_json.array(fields["events"], "OperationMetaV2.events", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["events"], "OperationMetaV2.events", None),
                 "OperationMetaV2.events",
                 lambda item0: ContractEvent._from_json(item0, ctx),
             ),
@@ -7214,7 +7250,7 @@ class SorobanTransactionMetaV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "SorobanTransactionMetaV2",
             ("ext", "return_value"),
@@ -7287,7 +7323,7 @@ class TransactionEvent(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "TransactionEvent", ("stage", "event"))
+        fields = xdr_json.read_fields(value, "TransactionEvent", ("stage", "event"))
         obj = new(cls)
         set_field(obj, "stage", TransactionEventStage._from_json(fields["stage"], ctx))
         set_field(obj, "event", ContractEvent._from_json(fields["event"], ctx))
@@ -7546,7 +7582,7 @@ class TransactionMetaV4(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionMetaV4",
             (
@@ -7565,8 +7601,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_before"],
                     "TransactionMetaV4.tx_changes_before",
                     None,
@@ -7578,8 +7614,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "operations",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["operations"], "TransactionMetaV4.operations", None
                 ),
                 "TransactionMetaV4.operations",
@@ -7589,8 +7625,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_changes_after"],
                     "TransactionMetaV4.tx_changes_after",
                     None,
@@ -7613,8 +7649,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "events",
-            xdr_json.items(
-                xdr_json.array(fields["events"], "TransactionMetaV4.events", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["events"], "TransactionMetaV4.events", None),
                 "TransactionMetaV4.events",
                 lambda item0: TransactionEvent._from_json(item0, ctx),
             ),
@@ -7622,8 +7658,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "diagnostic_events",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["diagnostic_events"],
                     "TransactionMetaV4.diagnostic_events",
                     None,
@@ -7713,7 +7749,7 @@ class InvokeHostFunctionSuccessPreImage(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "InvokeHostFunctionSuccessPreImage", ("return_value", "events")
         )
         obj = new(cls)
@@ -7721,8 +7757,8 @@ class InvokeHostFunctionSuccessPreImage(XdrStruct):
         set_field(
             obj,
             "events",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["events"], "InvokeHostFunctionSuccessPreImage.events", None
                 ),
                 "InvokeHostFunctionSuccessPreImage.events",
@@ -7812,8 +7848,8 @@ class TransactionMeta(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "operations",
-                xdr_json.items(
-                    xdr_json.array(value, "TransactionMeta.V0.operations", None),
+                xdr_json.read_items(
+                    xdr_json.read_array(value, "TransactionMeta.V0.operations", None),
                     "TransactionMeta.V0.operations",
                     lambda item0: OperationMeta._from_json(item0, ctx),
                 ),
@@ -8039,7 +8075,7 @@ class TransactionMeta(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> TransactionMeta.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "TransactionMeta",
             _TRANSACTION_META_JSON_ARMS,
@@ -8191,7 +8227,7 @@ class TransactionResultMeta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionResultMeta",
             ("result", "fee_processing", "tx_apply_processing"),
@@ -8203,8 +8239,8 @@ class TransactionResultMeta(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["fee_processing"],
                     "TransactionResultMeta.fee_processing",
                     None,
@@ -8388,7 +8424,7 @@ class TransactionResultMetaV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "TransactionResultMetaV1",
             (
@@ -8407,8 +8443,8 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["fee_processing"],
                     "TransactionResultMetaV1.fee_processing",
                     None,
@@ -8425,8 +8461,8 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             obj,
             "post_tx_apply_fee_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["post_tx_apply_fee_processing"],
                     "TransactionResultMetaV1.post_tx_apply_fee_processing",
                     None,
@@ -8520,14 +8556,16 @@ class UpgradeEntryMeta(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(value, "UpgradeEntryMeta", ("upgrade", "changes"))
+        fields = xdr_json.read_fields(value, "UpgradeEntryMeta", ("upgrade", "changes"))
         obj = new(cls)
         set_field(obj, "upgrade", LedgerUpgrade._from_json(fields["upgrade"], ctx))
         set_field(
             obj,
             "changes",
-            xdr_json.items(
-                xdr_json.array(fields["changes"], "UpgradeEntryMeta.changes", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["changes"], "UpgradeEntryMeta.changes", None
+                ),
                 "UpgradeEntryMeta.changes",
                 lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
@@ -8714,7 +8752,7 @@ class LedgerCloseMetaV0(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LedgerCloseMetaV0",
             (
@@ -8735,8 +8773,8 @@ class LedgerCloseMetaV0(XdrStruct):
         set_field(
             obj,
             "tx_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_processing"], "LedgerCloseMetaV0.tx_processing", None
                 ),
                 "LedgerCloseMetaV0.tx_processing",
@@ -8746,8 +8784,8 @@ class LedgerCloseMetaV0(XdrStruct):
         set_field(
             obj,
             "upgrades_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["upgrades_processing"],
                     "LedgerCloseMetaV0.upgrades_processing",
                     None,
@@ -8759,8 +8797,10 @@ class LedgerCloseMetaV0(XdrStruct):
         set_field(
             obj,
             "scp_info",
-            xdr_json.items(
-                xdr_json.array(fields["scp_info"], "LedgerCloseMetaV0.scp_info", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["scp_info"], "LedgerCloseMetaV0.scp_info", None
+                ),
                 "LedgerCloseMetaV0.scp_info",
                 lambda item0: SCPHistoryEntry._from_json(item0, ctx),
             ),
@@ -8835,7 +8875,7 @@ class LedgerCloseMetaExtV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value, "LedgerCloseMetaExtV1", ("ext", "soroban_fee_write1_kb")
         )
         obj = new(cls)
@@ -8843,7 +8883,7 @@ class LedgerCloseMetaExtV1(XdrStruct):
         set_field(
             obj,
             "soroban_fee_write1_kb",
-            xdr_json.int64(
+            xdr_json.read_int64(
                 fields["soroban_fee_write1_kb"],
                 "LedgerCloseMetaExtV1.soroban_fee_write1_kb",
             ),
@@ -8985,7 +9025,7 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerCloseMetaExt.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerCloseMetaExt",
             _LEDGER_CLOSE_META_EXT_JSON_ARMS,
@@ -9303,7 +9343,7 @@ class LedgerCloseMetaV1(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LedgerCloseMetaV1",
             (
@@ -9331,8 +9371,8 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "tx_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_processing"], "LedgerCloseMetaV1.tx_processing", None
                 ),
                 "LedgerCloseMetaV1.tx_processing",
@@ -9342,8 +9382,8 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "upgrades_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["upgrades_processing"],
                     "LedgerCloseMetaV1.upgrades_processing",
                     None,
@@ -9355,8 +9395,10 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "scp_info",
-            xdr_json.items(
-                xdr_json.array(fields["scp_info"], "LedgerCloseMetaV1.scp_info", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["scp_info"], "LedgerCloseMetaV1.scp_info", None
+                ),
                 "LedgerCloseMetaV1.scp_info",
                 lambda item0: SCPHistoryEntry._from_json(item0, ctx),
             ),
@@ -9364,7 +9406,7 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "total_byte_size_of_live_soroban_state",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["total_byte_size_of_live_soroban_state"],
                 "LedgerCloseMetaV1.total_byte_size_of_live_soroban_state",
             ),
@@ -9372,8 +9414,8 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "evicted_keys",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["evicted_keys"], "LedgerCloseMetaV1.evicted_keys", None
                 ),
                 "LedgerCloseMetaV1.evicted_keys",
@@ -9383,8 +9425,8 @@ class LedgerCloseMetaV1(XdrStruct):
         set_field(
             obj,
             "unused",
-            xdr_json.items(
-                xdr_json.array(fields["unused"], "LedgerCloseMetaV1.unused", None),
+            xdr_json.read_items(
+                xdr_json.read_array(fields["unused"], "LedgerCloseMetaV1.unused", None),
                 "LedgerCloseMetaV1.unused",
                 lambda item0: LedgerEntry._from_json(item0, ctx),
             ),
@@ -9648,7 +9690,7 @@ class LedgerCloseMetaV2(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.fields(
+        fields = xdr_json.read_fields(
             value,
             "LedgerCloseMetaV2",
             (
@@ -9675,8 +9717,8 @@ class LedgerCloseMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["tx_processing"], "LedgerCloseMetaV2.tx_processing", None
                 ),
                 "LedgerCloseMetaV2.tx_processing",
@@ -9686,8 +9728,8 @@ class LedgerCloseMetaV2(XdrStruct):
         set_field(
             obj,
             "upgrades_processing",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["upgrades_processing"],
                     "LedgerCloseMetaV2.upgrades_processing",
                     None,
@@ -9699,8 +9741,10 @@ class LedgerCloseMetaV2(XdrStruct):
         set_field(
             obj,
             "scp_info",
-            xdr_json.items(
-                xdr_json.array(fields["scp_info"], "LedgerCloseMetaV2.scp_info", None),
+            xdr_json.read_items(
+                xdr_json.read_array(
+                    fields["scp_info"], "LedgerCloseMetaV2.scp_info", None
+                ),
                 "LedgerCloseMetaV2.scp_info",
                 lambda item0: SCPHistoryEntry._from_json(item0, ctx),
             ),
@@ -9708,7 +9752,7 @@ class LedgerCloseMetaV2(XdrStruct):
         set_field(
             obj,
             "total_byte_size_of_live_soroban_state",
-            xdr_json.uint64(
+            xdr_json.read_uint64(
                 fields["total_byte_size_of_live_soroban_state"],
                 "LedgerCloseMetaV2.total_byte_size_of_live_soroban_state",
             ),
@@ -9716,8 +9760,8 @@ class LedgerCloseMetaV2(XdrStruct):
         set_field(
             obj,
             "evicted_keys",
-            xdr_json.items(
-                xdr_json.array(
+            xdr_json.read_items(
+                xdr_json.read_array(
                     fields["evicted_keys"], "LedgerCloseMetaV2.evicted_keys", None
                 ),
                 "LedgerCloseMetaV2.evicted_keys",
@@ -9919,7 +9963,7 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
 
     @staticmethod
     def _from_json(value: object, ctx: JsonReader) -> LedgerCloseMeta.Any:
-        arm, payload = xdr_json.union(
+        arm, payload = xdr_json.read_union(
             value,
             "LedgerCloseMeta",
             _LEDGER_CLOSE_META_JSON_ARMS,

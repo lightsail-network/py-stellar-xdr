@@ -106,43 +106,45 @@ _INT256: Final = ("hi_hi", "hi_lo", "lo_hi", "lo_lo")
 
 RULES: Final = Rules(
     typedefs={
-        "ContractID": TypedefRule("contract", "read_contract"),
-        "PoolID": TypedefRule("liquidity_pool", "read_liquidity_pool"),
-        "AssetCode4": TypedefRule("asset_code4", "read_asset_code4"),
-        "AssetCode12": TypedefRule("asset_code12", "read_asset_code12"),
+        "ContractID": TypedefRule("write_contract", "read_contract"),
+        "PoolID": TypedefRule("write_liquidity_pool", "read_liquidity_pool"),
+        "AssetCode4": TypedefRule("write_asset_code4", "read_asset_code4"),
+        "AssetCode12": TypedefRule("write_asset_code12", "read_asset_code12"),
     },
     structs={
-        "Int128Parts": StructRule("join128", "int128", _INT128),
-        "UInt128Parts": StructRule("join128", "uint128", _INT128),
-        "Int256Parts": StructRule("join256", "int256", _INT256),
-        "UInt256Parts": StructRule("join256", "uint256", _INT256),
+        "Int128Parts": StructRule("write_int128", "read_int128", _INT128),
+        "UInt128Parts": StructRule("write_int128", "read_uint128", _INT128),
+        "Int256Parts": StructRule("write_int256", "read_int256", _INT256),
+        "UInt256Parts": StructRule("write_int256", "read_uint256", _INT256),
         "MuxedAccountMed25519": StructRule(
-            "muxed_account", "read_muxed_account", ("ed25519", "id")
+            "write_muxed_account", "read_muxed_account", ("ed25519", "id")
         ),
         "MuxedEd25519Account": StructRule(
-            "muxed_account", "read_muxed_account", ("ed25519", "id")
+            "write_muxed_account", "read_muxed_account", ("ed25519", "id")
         ),
         "MuxedContract": StructRule(
-            "muxed_contract", "read_muxed_contract", ("contractId", "id")
+            "write_muxed_contract", "read_muxed_contract", ("contractId", "id")
         ),
         "SignerKeyEd25519SignedPayload": StructRule(
-            "signed_payload", "read_signed_payload", ("ed25519", "payload")
+            "write_signed_payload", "read_signed_payload", ("ed25519", "payload")
         ),
     },
     strkey_unions={
         "PublicKey": (
-            StrkeyArm("Ed25519PublicKey", "PUBLIC_KEY_TYPE_ED25519", "key", "account"),
+            StrkeyArm(
+                "Ed25519PublicKey", "PUBLIC_KEY_TYPE_ED25519", "key", "write_account"
+            ),
         ),
         "ClaimableBalanceID": (
             StrkeyArm(
                 "ClaimableBalance",
                 "CLAIMABLE_BALANCE_ID_TYPE_V0",
                 "hash",
-                "claimable_balance",
+                "write_claimable_balance",
             ),
         ),
         "MuxedAccount": (
-            StrkeyArm("Ed25519PublicKey", "KEY_TYPE_ED25519", "key", "account"),
+            StrkeyArm("Ed25519PublicKey", "KEY_TYPE_ED25519", "key", "write_account"),
             StrkeyArm(
                 "MuxedEd25519Account",
                 "KEY_TYPE_MUXED_ED25519",
@@ -150,11 +152,13 @@ RULES: Final = Rules(
             ),
         ),
         "SignerKey": (
-            StrkeyArm("Ed25519PublicKey", "SIGNER_KEY_TYPE_ED25519", "key", "account"),
             StrkeyArm(
-                "PreAuthTx", "SIGNER_KEY_TYPE_PRE_AUTH_TX", "hash", "pre_auth_tx"
+                "Ed25519PublicKey", "SIGNER_KEY_TYPE_ED25519", "key", "write_account"
             ),
-            StrkeyArm("HashX", "SIGNER_KEY_TYPE_HASH_X", "hash", "hash_x"),
+            StrkeyArm(
+                "PreAuthTx", "SIGNER_KEY_TYPE_PRE_AUTH_TX", "hash", "write_pre_auth_tx"
+            ),
+            StrkeyArm("HashX", "SIGNER_KEY_TYPE_HASH_X", "hash", "write_hash_x"),
             StrkeyArm(
                 "Ed25519SignedPayload",
                 "SIGNER_KEY_TYPE_ED25519_SIGNED_PAYLOAD",
