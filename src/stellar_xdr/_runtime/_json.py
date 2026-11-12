@@ -28,6 +28,18 @@ _DECIMAL: Final = re.compile(r"-?[1-9][0-9]*|0")
 _HEX: Final = re.compile(r"(?:[0-9a-fA-F]{2})*")
 _SCHEMA: Final = "$schema"
 
+# What a message quotes of the input. str() of an int with more than 4,300 digits
+# raises ValueError, so an integer is only shown up to the longest one XDR-JSON has.
+_MAX_SHOWN_BITS: Final = 256
+_MAX_SHOWN_LENGTH: Final = 40
+# The longest strings of a 64-bit and of a 256-bit integer, with room for a sign. The
+# length is checked before int() is called, which refuses more than 4,300 digits.
+_MAX_INT64_LENGTH: Final = 20
+_MAX_INT256_LENGTH: Final = 80
+_PRINTABLE_ASCII: Final = range(0x20, 0x7F)
+_ASSET_CODE4_SIZE: Final = 4
+_ASSET_CODE12_SIZE: Final = 12
+
 _K = TypeVar("_K")
 _T = TypeVar("_T")
 _V = TypeVar("_V")
@@ -115,10 +127,11 @@ def _expected(where: str, expected: str, value: object) -> NoReturn:
 def show(value: object) -> str:
     """Quote part of the input in a message, which stays short whatever the input."""
     if isinstance(value, int) and not isinstance(value, bool):
-        # str() of an int with more than 4,300 digits raises ValueError.
-        return str(value) if value.bit_length() <= 256 else "a huge number"  # noqa: PLR2004
+        return str(value) if value.bit_length() <= _MAX_SHOWN_BITS else "a huge number"
     text = repr(value)
-    return text if len(text) <= 40 else f"{text[:37]}..."  # noqa: PLR2004
+    if len(text) <= _MAX_SHOWN_LENGTH:
+        return text
+    return f"{text[: _MAX_SHOWN_LENGTH - 3]}..."
 
 
 # --- Numbers and booleans -------------------------------------------------------
@@ -149,9 +162,7 @@ def _decimal(value: object, where: str, bounds: tuple[int, int], name: str) -> i
     # exactly in many languages. Numbers are accepted too, as earlier versions of
     # SEP-51 wrote them.
     if isinstance(value, str):
-        # The longest 64-bit integer has 20 characters; the length check also keeps
-        # int() away from strings over its limit of 4,300 digits.
-        if len(value) > 20 or _DECIMAL.fullmatch(value) is None:  # noqa: PLR2004
+        if len(value) > _MAX_INT64_LENGTH or _DECIMAL.fullmatch(value) is None:
             _fail(where, f"{show(value)} is not a 64-bit base 10 integer")
         number = int(value)
     elif isinstance(value, int) and not isinstance(value, bool):
@@ -183,7 +194,7 @@ def boolean(value: object, where: str) -> bool:
 def _big(value: object, where: str, bounds: tuple[int, int], name: str) -> int:
     if not isinstance(value, str):
         _expected(where, "an integer string", value)
-    if len(value) > 80 or _DECIMAL.fullmatch(value) is None:  # noqa: PLR2004
+    if len(value) > _MAX_INT256_LENGTH or _DECIMAL.fullmatch(value) is None:
         _fail(where, f"{show(value)} is not a base 10 integer")
     number = int(value)
     if not bounds[0] <= number <= bounds[1]:
@@ -275,7 +286,7 @@ def escape(data: bytes) -> str:
     for byte in data:
         if byte in _ESCAPES:
             parts.append(_ESCAPES[byte])
-        elif 0x20 <= byte <= 0x7E:  # noqa: PLR2004
+        elif byte in _PRINTABLE_ASCII:
             parts.append(chr(byte))
         else:
             parts.append(f"\\x{byte:02x}")
@@ -338,23 +349,23 @@ def asset_code12(code: bytes) -> str:
 
     Keeping 5 bytes tells it apart from an `AssetCode4`.
     """
-    return escape(code.rstrip(b"\0").ljust(5, b"\0"))
+    return escape(code.rstrip(b"\0").ljust(_ASSET_CODE4_SIZE + 1, b"\0"))
 
 
 def read_asset_code4(value: object, where: str) -> bytes:
     """Read an `AssetCode4`: at most 4 bytes, padded with zero bytes."""
     data = unescape(value, where)
-    if len(data) > 4:  # noqa: PLR2004
+    if len(data) > _ASSET_CODE4_SIZE:
         _fail(where, f"expected at most 4 bytes, got {len(data)}")
-    return data.ljust(4, b"\0")
+    return data.ljust(_ASSET_CODE4_SIZE, b"\0")
 
 
 def read_asset_code12(value: object, where: str) -> bytes:
     """Read an `AssetCode12`: 5 to 12 bytes, padded with zero bytes."""
     data = unescape(value, where)
-    if not 5 <= len(data) <= 12:  # noqa: PLR2004
+    if not _ASSET_CODE4_SIZE < len(data) <= _ASSET_CODE12_SIZE:
         _fail(where, f"expected 5 to 12 bytes, got {len(data)}")
-    return data.ljust(12, b"\0")
+    return data.ljust(_ASSET_CODE12_SIZE, b"\0")
 
 
 def read_asset_code(value: object, where: str) -> bytes:
@@ -364,7 +375,7 @@ def read_asset_code(value: object, where: str) -> bytes:
     bytes; 5 to 12 bytes is an `AssetCode12`.
     """
     data = unescape(value, where)
-    if len(data) > 12:  # noqa: PLR2004
+    if len(data) > _ASSET_CODE12_SIZE:
         _fail(where, f"expected at most 12 bytes, got {len(data)}")
     return data
 

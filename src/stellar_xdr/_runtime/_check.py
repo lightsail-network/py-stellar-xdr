@@ -19,6 +19,10 @@ _INT64_MIN: Final = -(2**63)
 _INT64_MAX: Final = 2**63 - 1
 _UINT64_MAX: Final = 2**64 - 1
 
+# str() of an int with more than 4,300 digits raises ValueError, so a message only
+# quotes an integer that is no longer than the longest XDR-JSON one, of 256 bits.
+_MAX_SHOWN_BITS: Final = 256
+
 Check = Callable[..., Any]
 
 
@@ -31,8 +35,7 @@ def _integer(value: object, where: str, low: int, high: int, name: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         raise _type_error(where, "int", value)
     if not low <= value <= high:
-        # str() of an int with more than 4,300 digits raises ValueError.
-        shown = value if value.bit_length() <= 256 else "a huge number"  # noqa: PLR2004
+        shown = value if value.bit_length() <= _MAX_SHOWN_BITS else "a huge number"
         msg = f"{where}: {shown} is out of range for {name}"
         raise ValueError(msg)
     # A subclass such as an IntEnum member is stored as a plain int.

@@ -131,10 +131,13 @@ def _check_unique(owner: str, what: str, values: list[str]) -> None:
         raise GenerationError(msg)
 
 
+# What the runtime functions for the SEP-51 forms take: 64-bit integers, keys, and
+# the payload of a signed payload signer.
 _SEP51_FIELD_TYPES: Final = (
     Primitive("hyper"),
     Primitive("unsigned_hyper"),
     OpaqueFixed(32),
+    OpaqueVar(64),
 )
 
 
@@ -741,11 +744,8 @@ class _Emitter:
                 msg = f"{d.name}: the SEP-51 rule doesn't match its fields"
                 raise GenerationError(msg)
             for n, t in fields:
-                # The runtime functions take 64-bit integers, keys and short payloads.
                 resolved = self.ctx.resolve(t)
-                if resolved not in _SEP51_FIELD_TYPES and not (
-                    isinstance(resolved, OpaqueVar) and resolved.max_size == 64  # noqa: PLR2004
-                ):
+                if resolved not in _SEP51_FIELD_TYPES:
                     msg = (
                         f"{d.name}.{n}: unexpected type {resolved} for its SEP-51 rule"
                     )

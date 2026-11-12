@@ -69,6 +69,8 @@ PAGE_SIZE = 200
 # Beyond what adds coverage, this many values of every type are kept, spread over
 # their sizes, so that large values are tested as well as small ones.
 AT_LEAST = 25
+# A whole ledger is only worth keeping when it holds more than its own header.
+MIN_LEDGER_SIZE = 10_000
 # Some servers reject urllib's default User-Agent.
 HEADERS = {"User-Agent": "stellar-xdr-test-vectors", "Content-Type": "application/json"}
 
@@ -224,7 +226,7 @@ class Collector:
         version = type(meta).__qualname__
         text = meta.to_xdr_base64()
         kept = self.ledgers.get(version)
-        if size > 10_000 and (kept is None or size < kept[2]):  # noqa: PLR2004
+        if size > MIN_LEDGER_SIZE and (kept is None or size < kept[2]):
             self.ledgers[version] = (network, text, size)
         self.add(network, meta)
 
