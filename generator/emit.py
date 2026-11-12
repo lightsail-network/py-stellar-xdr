@@ -153,6 +153,26 @@ class _Module:
     imports: dict[str, set[str]] = field(default_factory=dict[str, set[str]])
 
 
+@dataclass(frozen=True)
+class _Conversion:
+    """The body of a `_to_json` or `_from_json` method: statements, then a result."""
+
+    statements: list[str]
+    result: str
+
+    def lines(self, *, counted: bool) -> list[str]:
+        """The body, with one level of depth counted around it when asked."""
+        if not counted:
+            return [*self.statements, f"return {self.result}"]
+        return [
+            "ctx.enter()",
+            *self.statements,
+            f"result = {self.result}",
+            "ctx.depth -= 1",
+            "return result",
+        ]
+
+
 def _sets_name(union: Union) -> str:
     return f"_{names.snake(union.name).upper()}_CLASSES"
 
@@ -713,9 +733,9 @@ class _Emitter:
         class_vars: list[str],
         encode_prefix: list[str],
         decode_name: str,
-        to_json: list[str],
+        to_json: _Conversion,
         from_json_name: str,
-        from_json: list[str] | None,
+        from_json: _Conversion | None,
         *,
         count_encode: bool,
         count_decode: bool,
@@ -788,35 +808,23 @@ class _Emitter:
             f"def {decode_name}(cls, reader: Reader) -> Self:",
             *_indent(decode),
         ]
-        if count_encode:
-            to_json = [
-                "ctx.enter()",
-                *to_json[:-1],
-                to_json[-1].replace("return ", "result = ", 1),
-                "ctx.depth -= 1",
-                "return result",
-            ]
-        if count_decode and from_json is not None:
-            from_json = [
-                "ctx.enter()",
-                *from_json[:-1],
-                from_json[-1].replace("return ", "result = ", 1),
-                "ctx.depth -= 1",
-                "return result",
-            ]
-        body += ["", "def _to_json(self, ctx: JsonWriter) -> Any:", *_indent(to_json)]
+        body += [
+            "",
+            "def _to_json(self, ctx: JsonWriter) -> Any:",
+            *_indent(to_json.lines(counted=count_encode)),
+        ]
         if from_json is not None:
             body += [
                 "",
                 "@classmethod",
                 f"def {from_json_name}(cls, value: object, ctx: JsonReader) -> Self:",
-                *_indent(from_json),
+                *_indent(from_json.lines(counted=count_decode)),
             ]
         return ["@final", f"class {python_name}({base}):", *_indent(body)]
 
     def _struct_json(
         self, d: Struct, qualname: str, fields: list[tuple[str, TypeRef]]
-    ) -> tuple[list[str], list[str]]:
+    ) -> tuple[_Conversion, _Conversion]:
         code = self.code
         _check_unique(
             d.name, "JSON keys", [names.json_field_name(f.name) for f in d.fields]
@@ -832,19 +840,19 @@ class _Emitter:
                     )
                     raise GenerationError(msg)
             args = ", ".join(f"self.{n}" for n in ordered)
-            to_json = [f"return xdr_json.{rule.write}({args})"]
-            from_json = [
+            build = [
                 f"parts = xdr_json.{rule.read}(value, {qualname!r})",
                 "obj = new(cls)",
                 *(f"set_field(obj, {n!r}, parts[{i}])" for i, n in enumerate(ordered)),
-                "return obj",
             ]
-            return to_json, from_json
+            return (
+                _Conversion([], f"xdr_json.{rule.write}({args})"),
+                _Conversion(build, "obj"),
+            )
         items = ", ".join(
             f"{names.json_field_name(x)!r}: {code.to_json(t, f'self.{n}')}"
             for (n, t), x in zip(fields, [f.name for f in d.fields], strict=True)
         )
-        to_json = [f"return {{{items}}}"]
         keys = _tuple([repr(names.json_field_name(f.name)) for f in d.fields])
         # An optional field that is left out reads as null, as in the reference.
         optional = [
@@ -854,17 +862,16 @@ class _Emitter:
         if optional:
             args += f", frozenset({{{', '.join(repr(k) for k in optional)}}})"
         if fields:
-            from_json = [f"fields = xdr_json.fields(value, {args})"]
+            build = [f"fields = xdr_json.fields(value, {args})"]
         else:
-            from_json = [f"xdr_json.fields(value, {args})"]
-        from_json.append("obj = new(cls)")
+            build = [f"xdr_json.fields(value, {args})"]
+        build.append("obj = new(cls)")
         for (n, t), f in zip(fields, d.fields, strict=True):
             key = names.json_field_name(f.name)
             got = f"fields.get({key!r})" if key in optional else f"fields[{key!r}]"
             read = code.from_json(t, got, f"{qualname}.{n}")
-            from_json.append(f"set_field(obj, {n!r}, {read})")
-        from_json.append("return obj")
-        return to_json, from_json
+            build.append(f"set_field(obj, {n!r}, {read})")
+        return _Conversion([], f"{{{items}}}"), _Conversion(build, "obj")
 
     def struct(self, d: Struct) -> list[str]:
         """A struct class."""
@@ -1154,25 +1161,25 @@ class _Emitter:
                 if rule is not None and rule.write is not None
                 else self.code.to_json(t, f"self.{n}")
             )
-            to_json = [f"return {converted}"]
+            to_json = _Conversion([], converted)
         elif fields:
             ((n, t),) = fields
-            to_json = [f"return {{{key!r}: {self.code.to_json(t, f'self.{n}')}}}"]
+            to_json = _Conversion(
+                [], f"{{{key!r}: {self.code.to_json(t, f'self.{n}')}}}"
+            )
         else:
-            to_json = [f"return {key!r}"]
-        from_json: list[str] | None
+            to_json = _Conversion([], repr(key))
+        from_json: _Conversion | None
         if bare:
             from_json = None  # the union reads the string and builds the arm
         elif fields:
             ((n, t),) = fields
             read = self.code.from_json(t, "value", f"{qualname}.{n}")
-            from_json = [
-                "obj = new(cls)",
-                f"set_field(obj, {n!r}, {read})",
-                "return obj",
-            ]
+            from_json = _Conversion(
+                ["obj = new(cls)", f"set_field(obj, {n!r}, {read})"], "obj"
+            )
         else:
-            from_json = ["return new(cls)"]
+            from_json = _Conversion([], "new(cls)")
         # The union's _decode and _from_json count the depth when reading, and each
         # arm's _encode and _to_json when writing.
         return self._value_class(
