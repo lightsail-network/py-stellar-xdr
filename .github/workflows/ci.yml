@@ -102,3 +102,13 @@ jobs:
           cd "$(mktemp -d)"
           uv run --isolated --no-project --with "$GITHUB_WORKSPACE"/dist/*.whl \
             python -c "import stellar_xdr; print(stellar_xdr.__name__)"
+      # The source distribution ships tests for downstream packagers. Run them the way
+      # they would: from the unpacked archive, against the installed wheel.
+      - name: Run the tests of the source distribution against the built wheel
+        run: |
+          uv export --only-group test --no-hashes --output-file "$RUNNER_TEMP/test-requirements.txt"
+          mkdir "$RUNNER_TEMP/sdist"
+          tar -xzf dist/*.tar.gz --strip-components=1 -C "$RUNNER_TEMP/sdist"
+          cd "$RUNNER_TEMP/sdist"
+          uv run --isolated --no-project --with "$GITHUB_WORKSPACE"/dist/*.whl \
+            --with-requirements "$RUNNER_TEMP/test-requirements.txt" pytest
