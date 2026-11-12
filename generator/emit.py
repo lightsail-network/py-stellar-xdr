@@ -1579,13 +1579,18 @@ _MAX_TEST_BYTES: Final = 40
 _MAX_TEST_ITEMS: Final = 3
 
 
+# Fields whose random values need a length of their own: (struct, field) to the fewest
+# bytes. A strkey, and so SEP-51, needs a signed payload of at least one byte.
+_MIN_TEST_BYTES: Final = {("SignerKeyEd25519SignedPayload", "payload"): 1}
+
+
 class StrategyGenerator:
     """Emits `tests/strategies.py`: a Hypothesis strategy for every type."""
 
     def __init__(self, model: Model) -> None:
         self.model = model
 
-    def _strategy(self, t: TypeRef) -> str:
+    def _strategy(self, t: TypeRef, min_bytes: int = 0) -> str:
         if isinstance(t, Primitive):
             if t.kind == "bool":
                 return "st.booleans()"
@@ -1594,12 +1599,14 @@ class StrategyGenerator:
         if isinstance(t, Ref):
             d = self.model.get(t.name)
             if isinstance(d, Typedef):
-                return self._strategy(d.type)
+                return self._strategy(d.type, min_bytes)
             return f"ref({t.name!r})"
         if isinstance(t, OpaqueFixed):
             return f"st.binary(min_size={t.size}, max_size={t.size})"
         if isinstance(t, OpaqueVar | String):
             limit = min(t.max_size or _MAX_TEST_BYTES, _MAX_TEST_BYTES)
+            if min_bytes:
+                return f"st.binary(min_size={min_bytes}, max_size={limit})"
             return f"st.binary(max_size={limit})"
         if isinstance(t, VarArray):
             limit = min(
@@ -1646,12 +1653,11 @@ class StrategyGenerator:
         for d in self.model.definitions:
             name = names.type_name(d.name)
             if isinstance(d, Struct):
-                args = "".join(f", {self._strategy(f.type)}" for f in d.fields)
-                if d.name == "SignerKeyEd25519SignedPayload":
-                    # A strkey, and so SEP-51, needs a payload of at least one byte.
-                    args = args.replace(
-                        "st.binary(max_size=", "st.binary(min_size=1, max_size="
-                    )
+                fields = [
+                    self._strategy(f.type, _MIN_TEST_BYTES.get((d.name, f.name), 0))
+                    for f in d.fields
+                ]
+                args = "".join(f", {strategy}" for strategy in fields)
                 lines.append(f"STRATEGIES[{d.name!r}] = st.builds(xdr.{name}{args})")
             elif isinstance(d, Enum):
                 lines.append(f"STRATEGIES[{d.name!r}] = st.sampled_from(xdr.{name})")
