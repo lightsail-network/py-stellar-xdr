@@ -893,6 +893,7 @@ class SCError(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCError._decode, data, max_depth)
 
@@ -910,6 +911,7 @@ class SCError(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCError._decode, decode_base64(text), max_depth)
 
@@ -933,6 +935,7 @@ class SCError(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCError._from_json, value, max_depth)
 
@@ -1723,6 +1726,7 @@ class SCAddress(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCAddress._decode, data, max_depth)
 
@@ -1740,6 +1744,7 @@ class SCAddress(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCAddress._decode, decode_base64(text), max_depth)
 
@@ -1795,6 +1800,7 @@ class SCAddress(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCAddress._from_json, value, max_depth)
 
@@ -2085,6 +2091,7 @@ class ContractExecutable(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractExecutable._decode, data, max_depth)
 
@@ -2102,6 +2109,7 @@ class ContractExecutable(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractExecutable._decode, decode_base64(text), max_depth)
 
@@ -2128,6 +2136,7 @@ class ContractExecutable(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ContractExecutable._from_json, value, max_depth)
 
@@ -3685,6 +3694,7 @@ class SCVal(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCVal._decode, data, max_depth)
 
@@ -3702,6 +3712,7 @@ class SCVal(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCVal._decode, decode_base64(text), max_depth)
 
@@ -3728,6 +3739,7 @@ class SCVal(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCVal._from_json, value, max_depth)
 

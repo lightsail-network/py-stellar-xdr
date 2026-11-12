@@ -98,6 +98,7 @@ class Typedef(Generic[_Value, _Input]):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of the type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(self._decode, data, max_depth)
 
@@ -113,6 +114,7 @@ class Typedef(Generic[_Value, _Input]):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 the type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(self._decode, decode_base64(text), max_depth)
 
@@ -148,5 +150,6 @@ class Typedef(Generic[_Value, _Input]):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of the type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(self._from_json, value, max_depth)

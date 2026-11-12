@@ -1197,6 +1197,7 @@ class StellarValueExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(StellarValueExt._decode, data, max_depth)
 
@@ -1214,6 +1215,7 @@ class StellarValueExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(StellarValueExt._decode, decode_base64(text), max_depth)
 
@@ -1240,6 +1242,7 @@ class StellarValueExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(StellarValueExt._from_json, value, max_depth)
 
@@ -1506,6 +1509,7 @@ class LedgerHeaderExtensionV1Ext(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerHeaderExtensionV1Ext._decode, data, max_depth)
 
@@ -1523,6 +1527,7 @@ class LedgerHeaderExtensionV1Ext(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             LedgerHeaderExtensionV1Ext._decode, decode_base64(text), max_depth
@@ -1551,6 +1556,7 @@ class LedgerHeaderExtensionV1Ext(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerHeaderExtensionV1Ext._from_json, value, max_depth)
 
@@ -1770,6 +1776,7 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerHeaderExt._decode, data, max_depth)
 
@@ -1787,6 +1794,7 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerHeaderExt._decode, decode_base64(text), max_depth)
 
@@ -1813,6 +1821,7 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerHeaderExt._from_json, value, max_depth)
 
@@ -2741,6 +2750,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerUpgrade._decode, data, max_depth)
 
@@ -2758,6 +2768,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerUpgrade._decode, decode_base64(text), max_depth)
 
@@ -2781,6 +2792,7 @@ class LedgerUpgrade(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerUpgrade._from_json, value, max_depth)
 
@@ -3293,6 +3305,7 @@ class TxSetComponent(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TxSetComponent._decode, data, max_depth)
 
@@ -3310,6 +3323,7 @@ class TxSetComponent(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TxSetComponent._decode, decode_base64(text), max_depth)
 
@@ -3336,6 +3350,7 @@ class TxSetComponent(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TxSetComponent._from_json, value, max_depth)
 
@@ -3519,6 +3534,7 @@ class TransactionPhase(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionPhase._decode, data, max_depth)
 
@@ -3536,6 +3552,7 @@ class TransactionPhase(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionPhase._decode, decode_base64(text), max_depth)
 
@@ -3562,6 +3579,7 @@ class TransactionPhase(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionPhase._from_json, value, max_depth)
 
@@ -3905,6 +3923,7 @@ class GeneralizedTransactionSet(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(GeneralizedTransactionSet._decode, data, max_depth)
 
@@ -3922,6 +3941,7 @@ class GeneralizedTransactionSet(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             GeneralizedTransactionSet._decode, decode_base64(text), max_depth
@@ -3950,6 +3970,7 @@ class GeneralizedTransactionSet(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(GeneralizedTransactionSet._from_json, value, max_depth)
 
@@ -4264,6 +4285,7 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionHistoryEntryExt._decode, data, max_depth)
 
@@ -4281,6 +4303,7 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionHistoryEntryExt._decode, decode_base64(text), max_depth
@@ -4309,6 +4332,7 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionHistoryEntryExt._from_json, value, max_depth)
 
@@ -4511,6 +4535,7 @@ class TransactionHistoryResultEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionHistoryResultEntryExt._decode, data, max_depth)
 
@@ -4528,6 +4553,7 @@ class TransactionHistoryResultEntryExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             TransactionHistoryResultEntryExt._decode, decode_base64(text), max_depth
@@ -4558,6 +4584,7 @@ class TransactionHistoryResultEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(
             TransactionHistoryResultEntryExt._from_json, value, max_depth
@@ -4774,6 +4801,7 @@ class LedgerHeaderHistoryEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerHeaderHistoryEntryExt._decode, data, max_depth)
 
@@ -4791,6 +4819,7 @@ class LedgerHeaderHistoryEntryExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             LedgerHeaderHistoryEntryExt._decode, decode_base64(text), max_depth
@@ -4819,6 +4848,7 @@ class LedgerHeaderHistoryEntryExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerHeaderHistoryEntryExt._from_json, value, max_depth)
 
@@ -5251,6 +5281,7 @@ class SCPHistoryEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCPHistoryEntry._decode, data, max_depth)
 
@@ -5268,6 +5299,7 @@ class SCPHistoryEntry(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCPHistoryEntry._decode, decode_base64(text), max_depth)
 
@@ -5294,6 +5326,7 @@ class SCPHistoryEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCPHistoryEntry._from_json, value, max_depth)
 
@@ -5612,6 +5645,7 @@ class LedgerEntryChange(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerEntryChange._decode, data, max_depth)
 
@@ -5629,6 +5663,7 @@ class LedgerEntryChange(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerEntryChange._decode, decode_base64(text), max_depth)
 
@@ -5655,6 +5690,7 @@ class LedgerEntryChange(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerEntryChange._from_json, value, max_depth)
 
@@ -6278,6 +6314,7 @@ class ContractEventBody(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractEventBody._decode, data, max_depth)
 
@@ -6295,6 +6332,7 @@ class ContractEventBody(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ContractEventBody._decode, decode_base64(text), max_depth)
 
@@ -6321,6 +6359,7 @@ class ContractEventBody(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ContractEventBody._from_json, value, max_depth)
 
@@ -6890,6 +6929,7 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SorobanTransactionMetaExt._decode, data, max_depth)
 
@@ -6907,6 +6947,7 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             SorobanTransactionMetaExt._decode, decode_base64(text), max_depth
@@ -6935,6 +6976,7 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SorobanTransactionMetaExt._from_json, value, max_depth)
 
@@ -8487,6 +8529,7 @@ class TransactionMeta(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionMeta._decode, data, max_depth)
 
@@ -8504,6 +8547,7 @@ class TransactionMeta(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(TransactionMeta._decode, decode_base64(text), max_depth)
 
@@ -8530,6 +8574,7 @@ class TransactionMeta(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(TransactionMeta._from_json, value, max_depth)
 
@@ -9473,6 +9518,7 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerCloseMetaExt._decode, data, max_depth)
 
@@ -9490,6 +9536,7 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerCloseMetaExt._decode, decode_base64(text), max_depth)
 
@@ -9516,6 +9563,7 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerCloseMetaExt._from_json, value, max_depth)
 
@@ -10419,6 +10467,7 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerCloseMeta._decode, data, max_depth)
 
@@ -10436,6 +10485,7 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(LedgerCloseMeta._decode, decode_base64(text), max_depth)
 
@@ -10462,6 +10512,7 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(LedgerCloseMeta._from_json, value, max_depth)
 

@@ -38,7 +38,7 @@ from ._codec import (
     decode_from,
     encode_base64,
 )
-from ._errors import XdrDepthError, XdrJsonError
+from ._errors import XdrDepthError
 from ._json import JsonReader, JsonWriter
 
 _T = TypeVar("_T")
@@ -111,12 +111,12 @@ def encode_json(convert: Callable[[JsonWriter], _T], max_depth: int) -> _T:
 def decode_json(
     convert: Callable[[object, JsonReader], _T], value: object, max_depth: int
 ) -> _T:
-    """Convert from JSON, turning a too deep recursion into `XdrJsonError`."""
+    """Convert from JSON, turning a too deep recursion into `XdrDepthError`."""
     try:
         return convert(value, JsonReader(max_depth))
     except RecursionError:
         msg = "JSON nested deeper than Python's recursion limit"
-        raise XdrJsonError(msg) from None
+        raise XdrDepthError(msg) from None
 
 
 def encode_into(value: _Encodable, writer: Writer) -> None:
@@ -215,6 +215,7 @@ class XdrStruct(_XdrValue):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(cls._decode, data, max_depth)
 
@@ -232,6 +233,7 @@ class XdrStruct(_XdrValue):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(cls._decode, decode_base64(text), max_depth)
 
@@ -252,6 +254,7 @@ class XdrStruct(_XdrValue):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(cls._from_json, value, max_depth)
 
@@ -410,6 +413,8 @@ def decode_stream(
         TypeError: The data is not bytes.
         XdrDecodeError: While iterating, when the data is not a valid encoding of a
             sequence of values.
+        XdrDepthError: While iterating, when a value is nested more deeply than
+            `max_depth`.
     """
     # Checked here rather than in the generator below, so that the error comes from
     # the call.

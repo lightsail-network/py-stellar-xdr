@@ -329,7 +329,7 @@ def test_depth_is_limited() -> None:
     assert xdr.SCVal.from_json_value(nested(5), max_depth=6).to_json_value(
         max_depth=6
     ) == nested(5)
-    with pytest.raises(xdr.XdrJsonError, match="max_depth=5"):
+    with pytest.raises(xdr.XdrDepthError, match="JSON nested deeper than max_depth=5"):
         xdr.SCVal.from_json_value(nested(5), max_depth=5)
     value = xdr.SCVal.from_json_value(nested(5))
     with pytest.raises(xdr.XdrDepthError, match="max_depth=5"):
@@ -337,7 +337,7 @@ def test_depth_is_limited() -> None:
 
 
 def test_recursion_beyond_python_limits_is_an_error() -> None:
-    with pytest.raises(xdr.XdrJsonError, match="recursion limit"):
+    with pytest.raises(xdr.XdrDepthError, match="recursion limit"):
         xdr.SCVal.from_json_value(nested(3000), max_depth=10_000)
     deep: xdr.SCVal.Any = xdr.SCVal.Void()
     for _ in range(3000):

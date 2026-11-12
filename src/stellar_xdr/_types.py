@@ -282,6 +282,7 @@ class ExtensionPoint(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ExtensionPoint._decode, data, max_depth)
 
@@ -299,6 +300,7 @@ class ExtensionPoint(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ExtensionPoint._decode, decode_base64(text), max_depth)
 
@@ -325,6 +327,7 @@ class ExtensionPoint(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ExtensionPoint._from_json, value, max_depth)
 
@@ -418,6 +421,7 @@ class PublicKey(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PublicKey._decode, data, max_depth)
 
@@ -435,6 +439,7 @@ class PublicKey(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(PublicKey._decode, decode_base64(text), max_depth)
 
@@ -460,6 +465,7 @@ class PublicKey(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(PublicKey._from_json, value, max_depth)
 
@@ -773,6 +779,7 @@ class SignerKey(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SignerKey._decode, data, max_depth)
 
@@ -790,6 +797,7 @@ class SignerKey(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SignerKey._decode, decode_base64(text), max_depth)
 
@@ -830,6 +838,7 @@ class SignerKey(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SignerKey._from_json, value, max_depth)
 
@@ -1456,6 +1465,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClaimableBalanceID._decode, data, max_depth)
 
@@ -1473,6 +1483,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(ClaimableBalanceID._decode, decode_base64(text), max_depth)
 
@@ -1498,6 +1509,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(ClaimableBalanceID._from_json, value, max_depth)
 

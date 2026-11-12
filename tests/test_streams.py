@@ -44,6 +44,8 @@ def test_depth_is_counted_per_value() -> None:
     assert list(xdr.decode_stream(xdr.SCVal, data, max_depth=4)) == [value, value]
     with pytest.raises(xdr.XdrDepthError):
         xdr.encode_stream([value], max_depth=3)
+    with pytest.raises(xdr.XdrDepthError):
+        list(xdr.decode_stream(xdr.SCVal, data, max_depth=3))
 
 
 def test_input_must_be_bytes() -> None:

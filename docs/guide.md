@@ -282,7 +282,8 @@ assert message == "unknown SCVal discriminant 99 at offset 0"
 
 Recursive types, such as `SCVal`, can nest without limit in XDR. Decoding and encoding
 stop at 200 levels of such types by default, which is above what the network accepts.
-Pass `max_depth` to change the limit:
+Pass `max_depth` to change the limit. Going over it raises `XdrDepthError`, whether a
+value is being decoded, encoded or converted to or from JSON:
 
 ```python
 import stellar_xdr as xdr
@@ -291,13 +292,36 @@ nested = xdr.SCVal.Vec([xdr.SCVal.Vec([xdr.SCVal.Void()])])
 data = nested.to_xdr_bytes()
 try:
     xdr.SCVal.from_xdr_bytes(data, max_depth=2)
-except xdr.XdrDecodeError as error:
+except xdr.XdrDepthError as error:
     message = str(error)
 assert message.startswith("nesting deeper than max_depth=2")
 ```
 
-Encoding a value nested more deeply than `max_depth` raises `XdrDepthError`. Equality,
-hashing, `repr` and pickling recurse without such a limit.
+Input that is too deep may be valid XDR otherwise, so `XdrDepthError` is not an
+`XdrDecodeError`, nor an `XdrJsonError`. Every error derives from `XdrError`: catch that
+one to reject untrusted input, whatever is wrong with it.
+
+```python
+import stellar_xdr as xdr
+
+
+def parse(data: bytes) -> xdr.SCVal.Any | None:
+    try:
+        return xdr.SCVal.from_xdr_bytes(data)
+    except xdr.XdrError:
+        return None
+
+
+deep: xdr.SCVal.Any = xdr.SCVal.Void()
+for _ in range(300):
+    deep = xdr.SCVal.Vec([deep])
+
+assert parse(deep.to_xdr_bytes(max_depth=400)) is None
+assert parse(b"not XDR") is None
+assert parse(xdr.SCVal.Void().to_xdr_bytes()) == xdr.SCVal.Void()
+```
+
+Equality, hashing, `repr` and pickling recurse without such a limit.
 
 ### Streams
 

@@ -1984,6 +1984,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCSpecTypeDef._decode, data, max_depth)
 
@@ -2001,6 +2002,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCSpecTypeDef._decode, decode_base64(text), max_depth)
 
@@ -2030,6 +2032,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCSpecTypeDef._from_json, value, max_depth)
 
@@ -2708,6 +2711,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCSpecUDTUnionCaseV0._decode, data, max_depth)
 
@@ -2725,6 +2729,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(
             SCSpecUDTUnionCaseV0._decode, decode_base64(text), max_depth
@@ -2753,6 +2758,7 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCSpecUDTUnionCaseV0._from_json, value, max_depth)
 
@@ -4318,6 +4324,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrDecodeError: The data is not a valid encoding of this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCSpecEntry._decode, data, max_depth)
 
@@ -4335,6 +4342,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
         Raises:
             XdrDecodeError: The text is not valid base64, or not a valid encoding of
                 this type.
+            XdrDepthError: The data is nested more deeply than `max_depth`.
         """
         return decode_bytes(SCSpecEntry._decode, decode_base64(text), max_depth)
 
@@ -4358,6 +4366,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
 
         Raises:
             XdrJsonError: The JSON is not a valid representation of this type.
+            XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
         return decode_json(SCSpecEntry._from_json, value, max_depth)
 
