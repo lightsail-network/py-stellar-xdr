@@ -232,6 +232,17 @@ def decode_from(decode: Callable[[Reader], _T], reader: Reader) -> _T:
         raise XdrDepthError(msg) from None
 
 
+def encode_to(encode: Callable[[Writer], None], writer: Writer) -> None:
+    """Encode one value, turning a too deep recursion into `XdrDepthError`."""
+    try:
+        encode(writer)
+    except RecursionError:
+        # Only reachable when max_depth is set above what Python's recursion limit
+        # allows; the depth check catches everything else first.
+        msg = "value nested deeper than Python's recursion limit"
+        raise XdrDepthError(msg) from None
+
+
 def decode_base64(text: str | bytes) -> bytes:
     """Decode canonical, padded standard base64."""
     if isinstance(text, str):

@@ -37,9 +37,9 @@ from ._codec import (
     decode_bytes,
     decode_from,
     encode_base64,
+    encode_to,
 )
-from ._errors import XdrDepthError
-from ._json import JsonReader, JsonWriter
+from ._json import JsonReader, JsonWriter, decode_json, encode_json
 
 _T = TypeVar("_T")
 _T_co = TypeVar("_T_co", covariant=True)
@@ -64,7 +64,7 @@ class _Encodable:
             XdrDepthError: The value is nested more deeply than `max_depth`.
         """
         writer = Writer(max_depth)
-        encode_into(self, writer)
+        encode_to(self._encode, writer)
         return bytes(writer.buffer)
 
     def to_xdr_base64(self, *, max_depth: int = DEFAULT_MAX_DEPTH) -> str:
@@ -97,42 +97,6 @@ class _Encodable:
             XdrJsonError: SEP-51 can't represent the value.
         """
         return encode_json(self._to_json, max_depth)
-
-
-def encode_json(convert: Callable[[JsonWriter], _T], max_depth: int) -> _T:
-    """Convert to JSON, turning a too deep recursion into `XdrDepthError`."""
-    try:
-        return convert(JsonWriter(max_depth))
-    except RecursionError:
-        msg = "value nested deeper than Python's recursion limit"
-        raise XdrDepthError(msg) from None
-
-
-def decode_json(
-    convert: Callable[[object, JsonReader], _T], value: object, max_depth: int
-) -> _T:
-    """Convert from JSON, turning a too deep recursion into `XdrDepthError`."""
-    try:
-        return convert(value, JsonReader(max_depth))
-    except RecursionError:
-        msg = "JSON nested deeper than Python's recursion limit"
-        raise XdrDepthError(msg) from None
-
-
-def encode_into(value: _Encodable, writer: Writer) -> None:
-    """Encode one value, turning a too deep recursion into `XdrDepthError`."""
-    encode_into_writer(value._encode, writer)  # noqa: SLF001
-
-
-def encode_into_writer(encode: Callable[[Writer], None], writer: Writer) -> None:
-    """Run an encoder, turning a too deep recursion into `XdrDepthError`."""
-    try:
-        encode(writer)
-    except RecursionError:
-        # Only reachable when max_depth is set above what Python's recursion limit
-        # allows; the depth check catches everything else first.
-        msg = "value nested deeper than Python's recursion limit"
-        raise XdrDepthError(msg) from None
 
 
 # The classes the generated classes may derive from, once they exist.
@@ -455,7 +419,7 @@ def encode_stream(
             )
             raise TypeError(msg)
         writer.depth = 0
-        encode_into(value, writer)
+        encode_to(value._encode, writer)  # noqa: SLF001
     return bytes(writer.buffer)
 
 

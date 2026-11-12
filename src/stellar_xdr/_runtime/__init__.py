@@ -7,15 +7,13 @@ from ._base import (
     XdrArm,
     XdrEnum,
     XdrStruct,
-    decode_json,
     decode_stream,
-    encode_json,
     encode_stream,
     replace,
 )
 from ._codec import DEFAULT_MAX_DEPTH, Reader, Writer, decode_base64, decode_bytes
 from ._errors import XdrDecodeError, XdrDepthError, XdrError, XdrJsonError
-from ._json import JsonReader, JsonWriter
+from ._json import JsonReader, JsonWriter, decode_json, encode_json
 from ._typedef import Typedef
 
 new = object.__new__

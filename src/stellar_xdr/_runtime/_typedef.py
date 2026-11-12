@@ -3,7 +3,6 @@
 from collections.abc import Callable
 from typing import Any, Generic, TypeVar
 
-from ._base import decode_json, encode_into_writer, encode_json
 from ._codec import (
     DEFAULT_MAX_DEPTH,
     Reader,
@@ -11,8 +10,9 @@ from ._codec import (
     decode_base64,
     decode_bytes,
     encode_base64,
+    encode_to,
 )
-from ._json import JsonReader, JsonWriter
+from ._json import JsonReader, JsonWriter, decode_json, encode_json
 
 _Value = TypeVar("_Value")
 _Input = TypeVar("_Input")
@@ -68,7 +68,7 @@ class Typedef(Generic[_Value, _Input]):
         """
         checked = self._check(value, self.name)
         writer = Writer(max_depth)
-        encode_into_writer(lambda w: self._encode(w, checked), writer)
+        encode_to(lambda w: self._encode(w, checked), writer)
         return bytes(writer.buffer)
 
     def to_xdr_base64(
