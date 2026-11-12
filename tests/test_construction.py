@@ -1,5 +1,7 @@
 """Constructors check their arguments, so that any value that exists can be encoded."""
 
+from collections.abc import Callable
+
 import pytest
 
 import stellar_xdr as xdr
@@ -8,26 +10,32 @@ from stellar_xdr._runtime import check
 KEY = bytes(range(32))
 
 
-def test_integers_are_range_checked() -> None:
+def test_integers_accept_the_ends_of_their_range() -> None:
     assert xdr.SCVal.U32(2**32 - 1).u32 == 2**32 - 1
     assert xdr.SCVal.I32(-(2**31)).i32 == -(2**31)
     assert xdr.SCVal.U64(2**64 - 1).u64 == 2**64 - 1
     assert xdr.SCVal.I64(-(2**63)).i64 == -(2**63)
-    for make, value in [
+
+
+@pytest.mark.parametrize(
+    ("make", "value"),
+    [
         (xdr.SCVal.U32, -1),
         (xdr.SCVal.U32, 2**32),
         (xdr.SCVal.I32, 2**31),
         (xdr.SCVal.U64, 2**64),
         (xdr.SCVal.I64, -(2**63) - 1),
-    ]:
-        with pytest.raises(ValueError, match="out of range"):
-            make(value)
+    ],
+)
+def test_integers_are_range_checked(make: Callable[[int], object], value: int) -> None:
+    with pytest.raises(ValueError, match="out of range"):
+        make(value)
 
 
-def test_integers_reject_other_types() -> None:
-    for value in [True, 1.0, "1", None]:
-        with pytest.raises(TypeError, match=r"SCVal\.U32\.u32: expected int"):
-            xdr.SCVal.U32(value)  # type: ignore[arg-type]
+@pytest.mark.parametrize("value", [True, 1.0, "1", None])
+def test_integers_reject_other_types(value: object) -> None:
+    with pytest.raises(TypeError, match=r"SCVal\.U32\.u32: expected int"):
+        xdr.SCVal.U32(value)  # type: ignore[arg-type]
 
 
 def test_an_int_subclass_is_stored_as_a_plain_int() -> None:
@@ -97,11 +105,10 @@ def test_arrays_accept_any_sequence_and_store_a_tuple() -> None:
     assert xdr.SCVal.Vec(range(0)).vec == ()  # type: ignore[arg-type]
 
 
-def test_arrays_reject_strings_iterators_and_mappings() -> None:
-    values: list[object] = [b"\x01", "a", iter([]), {}, {1}]
-    for value in values:
-        with pytest.raises(TypeError, match="expected a sequence"):
-            xdr.SCVal.Vec(value)  # type: ignore[arg-type]
+@pytest.mark.parametrize("value", [b"\x01", "a", iter([]), {}, {1}])
+def test_arrays_reject_strings_iterators_and_mappings(value: object) -> None:
+    with pytest.raises(TypeError, match="expected a sequence"):
+        xdr.SCVal.Vec(value)  # type: ignore[arg-type]
 
 
 def test_arrays_report_the_index_of_a_bad_item() -> None:

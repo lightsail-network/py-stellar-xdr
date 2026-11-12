@@ -72,11 +72,14 @@ def test_big_integers_are_one_string() -> None:
 def test_opaque_is_hex() -> None:
     assert xdr.SCVal.Bytes(b"\xab\xcd").to_json_value() == {"bytes": "abcd"}
     assert xdr.SCVal.from_json_value({"bytes": "ABCD"}) == xdr.SCVal.Bytes(b"\xab\xcd")
-    for text in ["abc", "ab cd", "zz", "0x"]:
-        with pytest.raises(xdr.XdrJsonError, match="not hex"):
-            xdr.SCVal.from_json_value({"bytes": text})
     with pytest.raises(xdr.XdrJsonError, match="expected 32 bytes, got 1"):
         xdr.TTLEntry.from_json_value({"key_hash": "00", "live_until_ledger_seq": 1})
+
+
+@pytest.mark.parametrize("text", ["abc", "ab cd", "zz", "0x"])
+def test_invalid_hex(text: str) -> None:
+    with pytest.raises(xdr.XdrJsonError, match="not hex"):
+        xdr.SCVal.from_json_value({"bytes": text})
 
 
 def test_inline_fixed_opaque_is_hex() -> None:
@@ -201,10 +204,11 @@ def test_invalid_strkeys(value: object, message: str) -> None:
         xdr.MuxedAccount.from_json_value(value)
 
 
-def test_wrong_strkey_types_for_every_kind_of_field() -> None:
-    # A contract strkey fits none of these; G... fits SignerKey and SCAddress, so
-    # those get a T... strkey, which fits neither.
-    readers: list[tuple[Any, str]] = [
+# A contract strkey fits none of these; G... fits SignerKey and SCAddress, so those
+# get a T... strkey, which fits neither.
+@pytest.mark.parametrize(
+    ("reader", "value"),
+    [
         (xdr.PublicKey, C),
         (xdr.ClaimableBalanceID, C),
         (typedefs.PoolID, C),
@@ -214,10 +218,12 @@ def test_wrong_strkey_types_for_every_kind_of_field() -> None:
         (xdr.SignerKeyEd25519SignedPayload, C),
         (xdr.SignerKey, C),
         (xdr.SCAddress, T),
-    ]
-    for reader, value in readers:
-        with pytest.raises(xdr.XdrJsonError, match="strkey is not allowed here"):
-            reader.from_json_value(value)
+    ],
+    ids=lambda value: getattr(value, "__name__", getattr(value, "name", None)),
+)
+def test_wrong_strkey_types_for_every_kind_of_field(reader: Any, value: str) -> None:
+    with pytest.raises(xdr.XdrJsonError, match="strkey is not allowed here"):
+        reader.from_json_value(value)
 
 
 def test_unions() -> None:
@@ -383,9 +389,10 @@ def test_values_that_json_cannot_hold() -> None:
 def test_hostile_input_raises_the_documented_error() -> None:
     # json.loads accepts a lone surrogate, which has no UTF-8 encoding.
     surrogate = json.loads('"\\ud800"')
-    for text in [surrogate, "\\x41" + surrogate]:
-        with pytest.raises(xdr.XdrJsonError, match="lone surrogate"):
-            xdr.SCVal.from_json_value({"string": text})
+    with pytest.raises(xdr.XdrJsonError, match="lone surrogate"):
+        xdr.SCVal.from_json_value({"string": surrogate})
+    with pytest.raises(xdr.XdrJsonError, match="lone surrogate"):
+        xdr.SCVal.from_json_value({"string": "\\x41" + surrogate})
     # int() refuses strings of more than 4,300 digits, and str() such integers.
     with pytest.raises(xdr.XdrJsonError, match="not a 64-bit base 10 integer"):
         xdr.SCVal.from_json_value({"i64": "9" * 5000})
