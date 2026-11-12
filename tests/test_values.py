@@ -46,6 +46,27 @@ def test_repr_shows_an_arm_with_its_value_alone() -> None:
     assert repr(parts) == "SCVal.I128(Int128Parts(hi=0, lo=1))"
 
 
+def test_repr_shows_an_enum_member_by_name() -> None:
+    assert repr(xdr.SCValType.SCV_U32) == "SCValType.SCV_U32"
+    error = xdr.SCError.WasmVm(xdr.SCErrorCode.SCEC_ARITH_DOMAIN)
+    assert repr(error) == "SCError.WasmVm(SCErrorCode.SCEC_ARITH_DOMAIN)"
+    # str() is unchanged: an IntEnum member formats as its number.
+    assert str(xdr.SCValType.SCV_U32) == "3"
+
+
+def test_repr_evaluates_back_to_the_value() -> None:
+    value = xdr.SCVal.Map(
+        [
+            xdr.SCMapEntry(
+                xdr.SCVal.Symbol("error"),
+                xdr.SCVal.Error(xdr.SCError.WasmVm(xdr.SCErrorCode.SCEC_ARITH_DOMAIN)),
+            ),
+            xdr.SCMapEntry(xdr.SCVal.Bytes(b"\x00\xff"), xdr.SCVal.Vec(None)),
+        ]
+    )
+    assert eval(repr(value), dict(vars(xdr))) == value  # noqa: S307 - our own repr
+
+
 def test_match_with_class_patterns() -> None:
     def describe(value: xdr.SCVal.Any) -> str:
         match value:

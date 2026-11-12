@@ -275,6 +275,11 @@ class XdrArm(_XdrValue):
 class XdrEnum(_Encodable, IntEnum):
     """Base class of the generated enums."""
 
+    # Shown the way it is written, like the structs and arms that hold it, rather
+    # than as the `<SCValType.SCV_U32: 3>` of a plain enum.
+    def __repr__(self) -> str:
+        return f"{type(self).__qualname__}.{self.name}"
+
     def _encode(self, writer: Writer) -> None:
         writer.int32(self)
 

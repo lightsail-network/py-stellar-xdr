@@ -201,6 +201,7 @@ import stellar_xdr as xdr
 
 assert xdr.SCValType.SCV_U32 == 3
 assert xdr.SCValType(3) is xdr.SCValType.SCV_U32
+assert repr(xdr.SCValType.SCV_U32) == "SCValType.SCV_U32"
 ```
 
 ## Typedefs
