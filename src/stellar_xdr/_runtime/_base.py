@@ -453,7 +453,7 @@ class _Decodable(Protocol[_T_co]):
 
 
 def decode_stream(
-    type_: _Decodable[_T], data: bytes, *, max_depth: int = DEFAULT_MAX_DEPTH
+    type_: _Decodable[_T], /, data: bytes, *, max_depth: int = DEFAULT_MAX_DEPTH
 ) -> Iterator[_T]:
     """Decode values of one type written back to back, with nothing between them.
 

@@ -54,6 +54,14 @@ def test_input_must_be_bytes() -> None:
         xdr.decode_stream(xdr.SCVal, bytearray())  # type: ignore[arg-type]
 
 
+def test_the_type_is_given_by_position() -> None:
+    data = xdr.encode_stream(ENTRIES)
+    assert list(xdr.decode_stream(xdr.SCMetaEntry, data=data)) == ENTRIES
+    # Its parameter is named to stay clear of the builtin, not to be used by name.
+    with pytest.raises(TypeError, match="type_"):
+        xdr.decode_stream(type_=xdr.SCMetaEntry, data=data)  # type: ignore[call-arg]
+
+
 def test_the_type_must_be_one_that_decodes() -> None:
     # An arm only encodes: decoding starts from its union.
     with pytest.raises(
