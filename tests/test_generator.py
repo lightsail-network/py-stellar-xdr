@@ -16,7 +16,16 @@ import pytest
 import stellar_xdr
 from generator import names, sep51
 from generator.emit import GenerationError, Generator, counted_types
-from generator.model import Enum, InputError, Model, Struct, Typedef, Union, load
+from generator.model import (
+    Case,
+    Enum,
+    InputError,
+    Model,
+    Struct,
+    Typedef,
+    Union,
+    load,
+)
 
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")
@@ -38,11 +47,7 @@ def our_names(definition: Enum | Struct | Union) -> list[str]:
         )
     if isinstance(definition, Struct):
         return sorted(names.json_field_name(f.name) for f in definition.fields)
-    return sorted(
-        names.json_case_name(MODEL, definition, c.value, c.name)
-        for a in definition.arms
-        for c in a.cases
-    )
+    return sorted(c.json_key for c in names.union_cases(MODEL, definition))
 
 
 @pytest.mark.parametrize(
@@ -108,8 +113,9 @@ def test_the_modules_of_the_x_files_are_private() -> None:
 def arm(union: str, case: str) -> str:
     definition = MODEL.get(union)
     assert isinstance(definition, Union)
-    value = next(c.value for a in definition.arms for c in a.cases if c.name == case)
-    return names.arm_class_name(MODEL, definition, value, case)
+    return next(
+        c.class_name for c in names.union_cases(MODEL, definition) if c.xdr_name == case
+    )
 
 
 def test_arm_names() -> None:
@@ -123,8 +129,8 @@ def test_arm_names() -> None:
     assert arm("Memo", "MEMO_NONE") == "None_"
     union = MODEL.get("TransactionExt")
     assert isinstance(union, Union)
-    assert names.arm_class_name(MODEL, union, 0, None) == "V0"
-    assert names.arm_class_name(MODEL, union, -1, None) == "VMinus1"
+    assert names.arm_class_name(MODEL, union, Case(0, None)) == "V0"
+    assert names.arm_class_name(MODEL, union, Case(-1, None)) == "VMinus1"
 
 
 def test_arm_names_spell_acronyms_as_type_names_do() -> None:
