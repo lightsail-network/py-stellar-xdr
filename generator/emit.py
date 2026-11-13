@@ -10,7 +10,8 @@ import ast
 import itertools
 import keyword
 import re
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
+from collections.abc import Set as AbstractSet
 from dataclasses import dataclass, field
 from typing import Final, TypeVar
 
@@ -184,12 +185,11 @@ _SEP51_FIELD_TYPES: Final = (
 
 @dataclass
 class _Module:
-    """What one module needs: its definitions and its imports from other modules."""
+    """One module of the package: the definitions of one `.x` file."""
 
     name: str
     xdr_file: str
     definitions: list[Definition] = field(default_factory=list[Definition])
-    imports: dict[str, set[str]] = field(default_factory=dict[str, set[str]])
 
 
 @dataclass(frozen=True)
@@ -228,21 +228,88 @@ def _json_void_name(union: Union) -> str:
     return f"_{names.snake(union.name).upper()}_JSON_VOID"
 
 
-@dataclass
+class _Sizes:
+    """The smallest encoding of every type, which bounds the length of an array.
+
+    The sizes are worked out for the whole model, when the first one is asked for.
+    """
+
+    def __init__(self, model: Model) -> None:
+        self._model = model
+        self._sizes: dict[str, int] = {}
+
+    def min_size(self, t: TypeRef) -> int:
+        """The fewest bytes a value of a type encodes to."""
+        if isinstance(t, Primitive):
+            return 8 if t.kind in {"hyper", "unsigned_hyper"} else 4
+        if isinstance(t, OpaqueFixed):
+            return t.size + (-t.size % 4)
+        if isinstance(t, OpaqueVar | String | VarArray | Optional):
+            return 4
+        if isinstance(t, Array):
+            return t.count * self.min_size(t.element)
+        if not self._sizes:
+            self._compute()
+        return self._sizes[t.name]
+
+    def _compute(self) -> None:
+        # A union can contain itself through a struct when another arm ends the
+        # recursion (SCSpecTypeDef holds SCSpecTypeOption, which holds SCSpecTypeDef),
+        # so the sizes are a fixed point: start from "infinite" and lower them until
+        # nothing changes.
+        infinite = 2**62
+        definitions = [
+            d
+            for d in self._model.definitions
+            if isinstance(d, Typedef | Struct | Union | Enum)
+        ]
+        self._sizes = {d.name: infinite for d in definitions}
+        changed = True
+        while changed:
+            changed = False
+            for d in definitions:
+                if isinstance(d, Typedef):
+                    size = self.min_size(d.type)
+                elif isinstance(d, Struct):
+                    size = sum(self.min_size(f.type) for f in d.fields)
+                elif isinstance(d, Union):
+                    size = 4 + min(
+                        0 if a.type is None else self.min_size(a.type) for a in d.arms
+                    )
+                else:
+                    size = 4
+                size = min(size, infinite)
+                if size < self._sizes[d.name]:
+                    self._sizes[d.name] = size
+                    changed = True
+        if infinite in self._sizes.values():
+            msg = "a type can't be encoded in finite size"
+            raise GenerationError(msg)
+
+
+@dataclass(frozen=True)
 class _Context:
+    """What the emitter of one module works with.
+
+    The model, the rules and what was worked out of the model are the same for every
+    module. `module` is the one being written, and `imports` collects what it turns
+    out to need from the others: for each module, the names to import from it.
+    """
+
     model: Model
     rules: sep51.Rules
-    module_of: dict[str, str]
-    counted: set[str]
-    current: _Module | None = None
+    module_of: Mapping[str, str]
+    counted: AbstractSet[str]
+    sizes: _Sizes
+    module: str
+    imports: dict[str, set[str]] = field(default_factory=dict[str, set[str]])
 
     def use(self, xdr_name: str, python_name: str | None = None) -> str:
         """Refer to a name of a definition, importing it when it's in another module."""
         python_name = python_name or names.type_name(xdr_name)
         module = self.module_of[xdr_name]
-        assert self.current is not None  # noqa: S101
-        if module != self.current.name:
-            self.current.imports.setdefault(module, set()).add(python_name)
+        if module != self.module:
+            self.imports.setdefault(module, set()).add(python_name)
         return python_name
 
     def resolve(self, t: TypeRef) -> TypeRef | Definition:
@@ -260,7 +327,6 @@ class _TypeCode:
 
     def __init__(self, ctx: _Context) -> None:
         self.ctx = ctx
-        self._min_sizes: dict[str, int] = {}
 
     # Annotations -------------------------------------------------------------------
 
@@ -398,7 +464,7 @@ class _TypeCode:
         if isinstance(t, OpaqueVar | String):
             return f"reader.opaque_var({t.max_size})"
         if isinstance(t, VarArray):
-            size = self.min_size(t.element)
+            size = self.ctx.sizes.min_size(t.element)
             if size == 0:
                 # The reader bounds a length by what the rest of the input can hold.
                 msg = f"an array of {t.element} has elements that encode to no bytes"
@@ -521,56 +587,6 @@ class _TypeCode:
             return self.from_json_plain(found[0], value, where, depth)
         return self.from_json(d.type, value, where, depth)
 
-    # Sizes -------------------------------------------------------------------------
-
-    def min_size(self, t: TypeRef) -> int:
-        """The smallest encoding of a type, which bounds an array's length."""
-        if isinstance(t, Primitive):
-            return 8 if t.kind in {"hyper", "unsigned_hyper"} else 4
-        if isinstance(t, OpaqueFixed):
-            return t.size + (-t.size % 4)
-        if isinstance(t, OpaqueVar | String | VarArray | Optional):
-            return 4
-        if isinstance(t, Array):
-            return t.count * self.min_size(t.element)
-        if not self._min_sizes:
-            self._compute_min_sizes()
-        return self._min_sizes[t.name]
-
-    def _compute_min_sizes(self) -> None:
-        # A union can contain itself through a struct when another arm ends the
-        # recursion (SCSpecTypeDef holds SCSpecTypeOption, which holds SCSpecTypeDef),
-        # so the sizes are a fixed point: start from "infinite" and lower them until
-        # nothing changes.
-        infinite = 2**62
-        definitions = [
-            d
-            for d in self.ctx.model.definitions
-            if isinstance(d, Typedef | Struct | Union | Enum)
-        ]
-        self._min_sizes = {d.name: infinite for d in definitions}
-        changed = True
-        while changed:
-            changed = False
-            for d in definitions:
-                if isinstance(d, Typedef):
-                    size = self.min_size(d.type)
-                elif isinstance(d, Struct):
-                    size = sum(self.min_size(f.type) for f in d.fields)
-                elif isinstance(d, Union):
-                    size = 4 + min(
-                        0 if a.type is None else self.min_size(a.type) for a in d.arms
-                    )
-                else:
-                    size = 4
-                size = min(size, infinite)
-                if size < self._min_sizes[d.name]:
-                    self._min_sizes[d.name] = size
-                    changed = True
-        if infinite in self._min_sizes.values():
-            msg = "a type can't be encoded in finite size"
-            raise GenerationError(msg)
-
 
 def _indent(lines: list[str], levels: int = 1) -> list[str]:
     pad = "    " * levels
@@ -687,9 +703,6 @@ def _has_cycle(graph: dict[str, set[str]]) -> bool:
     return any(v not in done and visit(v) for v in graph)
 
 
-# --- Definitions --------------------------------------------------------------------
-
-
 _D = TypeVar("_D", Struct, Union, Typedef)
 
 
@@ -721,120 +734,93 @@ class _ArmParts:
     write: str
 
 
-class _Emitter:
-    def __init__(self, model: Model, rules: sep51.Rules) -> None:
-        self.model = model
-        self.rules = rules
-        self.modules: dict[str, _Module] = {}
-        module_of: dict[str, str] = {}
-        for d in model.definitions:
-            name = names.module_name(d.file)
-            if name in _HAND_WRITTEN_MODULES:
-                msg = f"{d.file}: its module would replace stellar_xdr.{name}"
-                raise GenerationError(msg)
-            module = self.modules.setdefault(name, _Module(name, d.file))
-            module.definitions.append(d)
-            module_of[d.name] = name
-        self.ctx = _Context(model, rules, module_of, counted_types(model))
-        self.code = _TypeCode(self.ctx)
-        self._check_names()
-        self._check_rules()
+# --- SEP-51 rules --------------------------------------------------------------------
 
-    def _check_names(self) -> None:
-        # What a generated module or the package's `__init__.py` binds besides the
-        # definitions: a definition of the same name would replace it, or be replaced.
-        reserved = {
-            *RUNTIME_NAMES,
-            *PUBLIC_RUNTIME_NAMES,
-            *TYPING_NAMES,
-            "PROTOCOL_VERSION",
-            "Sequence",
-            "builtins",
-            "cast",
-            "strkey",
-        }
-        seen: dict[str, str] = {}
-        for d in self.model.definitions:
-            name = _public_name(d)
-            if name in reserved or keyword.iskeyword(name):
-                msg = f"{d.name}: {name} is reserved"
-                raise GenerationError(msg)
-            if name in seen:
-                msg = f"{d.name} and {seen[name]} are both named {name}"
-                raise GenerationError(msg)
-            seen[name] = d.name
 
-    # SEP-51 rules ------------------------------------------------------------------
+def _defined(model: Model, name: str, kind: type[_D]) -> _D:
+    """The definition a SEP-51 rule names, which has to be of the kind it is for."""
+    d = model.by_name.get(name)
+    if not isinstance(d, kind):
+        msg = f"SEP-51 rule for {name}: the definitions have no such {kind.__name__}"
+        raise GenerationError(msg)
+    return d
 
-    def _defined(self, name: str, kind: type[_D]) -> _D:
-        """The definition a SEP-51 rule names, which has to be of the kind it is for."""
-        d = self.model.by_name.get(name)
-        if not isinstance(d, kind):
-            msg = (
-                f"SEP-51 rule for {name}: the definitions have no such {kind.__name__}"
-            )
-            raise GenerationError(msg)
-        return d
 
-    def _case(self, union: Union, case: str) -> names.UnionCase:
-        """The case that a SEP-51 rule names by its XDR name."""
-        for c in names.union_cases(self.model, union):
-            if c.xdr_name == case:
-                return c
-        msg = f"SEP-51 rule for {union.name}: it has no case {case}"
+def _case(model: Model, union: Union, case: str) -> names.UnionCase:
+    """The case that a SEP-51 rule names by its XDR name."""
+    for c in names.union_cases(model, union):
+        if c.xdr_name == case:
+            return c
+    msg = f"SEP-51 rule for {union.name}: it has no case {case}"
+    raise GenerationError(msg)
+
+
+def _check_rules(model: Model, rules: sep51.Rules) -> None:
+    """Fail on a rule that applies to nothing, or that leaves an arm out.
+
+    A rule names definitions by their XDR names. When a definition is renamed or
+    removed upstream, its rule would otherwise stop applying without a word, and
+    the type would be written as a plain struct or union.
+    """
+    for name in rules.typedefs:
+        _defined(model, name, Typedef)
+    for name, rule in rules.structs.items():
+        _check_struct_fields(_defined(model, name, Struct), set(rule.fields))
+    for name, strkey_arms in rules.strkey_unions.items():
+        union = _defined(model, name, Union)
+        _check_cases(union, [arm.case for arm in strkey_arms])
+        for arm in strkey_arms:
+            _check_payload(model, arm.payload)
+    for name, lengths in rules.length_unions.items():
+        union = _defined(model, name, Union)
+        _check_cases(union, [case for case, _ in lengths])
+    both = rules.strkey_unions.keys() & rules.length_unions.keys()
+    if both:
+        msg = f"SEP-51 rules for {sorted(both)}: a strkey and a length rule each"
         raise GenerationError(msg)
 
-    def _check_rules(self) -> None:
-        """Fail on a rule that applies to nothing, or that leaves an arm out.
 
-        A rule names definitions by their XDR names. When a definition is renamed or
-        removed upstream, its rule would otherwise stop applying without a word, and
-        the type would be written as a plain struct or union.
-        """
-        rules = self.rules
-        for name in rules.typedefs:
-            self._defined(name, Typedef)
-        for name, rule in rules.structs.items():
-            self._check_struct_fields(self._defined(name, Struct), set(rule.fields))
-        for name, strkey_arms in rules.strkey_unions.items():
-            union = self._defined(name, Union)
-            self._check_cases(union, [arm.case for arm in strkey_arms])
-            for arm in strkey_arms:
-                self._check_payload(arm.payload)
-        for name, lengths in rules.length_unions.items():
-            union = self._defined(name, Union)
-            self._check_cases(union, [case for case, _ in lengths])
-        both = rules.strkey_unions.keys() & rules.length_unions.keys()
-        if both:
-            msg = f"SEP-51 rules for {sorted(both)}: a strkey and a length rule each"
-            raise GenerationError(msg)
+def _check_struct_fields(d: Struct, fields: set[str]) -> None:
+    if fields != {f.name for f in d.fields}:
+        msg = f"SEP-51 rule for {d.name}: it doesn't name exactly its fields"
+        raise GenerationError(msg)
 
-    def _check_struct_fields(self, d: Struct, fields: set[str]) -> None:
-        if fields != {f.name for f in d.fields}:
-            msg = f"SEP-51 rule for {d.name}: it doesn't name exactly its fields"
-            raise GenerationError(msg)
 
-    def _check_cases(self, union: Union, cases: list[str]) -> None:
-        # A union written as a bare string has no key to say which arm it is, so
-        # every arm needs a rule, and a value to write.
-        expected = [c.name for arm in union.arms for c in arm.cases]
-        if sorted(cases) != sorted(str(c) for c in expected):
-            msg = f"SEP-51 rule for {union.name}: it doesn't name exactly its cases"
-            raise GenerationError(msg)
-        if any(arm.type is None for arm in union.arms):
-            msg = f"SEP-51 rule for {union.name}: an arm without a value has no string"
-            raise GenerationError(msg)
+def _check_cases(union: Union, cases: list[str]) -> None:
+    # A union written as a bare string has no key to say which arm it is, so
+    # every arm needs a rule, and a value to write.
+    expected = [c.name for arm in union.arms for c in arm.cases]
+    if sorted(cases) != sorted(str(c) for c in expected):
+        msg = f"SEP-51 rule for {union.name}: it doesn't name exactly its cases"
+        raise GenerationError(msg)
+    if any(arm.type is None for arm in union.arms):
+        msg = f"SEP-51 rule for {union.name}: an arm without a value has no string"
+        raise GenerationError(msg)
 
-    def _check_payload(self, payload: sep51.Payload) -> None:
-        if isinstance(payload, sep51.BuiltStruct):
-            self._check_struct_fields(
-                self._defined(payload.struct, Struct), set(payload.fields)
-            )
-            for inner in payload.fields.values():
-                self._check_payload(inner)
-        elif isinstance(payload, sep51.BuiltArm):
-            self._case(self._defined(payload.union, Union), payload.case)
-            self._check_payload(payload.payload)
+
+def _check_payload(model: Model, payload: sep51.Payload) -> None:
+    if isinstance(payload, sep51.BuiltStruct):
+        _check_struct_fields(
+            _defined(model, payload.struct, Struct), set(payload.fields)
+        )
+        for inner in payload.fields.values():
+            _check_payload(model, inner)
+    elif isinstance(payload, sep51.BuiltArm):
+        _case(model, _defined(model, payload.union, Union), payload.case)
+        _check_payload(model, payload.payload)
+
+
+# --- Definitions --------------------------------------------------------------------
+
+
+class _Emitter:
+    """Emits the definitions of one module."""
+
+    def __init__(self, ctx: _Context) -> None:
+        self.ctx = ctx
+        self.model = ctx.model
+        self.rules = ctx.rules
+        self.code = _TypeCode(ctx)
 
     # Structs and arms --------------------------------------------------------------
 
@@ -1160,7 +1146,7 @@ class _Emitter:
 
     def _arm_of(self, d: Union, case: str) -> tuple[str, str, TypeRef]:
         """The class of the arm of a case, the field that holds its value, its type."""
-        found = self._case(d, case)
+        found = _case(self.model, d, case)
         arm = found.arm
         assert arm.name is not None  # noqa: S101 - _check_cases found a value
         assert arm.type is not None  # noqa: S101 - as above
@@ -1193,14 +1179,14 @@ class _Emitter:
         # Each field: its Python name, the type it holds and what it is built from.
         fields: list[tuple[str, TypeRef, sep51.Payload]]
         if isinstance(payload, sep51.BuiltStruct):
-            struct = self._defined(payload.struct, Struct)
+            struct = _defined(self.model, payload.struct, Struct)
             target = self.ctx.use(struct.name)
             types = {f.name: f.type for f in struct.fields}
             fields = [
                 (names.field_name(f), types[f], p) for f, p in payload.fields.items()
             ]
         else:
-            union = self._defined(payload.union, Union)
+            union = _defined(self.model, payload.union, Union)
             arm_name, field_name, held = self._arm_of(union, payload.case)
             target = f"{self.ctx.use(union.name)}.{arm_name}"
             fields = [(field_name, held, payload.payload)]
@@ -1414,68 +1400,118 @@ def _names_used(body: str) -> frozenset[str]:
     )
 
 
-class Generator(_Emitter):
+def _ordered_typedefs(typedefs: list[Typedef]) -> list[Typedef]:
+    # An alias is evaluated at import time, so the aliases it refers to come first.
+    by_name = {d.name: d for d in typedefs}
+    done: dict[str, Typedef] = {}
+
+    def visit(d: Typedef) -> None:
+        if d.name in done:
+            return
+        for ref in _references(d):
+            if ref in by_name:
+                visit(by_name[ref])
+        done[d.name] = d
+
+    for d in typedefs:
+        visit(d)
+    return list(done.values())
+
+
+def _typedef_blocks(emit: _Emitter, typedefs: list[Typedef]) -> list[list[str]]:
+    """The typedefs in order: a class by itself, aliases on consecutive lines."""
+    blocks: list[list[str]] = []
+    aliases: list[str] = []
+    for d in typedefs:
+        lines = emit.typedef(d)
+        if len(lines) == 1:
+            aliases += lines
+            continue
+        if aliases:
+            blocks.append(aliases)
+            aliases = []
+        blocks.append(lines)
+    if aliases:
+        blocks.append(aliases)
+    return blocks
+
+
+class Generator:
     """Turns a model into the source of every module of the package."""
 
     def __init__(
         self, model: Model, protocol: int, rules: sep51.Rules = sep51.RULES
     ) -> None:
-        super().__init__(model, rules)
+        self.model = model
+        self.rules = rules
         self.protocol = protocol
+        self.modules: dict[str, _Module] = {}
+        self._module_of: dict[str, str] = {}
+        for d in model.definitions:
+            name = names.module_name(d.file)
+            if name in _HAND_WRITTEN_MODULES:
+                msg = f"{d.file}: its module would replace stellar_xdr.{name}"
+                raise GenerationError(msg)
+            module = self.modules.setdefault(name, _Module(name, d.file))
+            module.definitions.append(d)
+            self._module_of[d.name] = name
+        self._counted = counted_types(model)
+        self._sizes = _Sizes(model)
+        self._check_names()
+        _check_rules(model, rules)
 
-    def _ordered_typedefs(self, typedefs: list[Typedef]) -> list[Typedef]:
-        # An alias is evaluated at import time, so the aliases it refers to come first.
-        by_name = {d.name: d for d in typedefs}
-        done: dict[str, Typedef] = {}
-
-        def visit(d: Typedef) -> None:
-            if d.name in done:
-                return
-            for ref in _references(d):
-                if ref in by_name:
-                    visit(by_name[ref])
-            done[d.name] = d
-
-        for d in typedefs:
-            visit(d)
-        return list(done.values())
-
-    def _typedef_blocks(self, typedefs: list[Typedef]) -> list[list[str]]:
-        """The typedefs in order: a class by itself, aliases on consecutive lines."""
-        blocks: list[list[str]] = []
-        aliases: list[str] = []
-        for d in typedefs:
-            lines = self.typedef(d)
-            if len(lines) == 1:
-                aliases += lines
-                continue
-            if aliases:
-                blocks.append(aliases)
-                aliases = []
-            blocks.append(lines)
-        if aliases:
-            blocks.append(aliases)
-        return blocks
+    def _check_names(self) -> None:
+        # What a generated module or the package's `__init__.py` binds besides the
+        # definitions: a definition of the same name would replace it, or be replaced.
+        reserved = {
+            *RUNTIME_NAMES,
+            *PUBLIC_RUNTIME_NAMES,
+            *TYPING_NAMES,
+            "PROTOCOL_VERSION",
+            "Sequence",
+            "builtins",
+            "cast",
+            "strkey",
+        }
+        seen: dict[str, str] = {}
+        for d in self.model.definitions:
+            name = _public_name(d)
+            if name in reserved or keyword.iskeyword(name):
+                msg = f"{d.name}: {name} is reserved"
+                raise GenerationError(msg)
+            if name in seen:
+                msg = f"{d.name} and {seen[name]} are both named {name}"
+                raise GenerationError(msg)
+            seen[name] = d.name
 
     def module(self, module: _Module) -> str:
         """The source of one module."""
-        self.ctx.current = module
+        # Each module has a context of its own, which collects its imports.
+        ctx = _Context(
+            self.model,
+            self.rules,
+            self._module_of,
+            self._counted,
+            self._sizes,
+            module.name,
+        )
+        emit = _Emitter(ctx)
         consts = [d for d in module.definitions if isinstance(d, Const)]
         enums = [d for d in module.definitions if isinstance(d, Enum)]
         typedefs = [d for d in module.definitions if isinstance(d, Typedef)]
         simple = [d for d in typedefs if _is_simple_typedef(d)]
-        composite = self._ordered_typedefs(
+        composite = _ordered_typedefs(
             [d for d in typedefs if not _is_simple_typedef(d)]
         )
         classes = [d for d in module.definitions if isinstance(d, Struct | Union)]
         blocks: list[list[str]] = []
         if consts:
-            blocks.append([line for d in consts for line in self.const(d)])
-        blocks += [self.enum(d) for d in enums]
-        blocks += self._typedef_blocks(simple)
+            blocks.append([line for d in consts for line in emit.const(d)])
+        blocks += [emit.enum(d) for d in enums]
+        blocks += _typedef_blocks(emit, simple)
         for d in classes:
-            blocks.append(self.struct(d) if isinstance(d, Struct) else self.union(d))
-        blocks += self._typedef_blocks(composite)
+            blocks.append(emit.struct(d) if isinstance(d, Struct) else emit.union(d))
+        blocks += _typedef_blocks(emit, composite)
         body = "\n\n\n".join("\n".join(b) for b in blocks)
         public = sorted(_public_name(d) for d in module.definitions)
         exports = "\n".join(f"    {n!r}," for n in public)
@@ -1494,7 +1530,7 @@ class Generator(_Emitter):
                 "",
                 "from __future__ import annotations",
                 "",
-                *self._imports(module, body),
+                *self._imports(ctx.imports, body),
                 "",
                 "",
                 body,
@@ -1505,7 +1541,7 @@ class Generator(_Emitter):
             ]
         )
 
-    def _imports(self, module: _Module, body: str) -> list[str]:
+    def _imports(self, others: dict[str, set[str]], body: str) -> list[str]:
         used = _names_used(body)
         lines: list[str] = []
         if "builtins" in used:
@@ -1520,8 +1556,8 @@ class Generator(_Emitter):
         lines.append("")
         runtime = sorted(used.intersection(RUNTIME_NAMES))
         lines.append(f"from ._runtime import {', '.join(runtime)}")
-        for other in sorted(module.imports):
-            imported = ", ".join(sorted(module.imports[other]))
+        for other in sorted(others):
+            imported = ", ".join(sorted(others[other]))
             lines.append(f"from .{other} import {imported}")
         return lines
 
