@@ -16,8 +16,6 @@ from .model import (
     Const,
     Enum,
     GenerationError,
-    OpaqueFixed,
-    OpaqueVar,
     Primitive,
     Ref,
     Struct,
@@ -48,16 +46,6 @@ def _check_unique(owner: str, what: str, values: list[str]) -> None:
     if len(set(values)) != len(values):
         msg = f"{owner}: duplicate {what} in {values}"
         raise GenerationError(msg)
-
-
-# What the runtime functions for the SEP-51 forms take: 64-bit integers, keys, and
-# the payload of a signed payload signer.
-_SEP51_FIELD_TYPES: Final = (
-    Primitive("hyper"),
-    Primitive("unsigned_hyper"),
-    OpaqueFixed(32),
-    OpaqueVar(64),
-)
 
 
 @dataclass(frozen=True)
@@ -246,14 +234,8 @@ class Emitter:
         )
         rule = self.rules.structs.get(d.name)
         if rule is not None:
+            # sep51.check has compared the rule's fields with the struct's, types too.
             ordered = [names.field_name(f) for f in rule.fields]
-            for n, t in fields:
-                resolved = self.ctx.resolve(t)
-                if resolved not in _SEP51_FIELD_TYPES:
-                    msg = (
-                        f"{d.name}.{n}: unexpected type {resolved} for its SEP-51 rule"
-                    )
-                    raise GenerationError(msg)
             args = ", ".join(f"self.{n}" for n in ordered)
             types = dict(fields)
             build = [
@@ -601,7 +583,7 @@ class Emitter:
         comment = f"  # {' '.join(d.source.split())}"
         kind = typedef_base(self.model, d)
         if kind is None:
-            target = self.ctx.resolve(d.type)
+            target = self.ctx.model.resolve(d.type)
             if isinstance(target, Struct | Enum | Union):
                 # The type itself: a union's namespace, with its arms and its `Any`.
                 return [f"{name} = {self.ctx.use(target.name)}{comment}"]

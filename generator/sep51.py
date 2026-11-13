@@ -6,35 +6,57 @@ do the conversion; the generator emits the calls.
 
 Every name in a rule is a name of the XDR definitions: a type, a field, or the case of
 a union. No rule refers to a Python name, so renaming an arm class in `names.py` can't
-change what a value looks like in JSON. `check` makes sure that every rule applies to a
-definition, and the generator fails when one doesn't.
+change what a value looks like in JSON.
+
+A rule also states the XDR type of every value it reads, since the runtime function
+behind it returns values of that type and the generated code stores them without
+checking them again. `check` compares each rule with the definitions, names and types,
+and the generator fails when one doesn't match: an upstream change to a type can't
+produce code that reads JSON into values of the wrong size or sign.
 """
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
 from typing import Final, TypeVar
 
-from .model import GenerationError, Model, Struct, Typedef, Union
+from .model import (
+    Definition,
+    Enum,
+    GenerationError,
+    Model,
+    OpaqueFixed,
+    OpaqueVar,
+    Primitive,
+    Struct,
+    Typedef,
+    TypeRef,
+    Union,
+)
 
 
 @dataclass(frozen=True)
 class TypedefRule:
-    """A typedef written as a string: the functions that write and read it."""
+    """A typedef written as a string: the functions that write and read it.
+
+    `type` is the XDR type the typedef has on the wire, which `read` returns.
+    """
 
     write: str
     read: str
+    type: TypeRef
 
 
 @dataclass(frozen=True)
 class StructRule:
     """A struct written as one string.
 
-    `write` takes the fields in this order, and `read` returns them in this order.
+    `fields` names every field with its XDR type on the wire. `write` takes the fields
+    in this order, and `read` returns them in this order.
     """
 
     write: str
     read: str
-    fields: tuple[str, ...]
+    fields: Mapping[str, TypeRef]
 
 
 @dataclass(frozen=True)
@@ -57,6 +79,19 @@ class BuiltArm:
 # What an arm holds when it is read from a strkey: an attribute of the parsed strkey,
 # such as `key` or `hash`, or a struct or an arm built from such attributes.
 Payload = str | BuiltStruct | BuiltArm
+
+_HYPER: Final[TypeRef] = Primitive("hyper")
+_UNSIGNED_HYPER: Final[TypeRef] = Primitive("unsigned_hyper")
+_KEY: Final[TypeRef] = OpaqueFixed(32)
+
+# The attributes of the strkeys that `stellar_strkey` parses, and the XDR type that
+# each one's value fits.
+STRKEY_ATTRIBUTES: Final[Mapping[str, TypeRef]] = {
+    "key": _KEY,
+    "hash": _KEY,
+    "id": _UNSIGNED_HYPER,
+    "payload": OpaqueVar(64),
+}
 
 
 @dataclass(frozen=True)
@@ -103,32 +138,50 @@ class Rules:
         return None
 
 
-_INT128: Final = ("hi", "lo")
-_INT256: Final = ("hi_hi", "hi_lo", "lo_hi", "lo_lo")
+# The parts of the 128 and 256-bit integers: the highest one carries the sign of a
+# signed integer.
+_INT128: Final = {"hi": _HYPER, "lo": _UNSIGNED_HYPER}
+_UINT128: Final = {"hi": _UNSIGNED_HYPER, "lo": _UNSIGNED_HYPER}
+_INT256: Final = {
+    "hi_hi": _HYPER,
+    "hi_lo": _UNSIGNED_HYPER,
+    "lo_hi": _UNSIGNED_HYPER,
+    "lo_lo": _UNSIGNED_HYPER,
+}
+_UINT256: Final = dict.fromkeys(_INT256, _UNSIGNED_HYPER)
+_MUXED: Final = {"ed25519": _KEY, "id": _UNSIGNED_HYPER}
 
 RULES: Final = Rules(
     typedefs={
-        "ContractID": TypedefRule("write_contract", "read_contract"),
-        "PoolID": TypedefRule("write_liquidity_pool", "read_liquidity_pool"),
-        "AssetCode4": TypedefRule("write_asset_code4", "read_asset_code4"),
-        "AssetCode12": TypedefRule("write_asset_code12", "read_asset_code12"),
+        "ContractID": TypedefRule("write_contract", "read_contract", _KEY),
+        "PoolID": TypedefRule("write_liquidity_pool", "read_liquidity_pool", _KEY),
+        "AssetCode4": TypedefRule(
+            "write_asset_code4", "read_asset_code4", OpaqueFixed(4)
+        ),
+        "AssetCode12": TypedefRule(
+            "write_asset_code12", "read_asset_code12", OpaqueFixed(12)
+        ),
     },
     structs={
         "Int128Parts": StructRule("write_int128", "read_int128", _INT128),
-        "UInt128Parts": StructRule("write_int128", "read_uint128", _INT128),
+        "UInt128Parts": StructRule("write_int128", "read_uint128", _UINT128),
         "Int256Parts": StructRule("write_int256", "read_int256", _INT256),
-        "UInt256Parts": StructRule("write_int256", "read_uint256", _INT256),
+        "UInt256Parts": StructRule("write_int256", "read_uint256", _UINT256),
         "MuxedAccountMed25519": StructRule(
-            "write_muxed_account", "read_muxed_account", ("ed25519", "id")
+            "write_muxed_account", "read_muxed_account", _MUXED
         ),
         "MuxedEd25519Account": StructRule(
-            "write_muxed_account", "read_muxed_account", ("ed25519", "id")
+            "write_muxed_account", "read_muxed_account", _MUXED
         ),
         "MuxedContract": StructRule(
-            "write_muxed_contract", "read_muxed_contract", ("contractId", "id")
+            "write_muxed_contract",
+            "read_muxed_contract",
+            {"contractId": _KEY, "id": _UNSIGNED_HYPER},
         ),
         "SignerKeyEd25519SignedPayload": StructRule(
-            "write_signed_payload", "read_signed_payload", ("ed25519", "payload")
+            "write_signed_payload",
+            "read_signed_payload",
+            {"ed25519": _KEY, "payload": OpaqueVar(64)},
         ),
     },
     strkey_unions={
@@ -221,28 +274,59 @@ def defined(model: Model, name: str, kind: type[_D]) -> _D:
 
 
 def check(model: Model, rules: Rules) -> None:
-    """Fail on a rule that applies to nothing, or that leaves an arm out.
+    """Fail on a rule that doesn't match the definitions, by name or by type.
 
     A rule names definitions by their XDR names. When a definition is renamed or
     removed upstream, its rule would otherwise stop applying without a word, and
-    the type would be written as a plain struct or union.
+    the type would be written as a plain struct or union. When a definition keeps its
+    name but changes its type, the rule's runtime functions would read values of the
+    old type into it.
     """
-    for name in rules.typedefs:
-        defined(model, name, Typedef)
-    for name, rule in rules.structs.items():
-        _check_struct_fields(defined(model, name, Struct), set(rule.fields))
+    for name, typedef_rule in rules.typedefs.items():
+        d = defined(model, name, Typedef)
+        _check_type(model, name, d.type, typedef_rule.type)
+    for name, struct_rule in rules.structs.items():
+        struct = defined(model, name, Struct)
+        _check_struct_fields(struct, set(struct_rule.fields))
+        for f in struct.fields:
+            _check_type(model, f"{name}.{f.name}", f.type, struct_rule.fields[f.name])
     for name, strkey_arms in rules.strkey_unions.items():
         union = defined(model, name, Union)
         _check_cases(union, [arm.case for arm in strkey_arms])
         for arm in strkey_arms:
-            _check_payload(model, arm.payload)
+            where = f"{name}.{arm.case}"
+            _check_payload(model, where, _held(union, arm.case), arm.payload)
     for name, lengths in rules.length_unions.items():
         union = defined(model, name, Union)
         _check_cases(union, [case for case, _ in lengths])
+        for case, length in lengths:
+            where = f"{name}.{case}"
+            _check_type(model, where, _held(union, case), OpaqueFixed(length))
     both = rules.strkey_unions.keys() & rules.length_unions.keys()
     if both:
         msg = f"SEP-51 rules for {sorted(both)}: a strkey and a length rule each"
         raise GenerationError(msg)
+
+
+def _describe(t: TypeRef | Definition) -> str:
+    return t.name if isinstance(t, Struct | Union | Enum) else str(t)
+
+
+def _check_type(model: Model, where: str, t: TypeRef, expected: TypeRef) -> None:
+    actual = model.resolve(t)
+    if actual != expected:
+        msg = (
+            f"SEP-51 rule for {where}: the definitions have {_describe(actual)}, "
+            f"where the rule reads {_describe(expected)}"
+        )
+        raise GenerationError(msg)
+
+
+def _held(union: Union, case: str) -> TypeRef:
+    """What the arm of a case holds; `_check_cases` found that every arm holds one."""
+    arm = next(a for a in union.arms for c in a.cases if c.name == case)
+    assert arm.type is not None  # noqa: S101
+    return arm.type
 
 
 def _check_struct_fields(d: Struct, fields: set[str]) -> None:
@@ -263,16 +347,43 @@ def _check_cases(union: Union, cases: list[str]) -> None:
         raise GenerationError(msg)
 
 
-def _check_payload(model: Model, payload: Payload) -> None:
-    if isinstance(payload, BuiltStruct):
-        _check_struct_fields(
-            defined(model, payload.struct, Struct), set(payload.fields)
-        )
-        for inner in payload.fields.values():
-            _check_payload(model, inner)
-    elif isinstance(payload, BuiltArm):
+def _check_payload(model: Model, where: str, held: TypeRef, payload: Payload) -> None:
+    """Check what a rule builds from a strkey against `held`, the type it goes into."""
+    if isinstance(payload, str):
+        expected = STRKEY_ATTRIBUTES.get(payload)
+        if expected is None:
+            msg = f"SEP-51 rule for {where}: a strkey has no attribute {payload!r}"
+            raise GenerationError(msg)
+        _check_type(model, where, held, expected)
+    elif isinstance(payload, BuiltStruct):
+        struct = defined(model, payload.struct, Struct)
+        _check_built(model, where, held, struct)
+        _check_struct_fields(struct, set(payload.fields))
+        types = {f.name: f.type for f in struct.fields}
+        for name, inner in payload.fields.items():
+            _check_payload(model, f"{struct.name}.{name}", types[name], inner)
+    else:
         union = defined(model, payload.union, Union)
-        if payload.case not in [c.name for arm in union.arms for c in arm.cases]:
+        cases = [c.name for arm in union.arms for c in arm.cases]
+        if payload.case not in cases:
             msg = f"SEP-51 rule for {union.name}: it has no case {payload.case}"
             raise GenerationError(msg)
-        _check_payload(model, payload.payload)
+        _check_built(model, where, held, union)
+        arm = next(a for a in union.arms for c in a.cases if c.name == payload.case)
+        if arm.type is None:
+            msg = f"SEP-51 rule for {union.name}.{payload.case}: the arm holds nothing"
+            raise GenerationError(msg)
+        inner_where = f"{union.name}.{payload.case}"
+        _check_payload(model, inner_where, arm.type, payload.payload)
+
+
+def _check_built(
+    model: Model, where: str, held: TypeRef, built: Struct | Union
+) -> None:
+    actual = model.resolve(held)
+    if actual is not built:
+        msg = (
+            f"SEP-51 rule for {where}: the definitions have {_describe(actual)}, "
+            f"where the rule builds {built.name}"
+        )
+        raise GenerationError(msg)

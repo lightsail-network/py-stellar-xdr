@@ -185,6 +185,19 @@ class Model:
         """Look up a definition by name."""
         return self.by_name[name]
 
+    def resolve(self, t: TypeRef) -> "TypeRef | Definition":
+        """Follow typedefs to the type a value has on the wire.
+
+        The result is a type such as `opaque[32]`, or the struct, enum or union that
+        the typedefs end at.
+        """
+        while isinstance(t, Ref):
+            d = self.get(t.name)
+            if not isinstance(d, Typedef):
+                return d
+            t = d.type
+        return t
+
     def switch(self, union: "Union") -> "Enum | Primitive":
         """What a union switches on: an enum, or `int` or `unsigned int`.
 

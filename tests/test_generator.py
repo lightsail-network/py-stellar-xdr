@@ -8,6 +8,7 @@ are tested here, and the JSON names against the reference's schemas (see
 import dataclasses
 import json
 import pkgutil
+import re
 from pathlib import Path
 from typing import Any
 
@@ -22,8 +23,12 @@ from generator.model import (
     GenerationError,
     InputError,
     Model,
+    OpaqueFixed,
+    Primitive,
+    Ref,
     Struct,
     Typedef,
+    TypeRef,
     Union,
     load,
 )
@@ -32,6 +37,8 @@ from generator.package import Generator
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")
 PROTOCOL = 30
+HYPER = Primitive("hyper")
+UHYPER = Primitive("unsigned_hyper")
 REFERENCE: dict[str, list[str]] = json.loads(
     (ROOT / "tests" / "vectors" / "xdr_json_names.json").read_text()
 )
@@ -525,7 +532,9 @@ def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
         (
             {
                 "typedefs": {
-                    "Gone": sep51.TypedefRule("write_contract", "read_contract")
+                    "Gone": sep51.TypedefRule(
+                        "write_contract", "read_contract", OpaqueFixed(32)
+                    )
                 }
             },
             "SEP-51 rule for Gone: the definitions have no such Typedef",
@@ -534,7 +543,7 @@ def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
             {
                 "structs": {
                     "SCVal": sep51.StructRule(
-                        "write_int128", "read_int128", ("hi", "lo")
+                        "write_int128", "read_int128", {"hi": HYPER, "lo": UHYPER}
                     )
                 }
             },
@@ -545,7 +554,7 @@ def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
             {
                 "structs": {
                     "Int128Parts": sep51.StructRule(
-                        "write_int128", "read_int128", ("hi",)
+                        "write_int128", "read_int128", {"hi": HYPER}
                     )
                 }
             },
@@ -592,6 +601,19 @@ def strkey_arms_without(union: str, case: str) -> dict[str, Any]:
             {"length_unions": {"PublicKey": (("PUBLIC_KEY_TYPE_ED25519", 32),)}},
             "a strkey and a length rule each",
         ),
+        # A rule that reads what no strkey has.
+        (
+            {
+                "strkey_unions": {
+                    "PublicKey": (
+                        sep51.StrkeyArm(
+                            "Ed25519PublicKey", "PUBLIC_KEY_TYPE_ED25519", "seed"
+                        ),
+                    )
+                }
+            },
+            "PublicKey.PUBLIC_KEY_TYPE_ED25519: a strkey has no attribute 'seed'",
+        ),
     ],
 )
 def test_a_rule_that_does_not_apply_fails_generation(
@@ -604,6 +626,98 @@ def test_a_rule_that_does_not_apply_fails_generation(
 
 def test_the_rules_apply_to_the_vendored_definitions() -> None:
     Generator(MODEL, PROTOCOL)
+
+
+def with_type(name: str, field: str, new: TypeRef) -> Model:
+    """The model with the type of a field, an arm or a typedef changed, as upstream."""
+
+    def change(d: Any) -> Any:
+        if d.name != name:
+            return d
+        if isinstance(d, Typedef):
+            return dataclasses.replace(d, type=new)
+        if isinstance(d, Struct):
+            fields = tuple(
+                dataclasses.replace(f, type=new) if f.name == field else f
+                for f in d.fields
+            )
+            return dataclasses.replace(d, fields=fields)
+        arms = tuple(
+            dataclasses.replace(a, type=new) if a.name == field else a for a in d.arms
+        )
+        return dataclasses.replace(d, arms=arms)
+
+    return Model(MODEL.files, tuple(change(d) for d in MODEL.definitions))
+
+
+@pytest.mark.parametrize(
+    ("model", "message"),
+    [
+        # Read from one integer string, hi would hold up to 2**64 - 1.
+        (
+            with_type("UInt128Parts", "hi", HYPER),
+            "UInt128Parts.hi: the definitions have Primitive",
+        ),
+        # Read from a strkey or a code, the values would keep their old size.
+        (with_type("PoolID", "", OpaqueFixed(64)), "PoolID: the definitions have"),
+        (with_type("AssetCode4", "", OpaqueFixed(8)), "AssetCode4: the definitions"),
+        (
+            with_type("SignerKey", "preAuthTx", OpaqueFixed(64)),
+            "SignerKey.SIGNER_KEY_TYPE_PRE_AUTH_TX: the definitions have",
+        ),
+        (
+            with_type("AssetCode", "assetCode12", OpaqueFixed(16)),
+            "AssetCode.ASSET_TYPE_CREDIT_ALPHANUM12: the definitions have",
+        ),
+        # A strkey builds the struct the rule names, not the one the arm now holds.
+        (
+            with_type("MuxedAccount", "med25519", Ref("MuxedEd25519Account")),
+            (
+                "MuxedAccount.KEY_TYPE_MUXED_ED25519: the definitions have "
+                "MuxedEd25519Account, where the rule builds MuxedAccountMed25519"
+            ),
+        ),
+        (
+            with_type("SCAddress", "accountId", Ref("ClaimableBalanceID")),
+            (
+                "SCAddress.SC_ADDRESS_TYPE_ACCOUNT: the definitions have "
+                "ClaimableBalanceID, where the rule builds PublicKey"
+            ),
+        ),
+    ],
+    ids=[
+        "signed-part",
+        "typedef",
+        "asset-code",
+        "strkey-arm",
+        "length-arm",
+        "built-struct",
+        "built-arm",
+    ],
+)
+def test_a_rule_whose_types_changed_upstream_fails_generation(
+    model: Model, message: str
+) -> None:
+    with pytest.raises(GenerationError, match=re.escape(message)):
+        Generator(model, PROTOCOL)
+
+
+def test_a_rule_that_builds_an_arm_without_a_value_fails_generation() -> None:
+    # The account arm of SCAddress holding a Memo, built as its arm without a value.
+    model = with_type("SCAddress", "accountId", Ref("Memo"))
+    built = sep51.BuiltArm("Memo", "MEMO_NONE", "key")
+    arms = tuple(
+        dataclasses.replace(arm, payload=built)
+        if arm.case == "SC_ADDRESS_TYPE_ACCOUNT"
+        else arm
+        for arm in sep51.RULES.strkey_unions["SCAddress"]
+    )
+    unions = {**sep51.RULES.strkey_unions, "SCAddress": arms}
+    rules = dataclasses.replace(sep51.RULES, strkey_unions=unions)
+    with pytest.raises(
+        GenerationError, match=r"Memo\.MEMO_NONE: the arm holds nothing"
+    ):
+        Generator(model, PROTOCOL, rules)
 
 
 def test_a_python_name_does_not_change_the_json_form(
