@@ -74,8 +74,9 @@ symbols = xdr.SCVal.Vec([xdr.SCVal.Symbol("a"), xdr.SCVal.Symbol("b")])
 assert symbols.vec == (xdr.SCVal.Symbol("a"), xdr.SCVal.Symbol("b"))
 ```
 
-Values are immutable. To change a field, make a copy with `replace`, which checks the
-new value like a constructor. On Python 3.13 and later, `copy.replace` does the same.
+Values are immutable: assigning to a field raises `AttributeError`. To change a field,
+make a copy with `replace`, which checks the new value like a constructor. On Python
+3.13 and later, `copy.replace` does the same.
 
 ```python
 import stellar_xdr as xdr

@@ -16,7 +16,6 @@ dataclasses, would only add features, so it stays possible.
 # pyright: reportPrivateUsage=false
 
 from collections.abc import Callable, Iterable, Iterator
-from dataclasses import FrozenInstanceError
 from enum import IntEnum
 from typing import (
     TYPE_CHECKING,
@@ -215,16 +214,18 @@ class _XdrValue(_Encodable):
         return f"{type(self).__qualname__}({', '.join(fields)})"
 
     # Hidden from type checkers: an explicit __setattr__ would make mypy accept any
-    # assignment, while dataclass_transform already reports one as an error.
+    # assignment, while dataclass_transform already reports one as an error. The error
+    # is the AttributeError that a frozen dataclass raises a subclass of; importing
+    # `dataclasses` for that subclass alone would cost every process 3 ms.
     if not TYPE_CHECKING:
 
         def __setattr__(self, name: str, value: object) -> NoReturn:
             msg = f"can't assign to field {name!r}; use copy.replace or replace"
-            raise FrozenInstanceError(msg)
+            raise AttributeError(msg)
 
         def __delattr__(self, name: str) -> NoReturn:
             msg = f"can't delete field {name!r}"
-            raise FrozenInstanceError(msg)
+            raise AttributeError(msg)
 
     def __reduce__(self) -> tuple[type[Self], tuple[object, ...]]:
         return type(self), tuple(getattr(self, name) for name in self._fields)

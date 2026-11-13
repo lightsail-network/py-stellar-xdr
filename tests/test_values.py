@@ -13,9 +13,9 @@ from stellar_xdr._runtime import XdrStruct
 
 def test_values_are_immutable() -> None:
     value = xdr.UInt128Parts(1, 2)
-    with pytest.raises(dataclasses.FrozenInstanceError, match=r"copy\.replace"):
+    with pytest.raises(AttributeError, match=r"copy\.replace"):
         value.hi = 3  # type: ignore[misc]
-    with pytest.raises(dataclasses.FrozenInstanceError):
+    with pytest.raises(AttributeError, match="can't delete field"):
         del value.hi  # pyright: ignore[reportAttributeAccessIssue]
     with pytest.raises(AttributeError):
         value.extra = 1  # type: ignore[attr-defined]
