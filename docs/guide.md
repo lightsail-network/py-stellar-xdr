@@ -288,6 +288,52 @@ account: xdr.AccountID.Any = xdr.AccountID.Ed25519(bytes(32))
 assert xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account
 ```
 
+## Values of any type
+
+Code that handles values of more than one type can name what they have in common.
+Every value is an `XdrValue`, and its class extends one of six base classes:
+
+| Base class | Its values |
+|---|---|
+| `XdrStruct` | A struct, such as a `Price`. |
+| `XdrArm` | An arm of a union, such as an `SCVal.U32`. |
+| `XdrEnum` | A member of an enum, such as `SCValType.SCV_U32`. |
+| `XdrBytes`, `XdrInt`, `XdrArray` | A value of a [typedef](#typedefs), such as a `Hash`, a `SequenceNumber` or an `SCVec`. |
+
+```python
+import stellar_xdr as xdr
+
+
+def size(value: xdr.XdrValue) -> int:
+    return len(value.to_xdr_bytes())
+
+
+assert size(xdr.SCVal.U32(7)) == 8
+assert size(xdr.Hash(bytes(32))) == 32
+assert isinstance(xdr.SCVal.U32(7), xdr.XdrArm)
+assert not isinstance(7, xdr.XdrValue)
+```
+
+The fields of a struct or of an arm are named, in order, by the `__match_args__` of its
+class, which is also what a `match` pattern goes by:
+
+```python
+import stellar_xdr as xdr
+
+
+def fields(value: xdr.XdrStruct | xdr.XdrArm) -> dict[str, object]:
+    return {name: getattr(value, name) for name in type(value).__match_args__}
+
+
+assert xdr.Price.__match_args__ == ("n", "d")
+assert fields(xdr.Price(1, 2)) == {"n": 1, "d": 2}
+assert fields(xdr.SCVal.U32(7)) == {"u32": 7}
+assert fields(xdr.SCVal.Void()) == {}
+```
+
+The base classes are for annotations and `isinstance`. Extending one with a class of
+your own is not supported: such a class has no encoding.
+
 ## Encoding and decoding
 
 Every value encodes to bytes or to base64, the form Stellar's APIs use:

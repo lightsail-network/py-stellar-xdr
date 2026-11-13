@@ -45,8 +45,14 @@ _T = TypeVar("_T")
 _T_co = TypeVar("_T_co", covariant=True)
 
 
-class _Encodable:
-    """The encoding methods shared by every generated type."""
+class XdrValue:
+    """A value of any XDR type: a struct, a union arm, an enum member or a typedef's.
+
+    Every generated class extends it through `XdrStruct`, `XdrArm`, `XdrEnum`,
+    `XdrBytes`, `XdrInt` or `XdrArray`. These base classes are for annotations and
+    `isinstance`, in code that works on values of more than one type. They are not
+    for classes of your own: a class that extends one has no encoding.
+    """
 
     __slots__ = ()
 
@@ -184,12 +190,13 @@ _BASES: set[type] = set()
 
 
 @dataclass_transform(frozen_default=True)
-class _XdrValue(_Encodable):
+class _Record(XdrValue):
     """Immutability, representation, pickling and copying of structs and union arms."""
 
     __slots__ = ()
 
-    _fields: ClassVar[tuple[str, ...]] = ()
+    # The names of the fields, in order: what a `match` pattern takes by position.
+    __match_args__: ClassVar[tuple[str, ...]] = ()
 
     def __init_subclass__(cls, **kwargs: object) -> None:
         super().__init_subclass__(**kwargs)
@@ -204,13 +211,13 @@ class _XdrValue(_Encodable):
         if "__slots__" not in cls.__dict__:
             msg = f"{cls.__qualname__} must define __slots__"
             raise TypeError(msg)
-        cls._fields = tuple(cls.__dict__["__slots__"])
         # Not `cls.__match_args__ = ...`: mypy refuses to assign to that name on a class
         # that `dataclass_transform` covers.
-        type.__setattr__(cls, "__match_args__", cls._fields)
+        type.__setattr__(cls, "__match_args__", tuple(cls.__dict__["__slots__"]))
 
     def __repr__(self) -> str:
-        fields = [f"{name}={_plain(getattr(self, name))}" for name in self._fields]
+        names = self.__match_args__
+        fields = [f"{name}={_plain(getattr(self, name))}" for name in names]
         return f"{type(self).__qualname__}({', '.join(fields)})"
 
     # Hidden from type checkers: an explicit __setattr__ would make mypy accept any
@@ -228,7 +235,7 @@ class _XdrValue(_Encodable):
             raise AttributeError(msg)
 
     def __reduce__(self) -> tuple[type[Self], tuple[object, ...]]:
-        return type(self), tuple(getattr(self, name) for name in self._fields)
+        return type(self), tuple(getattr(self, name) for name in self.__match_args__)
 
     # Values are immutable all the way down, so copies can share them.
     def __copy__(self) -> Self:
@@ -238,34 +245,47 @@ class _XdrValue(_Encodable):
         return self
 
     def __replace__(self, /, **changes: Any) -> Self:  # noqa: ANN401 - any field
-        fields = {name: getattr(self, name) for name in self._fields}
+        fields = {name: getattr(self, name) for name in self.__match_args__}
         fields.update(changes)
         return type(self)(**fields)
 
 
-class XdrStruct(_XdrValue, _Decodes):
-    """Base class of the generated structs."""
+class XdrStruct(_Record, _Decodes):
+    """Base class of the generated structs.
 
-    __slots__ = ()
-
-
-class XdrArm(_XdrValue):
-    """Base class of the generated union arms.
-
-    Arms only encode: decoding starts from the union, such as `SCVal.from_xdr_bytes`,
-    because the encoding doesn't say in advance which arm it holds.
+    `__match_args__` of a struct's class holds the names of its fields, in order.
     """
 
     __slots__ = ()
 
+    # Declared here too: left to `dataclass_transform`, type checkers would give this
+    # class, which has no fields, an empty tuple.
+    __match_args__: ClassVar[tuple[str, ...]] = ()
+
+
+class XdrArm(_Record):
+    """Base class of the generated union arms.
+
+    Arms only encode: decoding starts from the union, such as `SCVal.from_xdr_bytes`,
+    because the encoding doesn't say in advance which arm it holds.
+
+    `__match_args__` of an arm's class holds the name of the field with its value, or
+    nothing for an arm without one.
+    """
+
+    __slots__ = ()
+
+    __match_args__: ClassVar[tuple[str, ...]] = ()  # as for XdrStruct
+
     # An arm holds one value at most, and its class already says which arm it is, so
     # it is shown the way it is written: `SCVal.U32(5)`, not `SCVal.U32(u32=5)`.
     def __repr__(self) -> str:
-        values = ", ".join([_plain(getattr(self, name)) for name in self._fields])
+        names = self.__match_args__
+        values = ", ".join([_plain(getattr(self, name)) for name in names])
         return f"{type(self).__qualname__}({values})"
 
 
-class XdrEnum(_Encodable, IntEnum):
+class XdrEnum(XdrValue, IntEnum):
     """Base class of the generated enums."""
 
     # Shown the way it is written, like the structs and arms that hold it, rather
@@ -340,7 +360,7 @@ class XdrEnum(_Encodable, IntEnum):
 _TYPEDEF_BASES: set[type] = set()
 
 
-class _Typedef(_Encodable, _Decodes):
+class _Typedef(XdrValue, _Decodes):
     """What the typedefs share: they are final, and immutable like the type they extend.
 
     A typedef such as `Hash` or `SCVec` is a class of its own, so that a value knows
@@ -429,7 +449,7 @@ class UnionNamespace(type):
         raise TypeError(msg)
 
 
-_Value = TypeVar("_Value", bound=_XdrValue)
+_Value = TypeVar("_Value", bound=XdrStruct | XdrArm)
 
 
 def replace(value: _Value, /, **changes: Any) -> _Value:  # noqa: ANN401 - any field
@@ -443,10 +463,12 @@ def replace(value: _Value, /, **changes: Any) -> _Value:  # noqa: ANN401 - any f
             a new value has the wrong type.
         ValueError: A new value is out of range.
     """
-    if not isinstance(value, _XdrValue):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if not isinstance(value, _Record):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f"expected a struct or a union arm, got {type(value).__name__}"
         raise TypeError(msg)
-    return value.__replace__(**changes)
+    # `__replace__` returns the class of the value. mypy takes it from the two classes
+    # that bound `_Value` instead, so it is told.
+    return cast("_Value", value.__replace__(**changes))
 
 
 class _Decodable(Protocol[_T_co]):
@@ -495,7 +517,7 @@ def _decode_values(decode: Callable[[Reader], _T], reader: Reader) -> Iterator[_
 
 
 def encode_stream(
-    values: Iterable[_Encodable], *, max_depth: int = DEFAULT_MAX_DEPTH
+    values: Iterable[XdrValue], *, max_depth: int = DEFAULT_MAX_DEPTH
 ) -> bytes:
     """Encode values back to back, with nothing between them.
 
@@ -512,7 +534,7 @@ def encode_stream(
     """
     writer = Writer(max_depth)
     for value in values:
-        if not isinstance(value, _Encodable):  # pyright: ignore[reportUnnecessaryIsInstance]
+        if not isinstance(value, XdrValue):  # pyright: ignore[reportUnnecessaryIsInstance]
             msg = f"expected a value of an XDR type, got {type(value).__name__}"
             raise TypeError(msg)
         writer.depth = 0
@@ -528,6 +550,7 @@ __all__ = [
     "XdrEnum",
     "XdrInt",
     "XdrStruct",
+    "XdrValue",
     "decode_stream",
     "encode_stream",
     "replace",

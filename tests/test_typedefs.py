@@ -6,7 +6,6 @@ import pickle
 import pytest
 
 import stellar_xdr as xdr
-from stellar_xdr._runtime import XdrBytes
 
 KEY = bytes(range(32))
 
@@ -166,7 +165,7 @@ def test_typedef_classes_cant_be_subclassed() -> None:
 def test_a_class_without_slots_is_rejected() -> None:
     with pytest.raises(TypeError, match="must define __slots__"):
 
-        class Broken(XdrBytes):  # pyright: ignore[reportUnusedClass]
+        class Broken(xdr.XdrBytes):  # pyright: ignore[reportUnusedClass]
             pass
 
 

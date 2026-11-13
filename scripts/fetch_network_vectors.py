@@ -44,7 +44,6 @@ OUTPUT = ROOT / "tests" / "vectors" / "network_values.json.gz"
 sys.path.insert(0, str(ROOT / "src"))
 
 import stellar_xdr as xdr  # noqa: E402
-from stellar_xdr._runtime import UnionNamespace  # noqa: E402
 
 NETWORKS = {
     "mainnet": {
@@ -170,8 +169,8 @@ def parts(value: Any) -> Iterator[tuple[str, Any]]:  # noqa: ANN401 - any XDR va
     if isinstance(value, tuple):
         for item in value:
             yield from parts(item)
-    elif hasattr(value, "_fields"):
-        for field in value._fields:
+    elif isinstance(value, xdr.XdrStruct | xdr.XdrArm):
+        for field in type(value).__match_args__:
             yield from parts(getattr(value, field))
 
 
@@ -182,9 +181,9 @@ def coverage(value: Any, found: set[str]) -> set[str]:  # noqa: ANN401 - any XDR
     elif isinstance(value, tuple):
         for item in value:
             coverage(item, found)
-    elif hasattr(value, "_fields"):
+    elif isinstance(value, xdr.XdrStruct | xdr.XdrArm):
         found.add(type(value).__qualname__)
-        for field in value._fields:
+        for field in type(value).__match_args__:
             coverage(getattr(value, field), found)
     return found
 
@@ -337,17 +336,16 @@ def report(vectors: list[dict[str, str]]) -> None:
     for v in vectors:
         coverage(getattr(xdr, v["type"]).from_xdr_base64(v["xdr"]), found)
     arms: set[str] = set()
+    structs: set[str] = set()
     for name in xdr.__all__:
-        if isinstance(getattr(xdr, name), UnionNamespace):
-            namespace: Any = getattr(xdr, name)
-            members = typing.get_args(namespace.Any) or (namespace.Any,)
+        exported: Any = getattr(xdr, name)
+        if hasattr(exported, "Any"):
+            # A union: its `Any` is its arm classes, or the class of its only arm.
+            members = typing.get_args(exported.Any) or (exported.Any,)
             arms |= {arm.__qualname__ for arm in members}
-    structs = {
-        name
-        for name in xdr.__all__
-        if isinstance(getattr(xdr, name), type)
-        and hasattr(getattr(xdr, name), "_fields")
-    }
+        elif isinstance(exported, type) and issubclass(exported, xdr.XdrStruct):
+            structs.add(exported.__qualname__)
+    structs.discard(xdr.XdrStruct.__qualname__)
     print(f"union arms: {len(arms & found)} of {len(arms)}")
     print(f"structs: {len(structs & found)} of {len(structs)}")
     print(f"enum members: {sum('.' in f and f not in arms for f in found)}")

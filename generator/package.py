@@ -27,10 +27,17 @@ from .typecode import Context
 
 # Names the package exports besides the definitions; `__init__.py` imports them.
 PUBLIC_RUNTIME_NAMES: Final = (
+    "XdrArm",
+    "XdrArray",
+    "XdrBytes",
     "XdrDecodeError",
     "XdrDepthError",
+    "XdrEnum",
     "XdrError",
+    "XdrInt",
     "XdrJsonError",
+    "XdrStruct",
+    "XdrValue",
     "decode_stream",
     "encode_stream",
     "replace",

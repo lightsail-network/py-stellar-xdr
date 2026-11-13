@@ -8,7 +8,6 @@ import sys
 import pytest
 
 import stellar_xdr as xdr
-from stellar_xdr._runtime import XdrStruct
 
 
 def test_values_are_immutable() -> None:
@@ -143,8 +142,52 @@ def test_generated_classes_cant_be_subclassed() -> None:
 def test_a_class_without_slots_is_rejected() -> None:
     with pytest.raises(TypeError, match="must define __slots__"):
 
-        class Broken(XdrStruct):  # pyright: ignore[reportUnusedClass]
+        class Broken(xdr.XdrStruct):  # pyright: ignore[reportUnusedClass]
             pass
+
+
+BASES = (
+    xdr.XdrStruct,
+    xdr.XdrArm,
+    xdr.XdrEnum,
+    xdr.XdrBytes,
+    xdr.XdrInt,
+    xdr.XdrArray,
+)
+
+
+@pytest.mark.parametrize(
+    ("value", "base"),
+    [
+        (xdr.Price(1, 2), xdr.XdrStruct),
+        (xdr.SCVal.U32(1), xdr.XdrArm),
+        (xdr.SCValType.SCV_U32, xdr.XdrEnum),
+        (xdr.Hash(bytes(32)), xdr.XdrBytes),
+        (xdr.SequenceNumber(1), xdr.XdrInt),
+        (xdr.SCVec([]), xdr.XdrArray),
+    ],
+    ids=lambda v: v.__name__ if isinstance(v, type) else type(v).__qualname__,
+)
+def test_a_value_extends_the_base_class_of_its_kind(
+    value: xdr.XdrValue, base: type
+) -> None:
+    assert isinstance(value, xdr.XdrValue)
+    assert [b for b in BASES if isinstance(value, b)] == [base]
+
+
+@pytest.mark.parametrize("plain", [5, b"abc", (1, 2), None, xdr.SCVal])
+def test_a_plain_value_is_not_an_xdr_value(plain: object) -> None:
+    # Neither is a union: it is a namespace, and its arms are the values.
+    assert not isinstance(plain, xdr.XdrValue)
+
+
+def test_match_args_name_the_fields_in_order() -> None:
+    assert xdr.Price.__match_args__ == ("n", "d")
+    assert xdr.SCVal.U32.__match_args__ == ("u32",)
+    assert xdr.SCVal.Void.__match_args__ == ()
+    value = xdr.SCMapEntry(xdr.SCVal.U32(1), xdr.SCVal.Void())
+    fields = {name: getattr(value, name) for name in type(value).__match_args__}
+    assert fields == {"key": xdr.SCVal.U32(1), "val": xdr.SCVal.Void()}
 
 
 def test_values_are_not_dataclasses() -> None:
