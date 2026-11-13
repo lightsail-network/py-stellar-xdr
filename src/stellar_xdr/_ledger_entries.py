@@ -888,7 +888,7 @@ class AssetCode(metaclass=UnionNamespace):
     """
 
     @final
-    class CreditAlphanum4(XdrArm):
+    class CreditAlphaNum4(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM4`` of ``AssetCode``, holding ``assetCode4``."""
 
         __slots__ = ("asset_code4",)
@@ -903,17 +903,17 @@ class AssetCode(metaclass=UnionNamespace):
                 self,
                 "asset_code4",
                 AssetCode4._checked(
-                    asset_code4, "AssetCode.CreditAlphanum4.asset_code4"
+                    asset_code4, "AssetCode.CreditAlphaNum4.asset_code4"
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not AssetCode.CreditAlphanum4:
+            if type(other) is not AssetCode.CreditAlphaNum4:
                 return NotImplemented
             return self.asset_code4 == other.asset_code4
 
         def __hash__(self) -> int:
-            return hash((AssetCode.CreditAlphanum4, self.asset_code4))
+            return hash((AssetCode.CreditAlphaNum4, self.asset_code4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -931,7 +931,7 @@ class AssetCode(metaclass=UnionNamespace):
             return xdr_json.write_asset_code4(self.asset_code4)
 
     @final
-    class CreditAlphanum12(XdrArm):
+    class CreditAlphaNum12(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM12`` of ``AssetCode``, holding ``assetCode12``."""
 
         __slots__ = ("asset_code12",)
@@ -946,17 +946,17 @@ class AssetCode(metaclass=UnionNamespace):
                 self,
                 "asset_code12",
                 AssetCode12._checked(
-                    asset_code12, "AssetCode.CreditAlphanum12.asset_code12"
+                    asset_code12, "AssetCode.CreditAlphaNum12.asset_code12"
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not AssetCode.CreditAlphanum12:
+            if type(other) is not AssetCode.CreditAlphaNum12:
                 return NotImplemented
             return self.asset_code12 == other.asset_code12
 
         def __hash__(self) -> int:
-            return hash((AssetCode.CreditAlphanum12, self.asset_code12))
+            return hash((AssetCode.CreditAlphaNum12, self.asset_code12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -973,7 +973,7 @@ class AssetCode(metaclass=UnionNamespace):
         def _to_json(self, ctx: JsonWriter) -> Any:
             return xdr_json.write_asset_code12(self.asset_code12)
 
-    Any: TypeAlias = CreditAlphanum4 | CreditAlphanum12
+    Any: TypeAlias = CreditAlphaNum4 | CreditAlphaNum12
 
     @staticmethod
     def _decode(reader: Reader) -> AssetCode.Any:
@@ -1022,10 +1022,10 @@ class AssetCode(metaclass=UnionNamespace):
     def _from_json(value: object, ctx: JsonReader) -> AssetCode.Any:
         code = xdr_json.read_asset_code(value, "AssetCode")
         if len(code) <= 4:
-            short = new(AssetCode.CreditAlphanum4)
+            short = new(AssetCode.CreditAlphaNum4)
             set_field(short, "asset_code4", new_bytes(AssetCode4, code.ljust(4, b"\0")))
             return short
-        long = new(AssetCode.CreditAlphanum12)
+        long = new(AssetCode.CreditAlphaNum12)
         set_field(long, "asset_code12", new_bytes(AssetCode12, code.ljust(12, b"\0")))
         return long
 
@@ -1048,8 +1048,8 @@ class AssetCode(metaclass=UnionNamespace):
 
 
 _ASSET_CODE_ARMS: Final[dict[int, type[AssetCode.Any]]] = {
-    1: AssetCode.CreditAlphanum4,
-    2: AssetCode.CreditAlphanum12,
+    1: AssetCode.CreditAlphaNum4,
+    2: AssetCode.CreditAlphaNum12,
 }
 _ASSET_CODE_CLASSES: Final = frozenset(_ASSET_CODE_ARMS.values())
 
@@ -1249,7 +1249,7 @@ class Asset(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class CreditAlphanum4(XdrArm):
+    class CreditAlphaNum4(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM4`` of ``Asset``, holding ``alphaNum4``."""
 
         __slots__ = ("alpha_num4",)
@@ -1264,17 +1264,17 @@ class Asset(metaclass=UnionNamespace):
                 self,
                 "alpha_num4",
                 check.instance(
-                    alpha_num4, "Asset.CreditAlphanum4.alpha_num4", AlphaNum4
+                    alpha_num4, "Asset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not Asset.CreditAlphanum4:
+            if type(other) is not Asset.CreditAlphaNum4:
                 return NotImplemented
             return self.alpha_num4 == other.alpha_num4
 
         def __hash__(self) -> int:
-            return hash((Asset.CreditAlphanum4, self.alpha_num4))
+            return hash((Asset.CreditAlphaNum4, self.alpha_num4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -1296,7 +1296,7 @@ class Asset(metaclass=UnionNamespace):
             return obj
 
     @final
-    class CreditAlphanum12(XdrArm):
+    class CreditAlphaNum12(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM12`` of ``Asset``, holding ``alphaNum12``."""
 
         __slots__ = ("alpha_num12",)
@@ -1311,17 +1311,17 @@ class Asset(metaclass=UnionNamespace):
                 self,
                 "alpha_num12",
                 check.instance(
-                    alpha_num12, "Asset.CreditAlphanum12.alpha_num12", AlphaNum12
+                    alpha_num12, "Asset.CreditAlphaNum12.alpha_num12", AlphaNum12
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not Asset.CreditAlphanum12:
+            if type(other) is not Asset.CreditAlphaNum12:
                 return NotImplemented
             return self.alpha_num12 == other.alpha_num12
 
         def __hash__(self) -> int:
-            return hash((Asset.CreditAlphanum12, self.alpha_num12))
+            return hash((Asset.CreditAlphaNum12, self.alpha_num12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -1342,7 +1342,7 @@ class Asset(metaclass=UnionNamespace):
             set_field(obj, "alpha_num12", AlphaNum12._from_json(value, ctx))
             return obj
 
-    Any: TypeAlias = Native | CreditAlphanum4 | CreditAlphanum12
+    Any: TypeAlias = Native | CreditAlphaNum4 | CreditAlphaNum12
 
     @staticmethod
     def _decode(reader: Reader) -> Asset.Any:
@@ -1412,14 +1412,14 @@ class Asset(metaclass=UnionNamespace):
 
 _ASSET_ARMS: Final[dict[int, type[Asset.Any]]] = {
     0: Asset.Native,
-    1: Asset.CreditAlphanum4,
-    2: Asset.CreditAlphanum12,
+    1: Asset.CreditAlphaNum4,
+    2: Asset.CreditAlphaNum12,
 }
 _ASSET_CLASSES: Final = frozenset(_ASSET_ARMS.values())
 _ASSET_JSON_ARMS: Final[dict[str, type[Asset.Any]]] = {
     "native": Asset.Native,
-    "credit_alphanum4": Asset.CreditAlphanum4,
-    "credit_alphanum12": Asset.CreditAlphanum12,
+    "credit_alphanum4": Asset.CreditAlphaNum4,
+    "credit_alphanum12": Asset.CreditAlphaNum12,
 }
 _ASSET_JSON_VOID: Final[frozenset[str]] = frozenset({"native"})
 
@@ -2845,7 +2845,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class CreditAlphanum4(XdrArm):
+    class CreditAlphaNum4(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM4`` of ``TrustLineAsset``, holding ``alphaNum4``."""
 
         __slots__ = ("alpha_num4",)
@@ -2860,17 +2860,17 @@ class TrustLineAsset(metaclass=UnionNamespace):
                 self,
                 "alpha_num4",
                 check.instance(
-                    alpha_num4, "TrustLineAsset.CreditAlphanum4.alpha_num4", AlphaNum4
+                    alpha_num4, "TrustLineAsset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not TrustLineAsset.CreditAlphanum4:
+            if type(other) is not TrustLineAsset.CreditAlphaNum4:
                 return NotImplemented
             return self.alpha_num4 == other.alpha_num4
 
         def __hash__(self) -> int:
-            return hash((TrustLineAsset.CreditAlphanum4, self.alpha_num4))
+            return hash((TrustLineAsset.CreditAlphaNum4, self.alpha_num4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -2892,7 +2892,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             return obj
 
     @final
-    class CreditAlphanum12(XdrArm):
+    class CreditAlphaNum12(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM12`` of ``TrustLineAsset``, holding ``alphaNum12``."""
 
         __slots__ = ("alpha_num12",)
@@ -2908,18 +2908,18 @@ class TrustLineAsset(metaclass=UnionNamespace):
                 "alpha_num12",
                 check.instance(
                     alpha_num12,
-                    "TrustLineAsset.CreditAlphanum12.alpha_num12",
+                    "TrustLineAsset.CreditAlphaNum12.alpha_num12",
                     AlphaNum12,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not TrustLineAsset.CreditAlphanum12:
+            if type(other) is not TrustLineAsset.CreditAlphaNum12:
                 return NotImplemented
             return self.alpha_num12 == other.alpha_num12
 
         def __hash__(self) -> int:
-            return hash((TrustLineAsset.CreditAlphanum12, self.alpha_num12))
+            return hash((TrustLineAsset.CreditAlphaNum12, self.alpha_num12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -2998,7 +2998,7 @@ class TrustLineAsset(metaclass=UnionNamespace):
             )
             return obj
 
-    Any: TypeAlias = Native | CreditAlphanum4 | CreditAlphanum12 | PoolShare
+    Any: TypeAlias = Native | CreditAlphaNum4 | CreditAlphaNum12 | PoolShare
 
     @staticmethod
     def _decode(reader: Reader) -> TrustLineAsset.Any:
@@ -3073,15 +3073,15 @@ class TrustLineAsset(metaclass=UnionNamespace):
 
 _TRUST_LINE_ASSET_ARMS: Final[dict[int, type[TrustLineAsset.Any]]] = {
     0: TrustLineAsset.Native,
-    1: TrustLineAsset.CreditAlphanum4,
-    2: TrustLineAsset.CreditAlphanum12,
+    1: TrustLineAsset.CreditAlphaNum4,
+    2: TrustLineAsset.CreditAlphaNum12,
     3: TrustLineAsset.PoolShare,
 }
 _TRUST_LINE_ASSET_CLASSES: Final = frozenset(_TRUST_LINE_ASSET_ARMS.values())
 _TRUST_LINE_ASSET_JSON_ARMS: Final[dict[str, type[TrustLineAsset.Any]]] = {
     "native": TrustLineAsset.Native,
-    "credit_alphanum4": TrustLineAsset.CreditAlphanum4,
-    "credit_alphanum12": TrustLineAsset.CreditAlphanum12,
+    "credit_alphanum4": TrustLineAsset.CreditAlphaNum4,
+    "credit_alphanum12": TrustLineAsset.CreditAlphaNum12,
     "pool_share": TrustLineAsset.PoolShare,
 }
 _TRUST_LINE_ASSET_JSON_VOID: Final[frozenset[str]] = frozenset({"native"})
@@ -7476,7 +7476,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Trustline(XdrArm):
+    class TrustLine(XdrArm):
         """Arm ``TRUSTLINE`` of ``LedgerEntryData``, holding ``trustLine``."""
 
         __slots__ = ("trust_line",)
@@ -7489,17 +7489,17 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 self,
                 "trust_line",
                 check.instance(
-                    trust_line, "LedgerEntryData.Trustline.trust_line", TrustLineEntry
+                    trust_line, "LedgerEntryData.TrustLine.trust_line", TrustLineEntry
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LedgerEntryData.Trustline:
+            if type(other) is not LedgerEntryData.TrustLine:
                 return NotImplemented
             return self.trust_line == other.trust_line
 
         def __hash__(self) -> int:
-            return hash((LedgerEntryData.Trustline, self.trust_line))
+            return hash((LedgerEntryData.TrustLine, self.trust_line))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -7855,7 +7855,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Ttl(XdrArm):
+    class TTL(XdrArm):
         """Arm ``TTL`` of ``LedgerEntryData``, holding ``ttl``."""
 
         __slots__ = ("ttl",)
@@ -7865,16 +7865,16 @@ class LedgerEntryData(metaclass=UnionNamespace):
 
         def __init__(self, ttl: TTLEntry) -> None:
             set_field(
-                self, "ttl", check.instance(ttl, "LedgerEntryData.Ttl.ttl", TTLEntry)
+                self, "ttl", check.instance(ttl, "LedgerEntryData.TTL.ttl", TTLEntry)
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LedgerEntryData.Ttl:
+            if type(other) is not LedgerEntryData.TTL:
                 return NotImplemented
             return self.ttl == other.ttl
 
         def __hash__(self) -> int:
-            return hash((LedgerEntryData.Ttl, self.ttl))
+            return hash((LedgerEntryData.TTL, self.ttl))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -7897,7 +7897,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
 
     Any: TypeAlias = (
         Account
-        | Trustline
+        | TrustLine
         | Offer
         | Data
         | ClaimableBalance
@@ -7905,7 +7905,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
         | ContractData
         | ContractCode
         | ConfigSetting
-        | Ttl
+        | TTL
     )
 
     @staticmethod
@@ -7981,7 +7981,7 @@ class LedgerEntryData(metaclass=UnionNamespace):
 
 _LEDGER_ENTRY_DATA_ARMS: Final[dict[int, type[LedgerEntryData.Any]]] = {
     0: LedgerEntryData.Account,
-    1: LedgerEntryData.Trustline,
+    1: LedgerEntryData.TrustLine,
     2: LedgerEntryData.Offer,
     3: LedgerEntryData.Data,
     4: LedgerEntryData.ClaimableBalance,
@@ -7989,12 +7989,12 @@ _LEDGER_ENTRY_DATA_ARMS: Final[dict[int, type[LedgerEntryData.Any]]] = {
     6: LedgerEntryData.ContractData,
     7: LedgerEntryData.ContractCode,
     8: LedgerEntryData.ConfigSetting,
-    9: LedgerEntryData.Ttl,
+    9: LedgerEntryData.TTL,
 }
 _LEDGER_ENTRY_DATA_CLASSES: Final = frozenset(_LEDGER_ENTRY_DATA_ARMS.values())
 _LEDGER_ENTRY_DATA_JSON_ARMS: Final[dict[str, type[LedgerEntryData.Any]]] = {
     "account": LedgerEntryData.Account,
-    "trustline": LedgerEntryData.Trustline,
+    "trustline": LedgerEntryData.TrustLine,
     "offer": LedgerEntryData.Offer,
     "data": LedgerEntryData.Data,
     "claimable_balance": LedgerEntryData.ClaimableBalance,
@@ -8002,7 +8002,7 @@ _LEDGER_ENTRY_DATA_JSON_ARMS: Final[dict[str, type[LedgerEntryData.Any]]] = {
     "contract_data": LedgerEntryData.ContractData,
     "contract_code": LedgerEntryData.ContractCode,
     "config_setting": LedgerEntryData.ConfigSetting,
-    "ttl": LedgerEntryData.Ttl,
+    "ttl": LedgerEntryData.TTL,
 }
 _LEDGER_ENTRY_DATA_JSON_VOID: Final[frozenset[str]] = frozenset()
 
@@ -8930,8 +8930,8 @@ class LedgerKeyConfigSetting(XdrStruct):
 
 
 @final
-class LedgerKeyTtl(XdrStruct):
-    """XDR struct ``LedgerKeyTtl``.
+class LedgerKeyTTL(XdrStruct):
+    """XDR struct ``LedgerKeyTTL``.
 
     ```xdr
     struct
@@ -8947,15 +8947,15 @@ class LedgerKeyTtl(XdrStruct):
     key_hash: Hash
 
     def __init__(self, key_hash: bytes) -> None:
-        set_field(self, "key_hash", Hash._checked(key_hash, "LedgerKeyTtl.key_hash"))
+        set_field(self, "key_hash", Hash._checked(key_hash, "LedgerKeyTTL.key_hash"))
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not LedgerKeyTtl:
+        if type(other) is not LedgerKeyTTL:
             return NotImplemented
         return self.key_hash == other.key_hash
 
     def __hash__(self) -> int:
-        return hash((LedgerKeyTtl, self.key_hash))
+        return hash((LedgerKeyTTL, self.key_hash))
 
     def _encode(self, writer: Writer) -> None:
         writer.opaque_fixed(self.key_hash)
@@ -8971,7 +8971,7 @@ class LedgerKeyTtl(XdrStruct):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        fields = xdr_json.read_fields(value, "LedgerKeyTtl", ("key_hash",))
+        fields = xdr_json.read_fields(value, "LedgerKeyTTL", ("key_hash",))
         obj = new(cls)
         set_field(
             obj,
@@ -8979,7 +8979,7 @@ class LedgerKeyTtl(XdrStruct):
             new_bytes(
                 Hash,
                 xdr_json.read_hex_fixed(
-                    fields["key_hash"], "LedgerKeyTtl.key_hash", 32
+                    fields["key_hash"], "LedgerKeyTTL.key_hash", 32
                 ),
             ),
         )
@@ -9101,7 +9101,7 @@ class LedgerKey(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Trustline(XdrArm):
+    class TrustLine(XdrArm):
         """Arm ``TRUSTLINE`` of ``LedgerKey``, holding ``trustLine``."""
 
         __slots__ = ("trust_line",)
@@ -9114,17 +9114,17 @@ class LedgerKey(metaclass=UnionNamespace):
                 self,
                 "trust_line",
                 check.instance(
-                    trust_line, "LedgerKey.Trustline.trust_line", LedgerKeyTrustLine
+                    trust_line, "LedgerKey.TrustLine.trust_line", LedgerKeyTrustLine
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LedgerKey.Trustline:
+            if type(other) is not LedgerKey.TrustLine:
                 return NotImplemented
             return self.trust_line == other.trust_line
 
         def __hash__(self) -> int:
-            return hash((LedgerKey.Trustline, self.trust_line))
+            return hash((LedgerKey.TrustLine, self.trust_line))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -9489,26 +9489,26 @@ class LedgerKey(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Ttl(XdrArm):
+    class TTL(XdrArm):
         """Arm ``TTL`` of ``LedgerKey``, holding ``ttl``."""
 
         __slots__ = ("ttl",)
 
-        ttl: LedgerKeyTtl
+        ttl: LedgerKeyTTL
         type: ClassVar[Literal[LedgerEntryType.TTL]] = LedgerEntryType.TTL
 
-        def __init__(self, ttl: LedgerKeyTtl) -> None:
+        def __init__(self, ttl: LedgerKeyTTL) -> None:
             set_field(
-                self, "ttl", check.instance(ttl, "LedgerKey.Ttl.ttl", LedgerKeyTtl)
+                self, "ttl", check.instance(ttl, "LedgerKey.TTL.ttl", LedgerKeyTTL)
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LedgerKey.Ttl:
+            if type(other) is not LedgerKey.TTL:
                 return NotImplemented
             return self.ttl == other.ttl
 
         def __hash__(self) -> int:
-            return hash((LedgerKey.Ttl, self.ttl))
+            return hash((LedgerKey.TTL, self.ttl))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -9517,7 +9517,7 @@ class LedgerKey(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "ttl", LedgerKeyTtl._decode(reader))
+            set_field(obj, "ttl", LedgerKeyTTL._decode(reader))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -9526,12 +9526,12 @@ class LedgerKey(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "ttl", LedgerKeyTtl._from_json(value, ctx))
+            set_field(obj, "ttl", LedgerKeyTTL._from_json(value, ctx))
             return obj
 
     Any: TypeAlias = (
         Account
-        | Trustline
+        | TrustLine
         | Offer
         | Data
         | ClaimableBalance
@@ -9539,7 +9539,7 @@ class LedgerKey(metaclass=UnionNamespace):
         | ContractData
         | ContractCode
         | ConfigSetting
-        | Ttl
+        | TTL
     )
 
     @staticmethod
@@ -9612,7 +9612,7 @@ class LedgerKey(metaclass=UnionNamespace):
 
 _LEDGER_KEY_ARMS: Final[dict[int, type[LedgerKey.Any]]] = {
     0: LedgerKey.Account,
-    1: LedgerKey.Trustline,
+    1: LedgerKey.TrustLine,
     2: LedgerKey.Offer,
     3: LedgerKey.Data,
     4: LedgerKey.ClaimableBalance,
@@ -9620,12 +9620,12 @@ _LEDGER_KEY_ARMS: Final[dict[int, type[LedgerKey.Any]]] = {
     6: LedgerKey.ContractData,
     7: LedgerKey.ContractCode,
     8: LedgerKey.ConfigSetting,
-    9: LedgerKey.Ttl,
+    9: LedgerKey.TTL,
 }
 _LEDGER_KEY_CLASSES: Final = frozenset(_LEDGER_KEY_ARMS.values())
 _LEDGER_KEY_JSON_ARMS: Final[dict[str, type[LedgerKey.Any]]] = {
     "account": LedgerKey.Account,
-    "trustline": LedgerKey.Trustline,
+    "trustline": LedgerKey.TrustLine,
     "offer": LedgerKey.Offer,
     "data": LedgerKey.Data,
     "claimable_balance": LedgerKey.ClaimableBalance,
@@ -9633,7 +9633,7 @@ _LEDGER_KEY_JSON_ARMS: Final[dict[str, type[LedgerKey.Any]]] = {
     "contract_data": LedgerKey.ContractData,
     "contract_code": LedgerKey.ContractCode,
     "config_setting": LedgerKey.ConfigSetting,
-    "ttl": LedgerKey.Ttl,
+    "ttl": LedgerKey.TTL,
 }
 _LEDGER_KEY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
@@ -10541,8 +10541,8 @@ __all__ = [
     "LedgerKeyData",
     "LedgerKeyLiquidityPool",
     "LedgerKeyOffer",
+    "LedgerKeyTTL",
     "LedgerKeyTrustLine",
-    "LedgerKeyTtl",
     "Liabilities",
     "LiquidityPoolConstantProductParameters",
     "LiquidityPoolEntry",

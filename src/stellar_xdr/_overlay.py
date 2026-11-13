@@ -860,8 +860,8 @@ class Auth(XdrStruct):
         return obj
 
 
-class PeerAddressIp(metaclass=UnionNamespace):
-    """XDR union ``PeerAddressIp``.
+class PeerAddressIP(metaclass=UnionNamespace):
+    """XDR union ``PeerAddressIP``.
 
     ```xdr
     union switch (IPAddrType type)
@@ -876,7 +876,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
     @final
     class IPv4(XdrArm):
-        """Arm ``IPv4`` of ``PeerAddressIp``, holding ``ipv4``."""
+        """Arm ``IPv4`` of ``PeerAddressIP``, holding ``ipv4``."""
 
         __slots__ = ("ipv4",)
 
@@ -885,16 +885,16 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
         def __init__(self, ipv4: bytes) -> None:
             set_field(
-                self, "ipv4", check.opaque_fixed(ipv4, "PeerAddressIp.IPv4.ipv4", 4)
+                self, "ipv4", check.opaque_fixed(ipv4, "PeerAddressIP.IPv4.ipv4", 4)
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not PeerAddressIp.IPv4:
+            if type(other) is not PeerAddressIP.IPv4:
                 return NotImplemented
             return self.ipv4 == other.ipv4
 
         def __hash__(self) -> int:
-            return hash((PeerAddressIp.IPv4, self.ipv4))
+            return hash((PeerAddressIP.IPv4, self.ipv4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(0)
@@ -915,13 +915,13 @@ class PeerAddressIp(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "ipv4",
-                xdr_json.read_hex_fixed(value, "PeerAddressIp.IPv4.ipv4", 4),
+                xdr_json.read_hex_fixed(value, "PeerAddressIP.IPv4.ipv4", 4),
             )
             return obj
 
     @final
     class IPv6(XdrArm):
-        """Arm ``IPv6`` of ``PeerAddressIp``, holding ``ipv6``."""
+        """Arm ``IPv6`` of ``PeerAddressIP``, holding ``ipv6``."""
 
         __slots__ = ("ipv6",)
 
@@ -930,16 +930,16 @@ class PeerAddressIp(metaclass=UnionNamespace):
 
         def __init__(self, ipv6: bytes) -> None:
             set_field(
-                self, "ipv6", check.opaque_fixed(ipv6, "PeerAddressIp.IPv6.ipv6", 16)
+                self, "ipv6", check.opaque_fixed(ipv6, "PeerAddressIP.IPv6.ipv6", 16)
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not PeerAddressIp.IPv6:
+            if type(other) is not PeerAddressIP.IPv6:
                 return NotImplemented
             return self.ipv6 == other.ipv6
 
         def __hash__(self) -> int:
-            return hash((PeerAddressIp.IPv6, self.ipv6))
+            return hash((PeerAddressIP.IPv6, self.ipv6))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -960,24 +960,24 @@ class PeerAddressIp(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "ipv6",
-                xdr_json.read_hex_fixed(value, "PeerAddressIp.IPv6.ipv6", 16),
+                xdr_json.read_hex_fixed(value, "PeerAddressIP.IPv6.ipv6", 16),
             )
             return obj
 
     Any: TypeAlias = IPv4 | IPv6
 
     @staticmethod
-    def _decode(reader: Reader) -> PeerAddressIp.Any:
+    def _decode(reader: Reader) -> PeerAddressIP.Any:
         discriminant = reader.int32()
         arm = _PEER_ADDRESS_IP_ARMS.get(discriminant)
         if arm is None:
-            reader.unknown("PeerAddressIp", discriminant)
+            reader.unknown("PeerAddressIP", discriminant)
         return arm._decode_payload(reader)
 
     @staticmethod
     def from_xdr_bytes(
         data: bytes, *, max_depth: int = DEFAULT_MAX_DEPTH
-    ) -> PeerAddressIp.Any:
+    ) -> PeerAddressIP.Any:
         """Decode a value from XDR.
 
         Args:
@@ -989,12 +989,12 @@ class PeerAddressIp(metaclass=UnionNamespace):
             XdrDecodeError: The data is not a valid encoding of this type.
             XdrDepthError: The data is nested more deeply than `max_depth`.
         """
-        return decode_bytes(PeerAddressIp._decode, data, max_depth)
+        return decode_bytes(PeerAddressIP._decode, data, max_depth)
 
     @staticmethod
     def from_xdr_base64(
         text: str | bytes, *, max_depth: int = DEFAULT_MAX_DEPTH
-    ) -> PeerAddressIp.Any:
+    ) -> PeerAddressIP.Any:
         """Decode a value from XDR in base64.
 
         Args:
@@ -1007,13 +1007,13 @@ class PeerAddressIp(metaclass=UnionNamespace):
                 this type.
             XdrDepthError: The data is nested more deeply than `max_depth`.
         """
-        return decode_bytes(PeerAddressIp._decode, decode_base64(text), max_depth)
+        return decode_bytes(PeerAddressIP._decode, decode_base64(text), max_depth)
 
     @staticmethod
-    def _from_json(value: object, ctx: JsonReader) -> PeerAddressIp.Any:
+    def _from_json(value: object, ctx: JsonReader) -> PeerAddressIP.Any:
         arm, payload = xdr_json.read_union(
             value,
-            "PeerAddressIp",
+            "PeerAddressIP",
             _PEER_ADDRESS_IP_JSON_ARMS,
             _PEER_ADDRESS_IP_JSON_VOID,
         )
@@ -1022,7 +1022,7 @@ class PeerAddressIp(metaclass=UnionNamespace):
     @staticmethod
     def from_json_value(
         value: object, *, max_depth: int = DEFAULT_MAX_DEPTH
-    ) -> PeerAddressIp.Any:
+    ) -> PeerAddressIP.Any:
         """Convert SEP-51 XDR-JSON to a value.
 
         Args:
@@ -1034,17 +1034,17 @@ class PeerAddressIp(metaclass=UnionNamespace):
             XdrJsonError: The JSON is not a valid representation of this type.
             XdrDepthError: The JSON is nested more deeply than `max_depth`.
         """
-        return decode_json(PeerAddressIp._from_json, value, max_depth)
+        return decode_json(PeerAddressIP._from_json, value, max_depth)
 
 
-_PEER_ADDRESS_IP_ARMS: Final[dict[int, type[PeerAddressIp.Any]]] = {
-    0: PeerAddressIp.IPv4,
-    1: PeerAddressIp.IPv6,
+_PEER_ADDRESS_IP_ARMS: Final[dict[int, type[PeerAddressIP.Any]]] = {
+    0: PeerAddressIP.IPv4,
+    1: PeerAddressIP.IPv6,
 }
 _PEER_ADDRESS_IP_CLASSES: Final = frozenset(_PEER_ADDRESS_IP_ARMS.values())
-_PEER_ADDRESS_IP_JSON_ARMS: Final[dict[str, type[PeerAddressIp.Any]]] = {
-    "i_pv4": PeerAddressIp.IPv4,
-    "i_pv6": PeerAddressIp.IPv6,
+_PEER_ADDRESS_IP_JSON_ARMS: Final[dict[str, type[PeerAddressIP.Any]]] = {
+    "i_pv4": PeerAddressIP.IPv4,
+    "i_pv6": PeerAddressIP.IPv6,
 }
 _PEER_ADDRESS_IP_JSON_VOID: Final[frozenset[str]] = frozenset()
 
@@ -1072,18 +1072,18 @@ class PeerAddress(XdrStruct):
 
     __slots__ = ("ip", "port", "num_failures")
 
-    ip: PeerAddressIp.Any
+    ip: PeerAddressIP.Any
     port: Uint32
     num_failures: Uint32
 
     def __init__(
-        self, ip: PeerAddressIp.Any, port: Uint32, num_failures: Uint32
+        self, ip: PeerAddressIP.Any, port: Uint32, num_failures: Uint32
     ) -> None:
         set_field(
             self,
             "ip",
             check.union(
-                ip, "PeerAddress.ip", _PEER_ADDRESS_IP_CLASSES, "PeerAddressIp"
+                ip, "PeerAddress.ip", _PEER_ADDRESS_IP_CLASSES, "PeerAddressIP"
             ),
         )
         set_field(self, "port", check.uint32(port, "PeerAddress.port"))
@@ -1111,7 +1111,7 @@ class PeerAddress(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "ip", PeerAddressIp._decode(reader))
+        set_field(obj, "ip", PeerAddressIP._decode(reader))
         set_field(obj, "port", reader.uint32())
         set_field(obj, "num_failures", reader.uint32())
         return obj
@@ -1129,7 +1129,7 @@ class PeerAddress(XdrStruct):
             value, "PeerAddress", ("ip", "port", "num_failures")
         )
         obj = new(cls)
-        set_field(obj, "ip", PeerAddressIp._from_json(fields["ip"], ctx))
+        set_field(obj, "ip", PeerAddressIP._from_json(fields["ip"], ctx))
         set_field(obj, "port", xdr_json.read_uint32(fields["port"], "PeerAddress.port"))
         set_field(
             obj,
@@ -4436,7 +4436,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return obj
 
     @final
-    class GetScpQuorumset(XdrArm):
+    class GetSCPQuorumSet(XdrArm):
         """Arm ``GET_SCP_QUORUMSET`` of ``StellarMessage``, holding ``qSetHash``."""
 
         __slots__ = ("q_set_hash",)
@@ -4451,17 +4451,17 @@ class StellarMessage(metaclass=UnionNamespace):
                 self,
                 "q_set_hash",
                 Uint256._checked(
-                    q_set_hash, "StellarMessage.GetScpQuorumset.q_set_hash"
+                    q_set_hash, "StellarMessage.GetSCPQuorumSet.q_set_hash"
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not StellarMessage.GetScpQuorumset:
+            if type(other) is not StellarMessage.GetSCPQuorumSet:
                 return NotImplemented
             return self.q_set_hash == other.q_set_hash
 
         def __hash__(self) -> int:
-            return hash((StellarMessage.GetScpQuorumset, self.q_set_hash))
+            return hash((StellarMessage.GetSCPQuorumSet, self.q_set_hash))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(9)
@@ -4485,14 +4485,14 @@ class StellarMessage(metaclass=UnionNamespace):
                 new_bytes(
                     Uint256,
                     xdr_json.read_hex_fixed(
-                        value, "StellarMessage.GetScpQuorumset.q_set_hash", 32
+                        value, "StellarMessage.GetSCPQuorumSet.q_set_hash", 32
                     ),
                 ),
             )
             return obj
 
     @final
-    class ScpQuorumset(XdrArm):
+    class SCPQuorumSet(XdrArm):
         """Arm ``SCP_QUORUMSET`` of ``StellarMessage``, holding ``qSet``."""
 
         __slots__ = ("q_set",)
@@ -4505,17 +4505,17 @@ class StellarMessage(metaclass=UnionNamespace):
                 self,
                 "q_set",
                 check.instance(
-                    q_set, "StellarMessage.ScpQuorumset.q_set", SCPQuorumSet
+                    q_set, "StellarMessage.SCPQuorumSet.q_set", SCPQuorumSet
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not StellarMessage.ScpQuorumset:
+            if type(other) is not StellarMessage.SCPQuorumSet:
                 return NotImplemented
             return self.q_set == other.q_set
 
         def __hash__(self) -> int:
-            return hash((StellarMessage.ScpQuorumset, self.q_set))
+            return hash((StellarMessage.SCPQuorumSet, self.q_set))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(10)
@@ -4537,7 +4537,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return obj
 
     @final
-    class ScpMessage(XdrArm):
+    class SCPMessage(XdrArm):
         """Arm ``SCP_MESSAGE`` of ``StellarMessage``, holding ``envelope``."""
 
         __slots__ = ("envelope",)
@@ -4550,17 +4550,17 @@ class StellarMessage(metaclass=UnionNamespace):
                 self,
                 "envelope",
                 check.instance(
-                    envelope, "StellarMessage.ScpMessage.envelope", SCPEnvelope
+                    envelope, "StellarMessage.SCPMessage.envelope", SCPEnvelope
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not StellarMessage.ScpMessage:
+            if type(other) is not StellarMessage.SCPMessage:
                 return NotImplemented
             return self.envelope == other.envelope
 
         def __hash__(self) -> int:
-            return hash((StellarMessage.ScpMessage, self.envelope))
+            return hash((StellarMessage.SCPMessage, self.envelope))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(11)
@@ -4582,7 +4582,7 @@ class StellarMessage(metaclass=UnionNamespace):
             return obj
 
     @final
-    class GetScpState(XdrArm):
+    class GetSCPState(XdrArm):
         """Arm ``GET_SCP_STATE`` of ``StellarMessage``, holding ``getSCPLedgerSeq``."""
 
         __slots__ = ("get_scp_ledger_seq",)
@@ -4595,17 +4595,17 @@ class StellarMessage(metaclass=UnionNamespace):
                 self,
                 "get_scp_ledger_seq",
                 check.uint32(
-                    get_scp_ledger_seq, "StellarMessage.GetScpState.get_scp_ledger_seq"
+                    get_scp_ledger_seq, "StellarMessage.GetSCPState.get_scp_ledger_seq"
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not StellarMessage.GetScpState:
+            if type(other) is not StellarMessage.GetSCPState:
                 return NotImplemented
             return self.get_scp_ledger_seq == other.get_scp_ledger_seq
 
         def __hash__(self) -> int:
-            return hash((StellarMessage.GetScpState, self.get_scp_ledger_seq))
+            return hash((StellarMessage.GetSCPState, self.get_scp_ledger_seq))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(12)
@@ -4627,7 +4627,7 @@ class StellarMessage(metaclass=UnionNamespace):
                 obj,
                 "get_scp_ledger_seq",
                 xdr_json.read_uint32(
-                    value, "StellarMessage.GetScpState.get_scp_ledger_seq"
+                    value, "StellarMessage.GetSCPState.get_scp_ledger_seq"
                 ),
             )
             return obj
@@ -4840,10 +4840,10 @@ class StellarMessage(metaclass=UnionNamespace):
         | TimeSlicedSurveyResponse
         | TimeSlicedSurveyStartCollecting
         | TimeSlicedSurveyStopCollecting
-        | GetScpQuorumset
-        | ScpQuorumset
-        | ScpMessage
-        | GetScpState
+        | GetSCPQuorumSet
+        | SCPQuorumSet
+        | SCPMessage
+        | GetSCPState
         | SendMore
         | SendMoreExtended
         | FloodAdvert
@@ -4935,10 +4935,10 @@ _STELLAR_MESSAGE_ARMS: Final[dict[int, type[StellarMessage.Any]]] = {
     22: StellarMessage.TimeSlicedSurveyResponse,
     23: StellarMessage.TimeSlicedSurveyStartCollecting,
     24: StellarMessage.TimeSlicedSurveyStopCollecting,
-    9: StellarMessage.GetScpQuorumset,
-    10: StellarMessage.ScpQuorumset,
-    11: StellarMessage.ScpMessage,
-    12: StellarMessage.GetScpState,
+    9: StellarMessage.GetSCPQuorumSet,
+    10: StellarMessage.SCPQuorumSet,
+    11: StellarMessage.SCPMessage,
+    12: StellarMessage.GetSCPState,
     16: StellarMessage.SendMore,
     20: StellarMessage.SendMoreExtended,
     18: StellarMessage.FloodAdvert,
@@ -4959,10 +4959,10 @@ _STELLAR_MESSAGE_JSON_ARMS: Final[dict[str, type[StellarMessage.Any]]] = {
     "time_sliced_survey_response": StellarMessage.TimeSlicedSurveyResponse,
     "time_sliced_survey_start_collecting": StellarMessage.TimeSlicedSurveyStartCollecting,
     "time_sliced_survey_stop_collecting": StellarMessage.TimeSlicedSurveyStopCollecting,
-    "get_scp_quorumset": StellarMessage.GetScpQuorumset,
-    "scp_quorumset": StellarMessage.ScpQuorumset,
-    "scp_message": StellarMessage.ScpMessage,
-    "get_scp_state": StellarMessage.GetScpState,
+    "get_scp_quorumset": StellarMessage.GetSCPQuorumSet,
+    "scp_quorumset": StellarMessage.SCPQuorumSet,
+    "scp_message": StellarMessage.SCPMessage,
+    "get_scp_state": StellarMessage.GetSCPState,
     "send_more": StellarMessage.SendMore,
     "send_more_extended": StellarMessage.SendMoreExtended,
     "flood_advert": StellarMessage.FloodAdvert,
@@ -5377,7 +5377,7 @@ __all__ = [
     "IPAddrType",
     "MessageType",
     "PeerAddress",
-    "PeerAddressIp",
+    "PeerAddressIP",
     "PeerStats",
     "SendMore",
     "SendMoreExtended",

@@ -131,7 +131,7 @@ def test_repr_shows_the_plain_value_inside_another_value() -> None:
     assert repr(xdr.DecoratedSignature(b"abcd", b"xy")) == (
         "DecoratedSignature(hint=b'abcd', signature=b'xy')"
     )
-    assert repr(xdr.SCVal.Timepoint(5)) == "SCVal.Timepoint(5)"
+    assert repr(xdr.SCVal.TimePoint(5)) == "SCVal.TimePoint(5)"
     assert repr(xdr.SCVal.Vec([xdr.SCVal.Symbol("a")])) == (
         "SCVal.Vec((SCVal.Symbol(b'a'),))"
     )

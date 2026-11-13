@@ -2643,7 +2643,7 @@ class SCVal(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Timepoint(XdrArm):
+    class TimePoint(XdrArm):
         """Arm ``SCV_TIMEPOINT`` of ``SCVal``, holding ``timepoint``."""
 
         __slots__ = ("timepoint",)
@@ -2655,16 +2655,16 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 self,
                 "timepoint",
-                TimePoint._checked(timepoint, "SCVal.Timepoint.timepoint"),
+                TimePoint._checked(timepoint, "SCVal.TimePoint.timepoint"),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCVal.Timepoint:
+            if type(other) is not SCVal.TimePoint:
                 return NotImplemented
             return self.timepoint == other.timepoint
 
         def __hash__(self) -> int:
-            return hash((SCVal.Timepoint, self.timepoint))
+            return hash((SCVal.TimePoint, self.timepoint))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -2691,7 +2691,7 @@ class SCVal(metaclass=UnionNamespace):
                 obj,
                 "timepoint",
                 new_int(
-                    TimePoint, xdr_json.read_uint64(value, "SCVal.Timepoint.timepoint")
+                    TimePoint, xdr_json.read_uint64(value, "SCVal.TimePoint.timepoint")
                 ),
             )
             return obj
@@ -3507,7 +3507,7 @@ class SCVal(metaclass=UnionNamespace):
         | I32
         | U64
         | I64
-        | Timepoint
+        | TimePoint
         | Duration
         | U128
         | I128
@@ -3605,7 +3605,7 @@ _SC_VAL_ARMS: Final[dict[int, type[SCVal.Any]]] = {
     4: SCVal.I32,
     5: SCVal.U64,
     6: SCVal.I64,
-    7: SCVal.Timepoint,
+    7: SCVal.TimePoint,
     8: SCVal.Duration,
     9: SCVal.U128,
     10: SCVal.I128,
@@ -3631,7 +3631,7 @@ _SC_VAL_JSON_ARMS: Final[dict[str, type[SCVal.Any]]] = {
     "i32": SCVal.I32,
     "u64": SCVal.U64,
     "i64": SCVal.I64,
-    "timepoint": SCVal.Timepoint,
+    "timepoint": SCVal.TimePoint,
     "duration": SCVal.Duration,
     "u128": SCVal.U128,
     "i128": SCVal.I128,

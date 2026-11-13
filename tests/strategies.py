@@ -300,9 +300,9 @@ ARMS["ConfigSettingEntry.ContractLedgerCostExtV0"] = (
         ref("ConfigSettingContractLedgerCostExtV0"),
     ),
 )
-ARMS["ConfigSettingEntry.ScpTiming"] = (
+ARMS["ConfigSettingEntry.SCPTiming"] = (
     "ConfigSettingEntry",
-    st.builds(xdr.ConfigSettingEntry.ScpTiming, ref("ConfigSettingSCPTiming")),
+    st.builds(xdr.ConfigSettingEntry.SCPTiming, ref("ConfigSettingSCPTiming")),
 )
 ARMS["ConfigSettingEntry.FrozenLedgerKeys"] = (
     "ConfigSettingEntry",
@@ -374,7 +374,7 @@ STRATEGIES["ConfigSettingEntry"] = st.one_of(
         xdr.ConfigSettingEntry.ContractLedgerCostExtV0,
         ref("ConfigSettingContractLedgerCostExtV0"),
     ),
-    st.builds(xdr.ConfigSettingEntry.ScpTiming, ref("ConfigSettingSCPTiming")),
+    st.builds(xdr.ConfigSettingEntry.SCPTiming, ref("ConfigSettingSCPTiming")),
     st.builds(xdr.ConfigSettingEntry.FrozenLedgerKeys, ref("FrozenLedgerKeys")),
     st.builds(
         xdr.ConfigSettingEntry.FrozenLedgerKeysDelta, ref("FrozenLedgerKeysDelta")
@@ -434,9 +434,9 @@ ARMS["SCSpecTypeDef.U32"] = ("SCSpecTypeDef", st.builds(xdr.SCSpecTypeDef.U32))
 ARMS["SCSpecTypeDef.I32"] = ("SCSpecTypeDef", st.builds(xdr.SCSpecTypeDef.I32))
 ARMS["SCSpecTypeDef.U64"] = ("SCSpecTypeDef", st.builds(xdr.SCSpecTypeDef.U64))
 ARMS["SCSpecTypeDef.I64"] = ("SCSpecTypeDef", st.builds(xdr.SCSpecTypeDef.I64))
-ARMS["SCSpecTypeDef.Timepoint"] = (
+ARMS["SCSpecTypeDef.TimePoint"] = (
     "SCSpecTypeDef",
-    st.builds(xdr.SCSpecTypeDef.Timepoint),
+    st.builds(xdr.SCSpecTypeDef.TimePoint),
 )
 ARMS["SCSpecTypeDef.Duration"] = (
     "SCSpecTypeDef",
@@ -478,9 +478,9 @@ ARMS["SCSpecTypeDef.BytesN"] = (
     "SCSpecTypeDef",
     st.builds(xdr.SCSpecTypeDef.BytesN, ref("SCSpecTypeBytesN")),
 )
-ARMS["SCSpecTypeDef.Udt"] = (
+ARMS["SCSpecTypeDef.UDT"] = (
     "SCSpecTypeDef",
-    st.builds(xdr.SCSpecTypeDef.Udt, ref("SCSpecTypeUDT")),
+    st.builds(xdr.SCSpecTypeDef.UDT, ref("SCSpecTypeUDT")),
 )
 STRATEGIES["SCSpecTypeDef"] = st.one_of(
     st.builds(xdr.SCSpecTypeDef.Val),
@@ -491,7 +491,7 @@ STRATEGIES["SCSpecTypeDef"] = st.one_of(
     st.builds(xdr.SCSpecTypeDef.I32),
     st.builds(xdr.SCSpecTypeDef.U64),
     st.builds(xdr.SCSpecTypeDef.I64),
-    st.builds(xdr.SCSpecTypeDef.Timepoint),
+    st.builds(xdr.SCSpecTypeDef.TimePoint),
     st.builds(xdr.SCSpecTypeDef.Duration),
     st.builds(xdr.SCSpecTypeDef.U128),
     st.builds(xdr.SCSpecTypeDef.I128),
@@ -508,7 +508,7 @@ STRATEGIES["SCSpecTypeDef"] = st.one_of(
     st.builds(xdr.SCSpecTypeDef.Map, ref("SCSpecTypeMap")),
     st.builds(xdr.SCSpecTypeDef.Tuple, ref("SCSpecTypeTuple")),
     st.builds(xdr.SCSpecTypeDef.BytesN, ref("SCSpecTypeBytesN")),
-    st.builds(xdr.SCSpecTypeDef.Udt, ref("SCSpecTypeUDT")),
+    st.builds(xdr.SCSpecTypeDef.UDT, ref("SCSpecTypeUDT")),
 )
 DISCRIMINANTS["SCSpecTypeDef"] = frozenset(
     [
@@ -647,21 +647,21 @@ ARMS["SCSpecEntry.FunctionV0"] = (
     "SCSpecEntry",
     st.builds(xdr.SCSpecEntry.FunctionV0, ref("SCSpecFunctionV0")),
 )
-ARMS["SCSpecEntry.UdtStructV0"] = (
+ARMS["SCSpecEntry.UDTStructV0"] = (
     "SCSpecEntry",
-    st.builds(xdr.SCSpecEntry.UdtStructV0, ref("SCSpecUDTStructV0")),
+    st.builds(xdr.SCSpecEntry.UDTStructV0, ref("SCSpecUDTStructV0")),
 )
-ARMS["SCSpecEntry.UdtUnionV0"] = (
+ARMS["SCSpecEntry.UDTUnionV0"] = (
     "SCSpecEntry",
-    st.builds(xdr.SCSpecEntry.UdtUnionV0, ref("SCSpecUDTUnionV0")),
+    st.builds(xdr.SCSpecEntry.UDTUnionV0, ref("SCSpecUDTUnionV0")),
 )
-ARMS["SCSpecEntry.UdtEnumV0"] = (
+ARMS["SCSpecEntry.UDTEnumV0"] = (
     "SCSpecEntry",
-    st.builds(xdr.SCSpecEntry.UdtEnumV0, ref("SCSpecUDTEnumV0")),
+    st.builds(xdr.SCSpecEntry.UDTEnumV0, ref("SCSpecUDTEnumV0")),
 )
-ARMS["SCSpecEntry.UdtErrorEnumV0"] = (
+ARMS["SCSpecEntry.UDTErrorEnumV0"] = (
     "SCSpecEntry",
-    st.builds(xdr.SCSpecEntry.UdtErrorEnumV0, ref("SCSpecUDTErrorEnumV0")),
+    st.builds(xdr.SCSpecEntry.UDTErrorEnumV0, ref("SCSpecUDTErrorEnumV0")),
 )
 ARMS["SCSpecEntry.EventV0"] = (
     "SCSpecEntry",
@@ -669,10 +669,10 @@ ARMS["SCSpecEntry.EventV0"] = (
 )
 STRATEGIES["SCSpecEntry"] = st.one_of(
     st.builds(xdr.SCSpecEntry.FunctionV0, ref("SCSpecFunctionV0")),
-    st.builds(xdr.SCSpecEntry.UdtStructV0, ref("SCSpecUDTStructV0")),
-    st.builds(xdr.SCSpecEntry.UdtUnionV0, ref("SCSpecUDTUnionV0")),
-    st.builds(xdr.SCSpecEntry.UdtEnumV0, ref("SCSpecUDTEnumV0")),
-    st.builds(xdr.SCSpecEntry.UdtErrorEnumV0, ref("SCSpecUDTErrorEnumV0")),
+    st.builds(xdr.SCSpecEntry.UDTStructV0, ref("SCSpecUDTStructV0")),
+    st.builds(xdr.SCSpecEntry.UDTUnionV0, ref("SCSpecUDTUnionV0")),
+    st.builds(xdr.SCSpecEntry.UDTEnumV0, ref("SCSpecUDTEnumV0")),
+    st.builds(xdr.SCSpecEntry.UDTErrorEnumV0, ref("SCSpecUDTErrorEnumV0")),
     st.builds(xdr.SCSpecEntry.EventV0, ref("SCSpecEventV0")),
 )
 DISCRIMINANTS["SCSpecEntry"] = frozenset([0, 1, 2, 3, 4, 5])
@@ -823,9 +823,9 @@ ARMS["SCVal.I64"] = (
     "SCVal",
     st.builds(xdr.SCVal.I64, st.integers(-(2**63), 2**63 - 1)),
 )
-ARMS["SCVal.Timepoint"] = (
+ARMS["SCVal.TimePoint"] = (
     "SCVal",
-    st.builds(xdr.SCVal.Timepoint, st.integers(0, 2**64 - 1)),
+    st.builds(xdr.SCVal.TimePoint, st.integers(0, 2**64 - 1)),
 )
 ARMS["SCVal.Duration"] = (
     "SCVal",
@@ -873,7 +873,7 @@ STRATEGIES["SCVal"] = st.one_of(
     st.builds(xdr.SCVal.I32, st.integers(-(2**31), 2**31 - 1)),
     st.builds(xdr.SCVal.U64, st.integers(0, 2**64 - 1)),
     st.builds(xdr.SCVal.I64, st.integers(-(2**63), 2**63 - 1)),
-    st.builds(xdr.SCVal.Timepoint, st.integers(0, 2**64 - 1)),
+    st.builds(xdr.SCVal.TimePoint, st.integers(0, 2**64 - 1)),
     st.builds(xdr.SCVal.Duration, st.integers(0, 2**64 - 1)),
     st.builds(xdr.SCVal.U128, ref("UInt128Parts")),
     st.builds(xdr.SCVal.I128, ref("Int128Parts")),
@@ -957,17 +957,17 @@ STRATEGIES["AssetCode12"] = st.builds(
     xdr.AssetCode12, st.binary(min_size=12, max_size=12)
 )
 STRATEGIES["AssetType"] = st.sampled_from(xdr.AssetType)
-ARMS["AssetCode.CreditAlphanum4"] = (
+ARMS["AssetCode.CreditAlphaNum4"] = (
     "AssetCode",
-    st.builds(xdr.AssetCode.CreditAlphanum4, st.binary(min_size=4, max_size=4)),
+    st.builds(xdr.AssetCode.CreditAlphaNum4, st.binary(min_size=4, max_size=4)),
 )
-ARMS["AssetCode.CreditAlphanum12"] = (
+ARMS["AssetCode.CreditAlphaNum12"] = (
     "AssetCode",
-    st.builds(xdr.AssetCode.CreditAlphanum12, st.binary(min_size=12, max_size=12)),
+    st.builds(xdr.AssetCode.CreditAlphaNum12, st.binary(min_size=12, max_size=12)),
 )
 STRATEGIES["AssetCode"] = st.one_of(
-    st.builds(xdr.AssetCode.CreditAlphanum4, st.binary(min_size=4, max_size=4)),
-    st.builds(xdr.AssetCode.CreditAlphanum12, st.binary(min_size=12, max_size=12)),
+    st.builds(xdr.AssetCode.CreditAlphaNum4, st.binary(min_size=4, max_size=4)),
+    st.builds(xdr.AssetCode.CreditAlphaNum12, st.binary(min_size=12, max_size=12)),
 )
 DISCRIMINANTS["AssetCode"] = frozenset([1, 2])
 STRATEGIES["AlphaNum4"] = st.builds(
@@ -977,18 +977,18 @@ STRATEGIES["AlphaNum12"] = st.builds(
     xdr.AlphaNum12, st.binary(min_size=12, max_size=12), ref("PublicKey")
 )
 ARMS["Asset.Native"] = ("Asset", st.builds(xdr.Asset.Native))
-ARMS["Asset.CreditAlphanum4"] = (
+ARMS["Asset.CreditAlphaNum4"] = (
     "Asset",
-    st.builds(xdr.Asset.CreditAlphanum4, ref("AlphaNum4")),
+    st.builds(xdr.Asset.CreditAlphaNum4, ref("AlphaNum4")),
 )
-ARMS["Asset.CreditAlphanum12"] = (
+ARMS["Asset.CreditAlphaNum12"] = (
     "Asset",
-    st.builds(xdr.Asset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.Asset.CreditAlphaNum12, ref("AlphaNum12")),
 )
 STRATEGIES["Asset"] = st.one_of(
     st.builds(xdr.Asset.Native),
-    st.builds(xdr.Asset.CreditAlphanum4, ref("AlphaNum4")),
-    st.builds(xdr.Asset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.Asset.CreditAlphaNum4, ref("AlphaNum4")),
+    st.builds(xdr.Asset.CreditAlphaNum12, ref("AlphaNum12")),
 )
 DISCRIMINANTS["Asset"] = frozenset([0, 1, 2])
 STRATEGIES["Price"] = st.builds(
@@ -1071,13 +1071,13 @@ STRATEGIES["AccountEntry"] = st.builds(
 STRATEGIES["TrustLineFlags"] = st.sampled_from(xdr.TrustLineFlags)
 STRATEGIES["LiquidityPoolType"] = st.sampled_from(xdr.LiquidityPoolType)
 ARMS["TrustLineAsset.Native"] = ("TrustLineAsset", st.builds(xdr.TrustLineAsset.Native))
-ARMS["TrustLineAsset.CreditAlphanum4"] = (
+ARMS["TrustLineAsset.CreditAlphaNum4"] = (
     "TrustLineAsset",
-    st.builds(xdr.TrustLineAsset.CreditAlphanum4, ref("AlphaNum4")),
+    st.builds(xdr.TrustLineAsset.CreditAlphaNum4, ref("AlphaNum4")),
 )
-ARMS["TrustLineAsset.CreditAlphanum12"] = (
+ARMS["TrustLineAsset.CreditAlphaNum12"] = (
     "TrustLineAsset",
-    st.builds(xdr.TrustLineAsset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.TrustLineAsset.CreditAlphaNum12, ref("AlphaNum12")),
 )
 ARMS["TrustLineAsset.PoolShare"] = (
     "TrustLineAsset",
@@ -1085,8 +1085,8 @@ ARMS["TrustLineAsset.PoolShare"] = (
 )
 STRATEGIES["TrustLineAsset"] = st.one_of(
     st.builds(xdr.TrustLineAsset.Native),
-    st.builds(xdr.TrustLineAsset.CreditAlphanum4, ref("AlphaNum4")),
-    st.builds(xdr.TrustLineAsset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.TrustLineAsset.CreditAlphaNum4, ref("AlphaNum4")),
+    st.builds(xdr.TrustLineAsset.CreditAlphaNum12, ref("AlphaNum12")),
     st.builds(xdr.TrustLineAsset.PoolShare, st.binary(min_size=32, max_size=32)),
 )
 DISCRIMINANTS["TrustLineAsset"] = frozenset([0, 1, 2, 3])
@@ -1348,9 +1348,9 @@ ARMS["LedgerEntryData.Account"] = (
     "LedgerEntryData",
     st.builds(xdr.LedgerEntryData.Account, ref("AccountEntry")),
 )
-ARMS["LedgerEntryData.Trustline"] = (
+ARMS["LedgerEntryData.TrustLine"] = (
     "LedgerEntryData",
-    st.builds(xdr.LedgerEntryData.Trustline, ref("TrustLineEntry")),
+    st.builds(xdr.LedgerEntryData.TrustLine, ref("TrustLineEntry")),
 )
 ARMS["LedgerEntryData.Offer"] = (
     "LedgerEntryData",
@@ -1380,13 +1380,13 @@ ARMS["LedgerEntryData.ConfigSetting"] = (
     "LedgerEntryData",
     st.builds(xdr.LedgerEntryData.ConfigSetting, ref("ConfigSettingEntry")),
 )
-ARMS["LedgerEntryData.Ttl"] = (
+ARMS["LedgerEntryData.TTL"] = (
     "LedgerEntryData",
-    st.builds(xdr.LedgerEntryData.Ttl, ref("TTLEntry")),
+    st.builds(xdr.LedgerEntryData.TTL, ref("TTLEntry")),
 )
 STRATEGIES["LedgerEntryData"] = st.one_of(
     st.builds(xdr.LedgerEntryData.Account, ref("AccountEntry")),
-    st.builds(xdr.LedgerEntryData.Trustline, ref("TrustLineEntry")),
+    st.builds(xdr.LedgerEntryData.TrustLine, ref("TrustLineEntry")),
     st.builds(xdr.LedgerEntryData.Offer, ref("OfferEntry")),
     st.builds(xdr.LedgerEntryData.Data, ref("DataEntry")),
     st.builds(xdr.LedgerEntryData.ClaimableBalance, ref("ClaimableBalanceEntry")),
@@ -1394,7 +1394,7 @@ STRATEGIES["LedgerEntryData"] = st.one_of(
     st.builds(xdr.LedgerEntryData.ContractData, ref("ContractDataEntry")),
     st.builds(xdr.LedgerEntryData.ContractCode, ref("ContractCodeEntry")),
     st.builds(xdr.LedgerEntryData.ConfigSetting, ref("ConfigSettingEntry")),
-    st.builds(xdr.LedgerEntryData.Ttl, ref("TTLEntry")),
+    st.builds(xdr.LedgerEntryData.TTL, ref("TTLEntry")),
 )
 DISCRIMINANTS["LedgerEntryData"] = frozenset([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 ARMS["LedgerEntryExt.V0"] = ("LedgerEntryExt", st.builds(xdr.LedgerEntryExt.V0))
@@ -1441,16 +1441,16 @@ STRATEGIES["LedgerKeyContractCode"] = st.builds(
 STRATEGIES["LedgerKeyConfigSetting"] = st.builds(
     xdr.LedgerKeyConfigSetting, ref("ConfigSettingID")
 )
-STRATEGIES["LedgerKeyTtl"] = st.builds(
-    xdr.LedgerKeyTtl, st.binary(min_size=32, max_size=32)
+STRATEGIES["LedgerKeyTTL"] = st.builds(
+    xdr.LedgerKeyTTL, st.binary(min_size=32, max_size=32)
 )
 ARMS["LedgerKey.Account"] = (
     "LedgerKey",
     st.builds(xdr.LedgerKey.Account, ref("LedgerKeyAccount")),
 )
-ARMS["LedgerKey.Trustline"] = (
+ARMS["LedgerKey.TrustLine"] = (
     "LedgerKey",
-    st.builds(xdr.LedgerKey.Trustline, ref("LedgerKeyTrustLine")),
+    st.builds(xdr.LedgerKey.TrustLine, ref("LedgerKeyTrustLine")),
 )
 ARMS["LedgerKey.Offer"] = (
     "LedgerKey",
@@ -1480,10 +1480,10 @@ ARMS["LedgerKey.ConfigSetting"] = (
     "LedgerKey",
     st.builds(xdr.LedgerKey.ConfigSetting, ref("LedgerKeyConfigSetting")),
 )
-ARMS["LedgerKey.Ttl"] = ("LedgerKey", st.builds(xdr.LedgerKey.Ttl, ref("LedgerKeyTtl")))
+ARMS["LedgerKey.TTL"] = ("LedgerKey", st.builds(xdr.LedgerKey.TTL, ref("LedgerKeyTTL")))
 STRATEGIES["LedgerKey"] = st.one_of(
     st.builds(xdr.LedgerKey.Account, ref("LedgerKeyAccount")),
-    st.builds(xdr.LedgerKey.Trustline, ref("LedgerKeyTrustLine")),
+    st.builds(xdr.LedgerKey.TrustLine, ref("LedgerKeyTrustLine")),
     st.builds(xdr.LedgerKey.Offer, ref("LedgerKeyOffer")),
     st.builds(xdr.LedgerKey.Data, ref("LedgerKeyData")),
     st.builds(xdr.LedgerKey.ClaimableBalance, ref("LedgerKeyClaimableBalance")),
@@ -1491,7 +1491,7 @@ STRATEGIES["LedgerKey"] = st.one_of(
     st.builds(xdr.LedgerKey.ContractData, ref("LedgerKeyContractData")),
     st.builds(xdr.LedgerKey.ContractCode, ref("LedgerKeyContractCode")),
     st.builds(xdr.LedgerKey.ConfigSetting, ref("LedgerKeyConfigSetting")),
-    st.builds(xdr.LedgerKey.Ttl, ref("LedgerKeyTtl")),
+    st.builds(xdr.LedgerKey.TTL, ref("LedgerKeyTTL")),
 )
 DISCRIMINANTS["LedgerKey"] = frozenset([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 STRATEGIES["EnvelopeType"] = st.sampled_from(xdr.EnvelopeType)
@@ -2127,22 +2127,22 @@ STRATEGIES["Hello"] = st.builds(
 )
 STRATEGIES["Auth"] = st.builds(xdr.Auth, st.integers(-(2**31), 2**31 - 1))
 STRATEGIES["IPAddrType"] = st.sampled_from(xdr.IPAddrType)
-ARMS["PeerAddressIp.IPv4"] = (
-    "PeerAddressIp",
-    st.builds(xdr.PeerAddressIp.IPv4, st.binary(min_size=4, max_size=4)),
+ARMS["PeerAddressIP.IPv4"] = (
+    "PeerAddressIP",
+    st.builds(xdr.PeerAddressIP.IPv4, st.binary(min_size=4, max_size=4)),
 )
-ARMS["PeerAddressIp.IPv6"] = (
-    "PeerAddressIp",
-    st.builds(xdr.PeerAddressIp.IPv6, st.binary(min_size=16, max_size=16)),
+ARMS["PeerAddressIP.IPv6"] = (
+    "PeerAddressIP",
+    st.builds(xdr.PeerAddressIP.IPv6, st.binary(min_size=16, max_size=16)),
 )
-STRATEGIES["PeerAddressIp"] = st.one_of(
-    st.builds(xdr.PeerAddressIp.IPv4, st.binary(min_size=4, max_size=4)),
-    st.builds(xdr.PeerAddressIp.IPv6, st.binary(min_size=16, max_size=16)),
+STRATEGIES["PeerAddressIP"] = st.one_of(
+    st.builds(xdr.PeerAddressIP.IPv4, st.binary(min_size=4, max_size=4)),
+    st.builds(xdr.PeerAddressIP.IPv6, st.binary(min_size=16, max_size=16)),
 )
-DISCRIMINANTS["PeerAddressIp"] = frozenset([0, 1])
+DISCRIMINANTS["PeerAddressIP"] = frozenset([0, 1])
 STRATEGIES["PeerAddress"] = st.builds(
     xdr.PeerAddress,
-    ref("PeerAddressIp"),
+    ref("PeerAddressIP"),
     st.integers(0, 2**32 - 1),
     st.integers(0, 2**32 - 1),
 )
@@ -2347,21 +2347,21 @@ ARMS["StellarMessage.TimeSlicedSurveyStopCollecting"] = (
         ref("SignedTimeSlicedSurveyStopCollectingMessage"),
     ),
 )
-ARMS["StellarMessage.GetScpQuorumset"] = (
+ARMS["StellarMessage.GetSCPQuorumSet"] = (
     "StellarMessage",
-    st.builds(xdr.StellarMessage.GetScpQuorumset, st.binary(min_size=32, max_size=32)),
+    st.builds(xdr.StellarMessage.GetSCPQuorumSet, st.binary(min_size=32, max_size=32)),
 )
-ARMS["StellarMessage.ScpQuorumset"] = (
+ARMS["StellarMessage.SCPQuorumSet"] = (
     "StellarMessage",
-    st.builds(xdr.StellarMessage.ScpQuorumset, ref("SCPQuorumSet")),
+    st.builds(xdr.StellarMessage.SCPQuorumSet, ref("SCPQuorumSet")),
 )
-ARMS["StellarMessage.ScpMessage"] = (
+ARMS["StellarMessage.SCPMessage"] = (
     "StellarMessage",
-    st.builds(xdr.StellarMessage.ScpMessage, ref("SCPEnvelope")),
+    st.builds(xdr.StellarMessage.SCPMessage, ref("SCPEnvelope")),
 )
-ARMS["StellarMessage.GetScpState"] = (
+ARMS["StellarMessage.GetSCPState"] = (
     "StellarMessage",
-    st.builds(xdr.StellarMessage.GetScpState, st.integers(0, 2**32 - 1)),
+    st.builds(xdr.StellarMessage.GetSCPState, st.integers(0, 2**32 - 1)),
 )
 ARMS["StellarMessage.SendMore"] = (
     "StellarMessage",
@@ -2407,10 +2407,10 @@ STRATEGIES["StellarMessage"] = st.one_of(
         xdr.StellarMessage.TimeSlicedSurveyStopCollecting,
         ref("SignedTimeSlicedSurveyStopCollectingMessage"),
     ),
-    st.builds(xdr.StellarMessage.GetScpQuorumset, st.binary(min_size=32, max_size=32)),
-    st.builds(xdr.StellarMessage.ScpQuorumset, ref("SCPQuorumSet")),
-    st.builds(xdr.StellarMessage.ScpMessage, ref("SCPEnvelope")),
-    st.builds(xdr.StellarMessage.GetScpState, st.integers(0, 2**32 - 1)),
+    st.builds(xdr.StellarMessage.GetSCPQuorumSet, st.binary(min_size=32, max_size=32)),
+    st.builds(xdr.StellarMessage.SCPQuorumSet, ref("SCPQuorumSet")),
+    st.builds(xdr.StellarMessage.SCPMessage, ref("SCPEnvelope")),
+    st.builds(xdr.StellarMessage.GetSCPState, st.integers(0, 2**32 - 1)),
     st.builds(xdr.StellarMessage.SendMore, ref("SendMore")),
     st.builds(xdr.StellarMessage.SendMoreExtended, ref("SendMoreExtended")),
     st.builds(xdr.StellarMessage.FloodAdvert, ref("FloodAdvert")),
@@ -2532,13 +2532,13 @@ ARMS["ChangeTrustAsset.Native"] = (
     "ChangeTrustAsset",
     st.builds(xdr.ChangeTrustAsset.Native),
 )
-ARMS["ChangeTrustAsset.CreditAlphanum4"] = (
+ARMS["ChangeTrustAsset.CreditAlphaNum4"] = (
     "ChangeTrustAsset",
-    st.builds(xdr.ChangeTrustAsset.CreditAlphanum4, ref("AlphaNum4")),
+    st.builds(xdr.ChangeTrustAsset.CreditAlphaNum4, ref("AlphaNum4")),
 )
-ARMS["ChangeTrustAsset.CreditAlphanum12"] = (
+ARMS["ChangeTrustAsset.CreditAlphaNum12"] = (
     "ChangeTrustAsset",
-    st.builds(xdr.ChangeTrustAsset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.ChangeTrustAsset.CreditAlphaNum12, ref("AlphaNum12")),
 )
 ARMS["ChangeTrustAsset.PoolShare"] = (
     "ChangeTrustAsset",
@@ -2546,8 +2546,8 @@ ARMS["ChangeTrustAsset.PoolShare"] = (
 )
 STRATEGIES["ChangeTrustAsset"] = st.one_of(
     st.builds(xdr.ChangeTrustAsset.Native),
-    st.builds(xdr.ChangeTrustAsset.CreditAlphanum4, ref("AlphaNum4")),
-    st.builds(xdr.ChangeTrustAsset.CreditAlphanum12, ref("AlphaNum12")),
+    st.builds(xdr.ChangeTrustAsset.CreditAlphaNum4, ref("AlphaNum4")),
+    st.builds(xdr.ChangeTrustAsset.CreditAlphaNum12, ref("AlphaNum12")),
     st.builds(xdr.ChangeTrustAsset.PoolShare, ref("LiquidityPoolParameters")),
 )
 DISCRIMINANTS["ChangeTrustAsset"] = frozenset([0, 1, 2, 3])
@@ -2893,9 +2893,9 @@ ARMS["OperationBody.InvokeHostFunction"] = (
     "OperationBody",
     st.builds(xdr.OperationBody.InvokeHostFunction, ref("InvokeHostFunctionOp")),
 )
-ARMS["OperationBody.ExtendFootprintTtl"] = (
+ARMS["OperationBody.ExtendFootprintTTL"] = (
     "OperationBody",
-    st.builds(xdr.OperationBody.ExtendFootprintTtl, ref("ExtendFootprintTTLOp")),
+    st.builds(xdr.OperationBody.ExtendFootprintTTL, ref("ExtendFootprintTTLOp")),
 )
 ARMS["OperationBody.RestoreFootprint"] = (
     "OperationBody",
@@ -2938,7 +2938,7 @@ STRATEGIES["OperationBody"] = st.one_of(
     st.builds(xdr.OperationBody.LiquidityPoolDeposit, ref("LiquidityPoolDepositOp")),
     st.builds(xdr.OperationBody.LiquidityPoolWithdraw, ref("LiquidityPoolWithdrawOp")),
     st.builds(xdr.OperationBody.InvokeHostFunction, ref("InvokeHostFunctionOp")),
-    st.builds(xdr.OperationBody.ExtendFootprintTtl, ref("ExtendFootprintTTLOp")),
+    st.builds(xdr.OperationBody.ExtendFootprintTTL, ref("ExtendFootprintTTLOp")),
     st.builds(xdr.OperationBody.RestoreFootprint, ref("RestoreFootprintOp")),
 )
 DISCRIMINANTS["OperationBody"] = frozenset(
@@ -2975,22 +2975,22 @@ DISCRIMINANTS["OperationBody"] = frozenset(
 STRATEGIES["Operation"] = st.builds(
     xdr.Operation, st.none() | ref("MuxedAccount"), ref("OperationBody")
 )
-STRATEGIES["HashIDPreimageOperationId"] = st.builds(
-    xdr.HashIDPreimageOperationId,
+STRATEGIES["HashIDPreimageOperationID"] = st.builds(
+    xdr.HashIDPreimageOperationID,
     ref("PublicKey"),
     st.integers(-(2**63), 2**63 - 1),
     st.integers(0, 2**32 - 1),
 )
-STRATEGIES["HashIDPreimageRevokeId"] = st.builds(
-    xdr.HashIDPreimageRevokeId,
+STRATEGIES["HashIDPreimageRevokeID"] = st.builds(
+    xdr.HashIDPreimageRevokeID,
     ref("PublicKey"),
     st.integers(-(2**63), 2**63 - 1),
     st.integers(0, 2**32 - 1),
     st.binary(min_size=32, max_size=32),
     ref("Asset"),
 )
-STRATEGIES["HashIDPreimageContractId"] = st.builds(
-    xdr.HashIDPreimageContractId,
+STRATEGIES["HashIDPreimageContractID"] = st.builds(
+    xdr.HashIDPreimageContractID,
     st.binary(min_size=32, max_size=32),
     ref("ContractIDPreimage"),
 )
@@ -3009,17 +3009,17 @@ STRATEGIES["HashIDPreimageSorobanAuthorizationWithAddress"] = st.builds(
     ref("SCAddress"),
     ref("SorobanAuthorizedInvocation"),
 )
-ARMS["HashIDPreimage.OpId"] = (
+ARMS["HashIDPreimage.OpID"] = (
     "HashIDPreimage",
-    st.builds(xdr.HashIDPreimage.OpId, ref("HashIDPreimageOperationId")),
+    st.builds(xdr.HashIDPreimage.OpID, ref("HashIDPreimageOperationID")),
 )
-ARMS["HashIDPreimage.PoolRevokeOpId"] = (
+ARMS["HashIDPreimage.PoolRevokeOpID"] = (
     "HashIDPreimage",
-    st.builds(xdr.HashIDPreimage.PoolRevokeOpId, ref("HashIDPreimageRevokeId")),
+    st.builds(xdr.HashIDPreimage.PoolRevokeOpID, ref("HashIDPreimageRevokeID")),
 )
-ARMS["HashIDPreimage.ContractId"] = (
+ARMS["HashIDPreimage.ContractID"] = (
     "HashIDPreimage",
-    st.builds(xdr.HashIDPreimage.ContractId, ref("HashIDPreimageContractId")),
+    st.builds(xdr.HashIDPreimage.ContractID, ref("HashIDPreimageContractID")),
 )
 ARMS["HashIDPreimage.SorobanAuthorization"] = (
     "HashIDPreimage",
@@ -3036,9 +3036,9 @@ ARMS["HashIDPreimage.SorobanAuthorizationWithAddress"] = (
     ),
 )
 STRATEGIES["HashIDPreimage"] = st.one_of(
-    st.builds(xdr.HashIDPreimage.OpId, ref("HashIDPreimageOperationId")),
-    st.builds(xdr.HashIDPreimage.PoolRevokeOpId, ref("HashIDPreimageRevokeId")),
-    st.builds(xdr.HashIDPreimage.ContractId, ref("HashIDPreimageContractId")),
+    st.builds(xdr.HashIDPreimage.OpID, ref("HashIDPreimageOperationID")),
+    st.builds(xdr.HashIDPreimage.PoolRevokeOpID, ref("HashIDPreimageRevokeID")),
+    st.builds(xdr.HashIDPreimage.ContractID, ref("HashIDPreimageContractID")),
     st.builds(
         xdr.HashIDPreimage.SorobanAuthorization,
         ref("HashIDPreimageSorobanAuthorization"),
@@ -3052,7 +3052,7 @@ DISCRIMINANTS["HashIDPreimage"] = frozenset([6, 7, 8, 9, 10])
 STRATEGIES["MemoType"] = st.sampled_from(xdr.MemoType)
 ARMS["Memo.None_"] = ("Memo", st.builds(xdr.Memo.None_))
 ARMS["Memo.Text"] = ("Memo", st.builds(xdr.Memo.Text, st.binary(max_size=28)))
-ARMS["Memo.Id"] = ("Memo", st.builds(xdr.Memo.Id, st.integers(0, 2**64 - 1)))
+ARMS["Memo.ID"] = ("Memo", st.builds(xdr.Memo.ID, st.integers(0, 2**64 - 1)))
 ARMS["Memo.Hash"] = (
     "Memo",
     st.builds(xdr.Memo.Hash, st.binary(min_size=32, max_size=32)),
@@ -3064,7 +3064,7 @@ ARMS["Memo.Return"] = (
 STRATEGIES["Memo"] = st.one_of(
     st.builds(xdr.Memo.None_),
     st.builds(xdr.Memo.Text, st.binary(max_size=28)),
-    st.builds(xdr.Memo.Id, st.integers(0, 2**64 - 1)),
+    st.builds(xdr.Memo.ID, st.integers(0, 2**64 - 1)),
     st.builds(xdr.Memo.Hash, st.binary(min_size=32, max_size=32)),
     st.builds(xdr.Memo.Return, st.binary(min_size=32, max_size=32)),
 )
@@ -4029,9 +4029,9 @@ ARMS["ClaimClaimableBalanceResult.NotAuthorized"] = (
     "ClaimClaimableBalanceResult",
     st.builds(xdr.ClaimClaimableBalanceResult.NotAuthorized),
 )
-ARMS["ClaimClaimableBalanceResult.TrustlineFrozen"] = (
+ARMS["ClaimClaimableBalanceResult.TrustLineFrozen"] = (
     "ClaimClaimableBalanceResult",
-    st.builds(xdr.ClaimClaimableBalanceResult.TrustlineFrozen),
+    st.builds(xdr.ClaimClaimableBalanceResult.TrustLineFrozen),
 )
 STRATEGIES["ClaimClaimableBalanceResult"] = st.one_of(
     st.builds(xdr.ClaimClaimableBalanceResult.Success),
@@ -4040,7 +4040,7 @@ STRATEGIES["ClaimClaimableBalanceResult"] = st.one_of(
     st.builds(xdr.ClaimClaimableBalanceResult.LineFull),
     st.builds(xdr.ClaimClaimableBalanceResult.NoTrust),
     st.builds(xdr.ClaimClaimableBalanceResult.NotAuthorized),
-    st.builds(xdr.ClaimClaimableBalanceResult.TrustlineFrozen),
+    st.builds(xdr.ClaimClaimableBalanceResult.TrustLineFrozen),
 )
 DISCRIMINANTS["ClaimClaimableBalanceResult"] = frozenset([-6, -5, -4, -3, -2, -1, 0])
 STRATEGIES["BeginSponsoringFutureReservesResultCode"] = st.sampled_from(
@@ -4247,9 +4247,9 @@ ARMS["LiquidityPoolDepositResult.PoolFull"] = (
     "LiquidityPoolDepositResult",
     st.builds(xdr.LiquidityPoolDepositResult.PoolFull),
 )
-ARMS["LiquidityPoolDepositResult.TrustlineFrozen"] = (
+ARMS["LiquidityPoolDepositResult.TrustLineFrozen"] = (
     "LiquidityPoolDepositResult",
-    st.builds(xdr.LiquidityPoolDepositResult.TrustlineFrozen),
+    st.builds(xdr.LiquidityPoolDepositResult.TrustLineFrozen),
 )
 STRATEGIES["LiquidityPoolDepositResult"] = st.one_of(
     st.builds(xdr.LiquidityPoolDepositResult.Success),
@@ -4260,7 +4260,7 @@ STRATEGIES["LiquidityPoolDepositResult"] = st.one_of(
     st.builds(xdr.LiquidityPoolDepositResult.LineFull),
     st.builds(xdr.LiquidityPoolDepositResult.BadPrice),
     st.builds(xdr.LiquidityPoolDepositResult.PoolFull),
-    st.builds(xdr.LiquidityPoolDepositResult.TrustlineFrozen),
+    st.builds(xdr.LiquidityPoolDepositResult.TrustLineFrozen),
 )
 DISCRIMINANTS["LiquidityPoolDepositResult"] = frozenset(
     [-8, -7, -6, -5, -4, -3, -2, -1, 0]
@@ -4292,9 +4292,9 @@ ARMS["LiquidityPoolWithdrawResult.UnderMinimum"] = (
     "LiquidityPoolWithdrawResult",
     st.builds(xdr.LiquidityPoolWithdrawResult.UnderMinimum),
 )
-ARMS["LiquidityPoolWithdrawResult.TrustlineFrozen"] = (
+ARMS["LiquidityPoolWithdrawResult.TrustLineFrozen"] = (
     "LiquidityPoolWithdrawResult",
-    st.builds(xdr.LiquidityPoolWithdrawResult.TrustlineFrozen),
+    st.builds(xdr.LiquidityPoolWithdrawResult.TrustLineFrozen),
 )
 STRATEGIES["LiquidityPoolWithdrawResult"] = st.one_of(
     st.builds(xdr.LiquidityPoolWithdrawResult.Success),
@@ -4303,7 +4303,7 @@ STRATEGIES["LiquidityPoolWithdrawResult"] = st.one_of(
     st.builds(xdr.LiquidityPoolWithdrawResult.Underfunded),
     st.builds(xdr.LiquidityPoolWithdrawResult.LineFull),
     st.builds(xdr.LiquidityPoolWithdrawResult.UnderMinimum),
-    st.builds(xdr.LiquidityPoolWithdrawResult.TrustlineFrozen),
+    st.builds(xdr.LiquidityPoolWithdrawResult.TrustLineFrozen),
 )
 DISCRIMINANTS["LiquidityPoolWithdrawResult"] = frozenset([-6, -5, -4, -3, -2, -1, 0])
 STRATEGIES["InvokeHostFunctionResultCode"] = st.sampled_from(
@@ -4526,10 +4526,10 @@ ARMS["OperationResultTr.InvokeHostFunction"] = (
         xdr.OperationResultTr.InvokeHostFunction, ref("InvokeHostFunctionResult")
     ),
 )
-ARMS["OperationResultTr.ExtendFootprintTtl"] = (
+ARMS["OperationResultTr.ExtendFootprintTTL"] = (
     "OperationResultTr",
     st.builds(
-        xdr.OperationResultTr.ExtendFootprintTtl, ref("ExtendFootprintTTLResult")
+        xdr.OperationResultTr.ExtendFootprintTTL, ref("ExtendFootprintTTLResult")
     ),
 )
 ARMS["OperationResultTr.RestoreFootprint"] = (
@@ -4590,7 +4590,7 @@ STRATEGIES["OperationResultTr"] = st.one_of(
         xdr.OperationResultTr.InvokeHostFunction, ref("InvokeHostFunctionResult")
     ),
     st.builds(
-        xdr.OperationResultTr.ExtendFootprintTtl, ref("ExtendFootprintTTLResult")
+        xdr.OperationResultTr.ExtendFootprintTTL, ref("ExtendFootprintTTLResult")
     ),
     st.builds(xdr.OperationResultTr.RestoreFootprint, ref("RestoreFootprintResult")),
 )
