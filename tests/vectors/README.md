@@ -7,7 +7,7 @@ docstring has the details.
 | File | Contents | Made by | Used by |
 |---|---|---|---|
 | `network_values.json.gz` | About 500 values from mainnet and testnet: ledgers, envelopes, results, fee changes, transaction metadata, events, ledger entries and contract values. They are picked from ledgers sampled across each network's whole history and from recent transactions, so that together they hold as many types, arms and enum members as possible. | `python scripts/fetch_network_vectors.py`, which only reads from the public ledger data lake on AWS and from public RPC servers, and keeps a value only if it decodes and encodes back to the same bytes. | `test_network.py` |
-| `xdr_json_values.json.gz` | About 3,500 values with their XDR-JSON: the network values, and a few random values of every type. | `python scripts/make_json_vectors.py PATH_TO_CLI`, which converts each value with the reference implementation's `stellar-xdr` CLI. | `test_json_vectors.py` |
+| `xdr_json_values.json.gz` | About 3,900 values with their XDR-JSON: the network values, and a few random values of every type. | `python scripts/make_json_vectors.py PATH_TO_CLI`, which converts each value with the reference implementation's `stellar-xdr` CLI. The random values are drawn with a fixed seed, so running it again writes the same file. | `test_json_vectors.py` |
 | `xdr_json_names.json` | The SEP-51 names of every enum member, union arm and struct field. | `python scripts/make_json_names.py PATH_TO_CHECKOUT`, which reads the reference implementation's JSON schemas. | `test_generator.py` |
 
 The reference implementation is [rs-stellar-xdr](https://github.com/stellar/rs-stellar-xdr),

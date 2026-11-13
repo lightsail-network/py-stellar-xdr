@@ -8,6 +8,10 @@ The CLI is the `stellar-xdr` binary of stellar/rs-stellar-xdr at the commit in
 vectors and a few random values of every type. Where the reference differs from
 SEP-51, its output is changed to what SEP-51 specifies before it is recorded; see
 `normalize`, and the reference output is recorded alongside.
+
+The random values are drawn with a fixed seed, so running the script again writes the
+same file. The values of a type change when its strategy does, or with a version of
+Hypothesis that draws differently.
 """
 
 import base64
@@ -16,7 +20,11 @@ import json
 import subprocess
 import sys
 from pathlib import Path
+from random import Random
 from typing import Any
+
+from hypothesis import HealthCheck, Phase, given, seed, settings
+from hypothesis import strategies as st
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -27,6 +35,8 @@ from tests.strategies import STRATEGIES  # noqa: E402
 
 OUTPUT = ROOT / "tests" / "vectors" / "xdr_json_values.json.gz"
 NETWORK = ROOT / "tests" / "vectors" / "network_values.json.gz"
+# For every type, this many values are drawn, and this many distinct ones are kept.
+DRAWN_VALUES = 100
 RANDOM_VALUES = 8
 # Values longer than this, in base64, are passed one at a time on stdin.
 LARGE = 2000
@@ -80,6 +90,30 @@ def reference(cli: str, type_name: str, values: list[str]) -> list[Any]:
     return [json.loads(line) for line in lines]
 
 
+def examples(strategy: st.SearchStrategy[Any]) -> list[str]:
+    """A few distinct values of a strategy, the same ones on every run."""
+    found: set[str] = set()
+
+    @seed(0)
+    @settings(
+        max_examples=DRAWN_VALUES,
+        phases=[Phase.generate],
+        database=None,
+        deadline=None,
+        suppress_health_check=[HealthCheck.too_slow, HealthCheck.data_too_large],
+    )
+    @given(strategy)
+    def collect(value: Any) -> None:  # noqa: ANN401 - a value of any type
+        found.add(value.to_xdr_base64())
+
+    collect()
+    # The first values drawn are the simplest ones, so the ones to keep are picked
+    # from all of them, with a seed of their own.
+    values = sorted(found)
+    count = min(RANDOM_VALUES, len(values))
+    return sorted(Random(0).sample(values, count))  # noqa: S311 - reproducible
+
+
 def main() -> None:
     """Collect values, convert them with the reference CLI and write the vectors."""
     cli = sys.argv[1]
@@ -87,8 +121,7 @@ def main() -> None:
     for v in json.loads(gzip.decompress(NETWORK.read_bytes())):
         by_type.setdefault(v["type"], []).append(v["xdr"])
     for name, strategy in STRATEGIES.items():
-        examples = {strategy.example().to_xdr_base64() for _ in range(RANDOM_VALUES)}
-        by_type.setdefault(name, []).extend(sorted(examples))
+        by_type.setdefault(name, []).extend(examples(strategy))
     vectors: list[dict[str, Any]] = []
     for name, values in sorted(by_type.items()):
         # Keep the command lines short: small values in groups, large ones alone.
