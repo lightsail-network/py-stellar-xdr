@@ -15,7 +15,6 @@ from .analysis import Sizes
 from .model import (
     Array,
     Const,
-    Definition,
     Enum,
     GenerationError,
     Model,
@@ -118,15 +117,6 @@ class Context:
             self.imports.setdefault(module, set()).add(python_name)
         return python_name
 
-    def resolve(self, t: TypeRef) -> TypeRef | Definition:
-        """Follow typedefs to the type a value has on the wire."""
-        while isinstance(t, Ref):
-            d = self.model.get(t.name)
-            if not isinstance(d, Typedef):
-                return d
-            t = d.type
-        return t
-
 
 class TypeCode:
     """The code the generated modules use for one type reference."""
@@ -144,7 +134,9 @@ class TypeCode:
             d = self.ctx.model.get(t.name)
             name = self.ctx.use(t.name)
             # A typedef of a union is the union's namespace under another name.
-            if isinstance(d, Typedef) and isinstance(self.ctx.resolve(d.type), Union):
+            if isinstance(d, Typedef) and isinstance(
+                self.ctx.model.resolve(d.type), Union
+            ):
                 return f"{name}.Any"
             return f"{name}.Any" if isinstance(d, Union) else name
         if isinstance(t, OpaqueFixed | OpaqueVar | String):
@@ -165,7 +157,7 @@ class TypeCode:
 
     def plain(self, d: Typedef) -> TypeRef:
         """What the values of a typedef that is a class are, apart from their class."""
-        resolved = self.ctx.resolve(d.type)
+        resolved = self.ctx.model.resolve(d.type)
         assert not isinstance(resolved, Struct | Enum | Union | Typedef | Const)  # noqa: S101
         return resolved
 
@@ -323,7 +315,7 @@ class TypeCode:
 
     def is_optional(self, t: TypeRef) -> bool:
         """Whether a type is optional, directly or through typedefs."""
-        resolved = self.ctx.resolve(t)
+        resolved = self.ctx.model.resolve(t)
         return isinstance(resolved, Optional)
 
     def to_json(self, t: TypeRef, value: str, depth: int = 0) -> str:
