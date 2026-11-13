@@ -44,9 +44,24 @@ REFERENCE: dict[str, list[str]] = json.loads(
 )
 
 
+# The reference names types in UpperCamel case, SCVal as ScVal, except where that would
+# clash with a name of Rust's own.
+REFERENCE_TYPE_NAMES = {"Error": "SError"}
+
+# The types that SEP-51 writes as one string, such as a strkey or a big integer, which
+# have no names of their own.
+WRITTEN_AS_STRINGS = frozenset(
+    {
+        *sep51.RULES.structs,
+        *sep51.RULES.strkey_unions,
+        *sep51.RULES.length_unions,
+    }
+)
+
+
 def reference_names(definition: Enum | Struct | Union) -> list[str] | None:
-    # The reference names types in UpperCamel case: SCVal is ScVal.
-    return REFERENCE.get(names.upper_camel(definition.name))
+    name = REFERENCE_TYPE_NAMES.get(definition.name, names.upper_camel(definition.name))
+    return REFERENCE.get(name)
 
 
 def our_names(definition: Enum | Struct | Union) -> list[str]:
@@ -66,19 +81,13 @@ def our_names(definition: Enum | Struct | Union) -> list[str]:
 )
 def test_json_names_match_the_reference(definition: Enum | Struct | Union) -> None:
     expected = reference_names(definition)
-    if expected is None:
-        # Written as a string by SEP-51, such as a strkey or a big integer.
-        return
-    assert our_names(definition) == expected
-
-
-def test_the_reference_names_cover_most_types() -> None:
-    covered = [
-        d
-        for d in MODEL.definitions
-        if isinstance(d, Enum | Struct | Union) and reference_names(d) is not None
-    ]
-    assert len(covered) > 400
+    if definition.name in WRITTEN_AS_STRINGS:
+        # The reference writes it as one string too.
+        assert expected is None
+    else:
+        # A type the reference has no names for is a type nothing checks.
+        assert expected is not None
+        assert our_names(definition) == expected
 
 
 @pytest.mark.parametrize(

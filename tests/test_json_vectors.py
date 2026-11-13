@@ -13,11 +13,18 @@ import pytest
 
 import stellar_xdr as xdr
 
+from .strategies import STRATEGIES
+
 VECTORS = json.loads(
     gzip.decompress(
         (Path(__file__).parent / "vectors" / "xdr_json_values.json.gz").read_bytes()
     )
 )
+
+
+def test_every_type_has_vectors() -> None:
+    # A type added upstream, until the vectors are made again, has none.
+    assert set(STRATEGIES) - {v["type"] for v in VECTORS} == set()
 
 
 @pytest.mark.parametrize(
