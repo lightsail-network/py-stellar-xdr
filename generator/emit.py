@@ -16,6 +16,7 @@ from .model import (
     Const,
     Enum,
     GenerationError,
+    Optional,
     Primitive,
     Ref,
     Struct,
@@ -587,7 +588,12 @@ class Emitter:
             if isinstance(target, Struct | Enum | Union):
                 # The type itself: a union's namespace, with its arms and its `Any`.
                 return [f"{name} = {self.ctx.use(target.name)}{comment}"]
-            return [f"{name}: TypeAlias = {self.code.annotation(d.type)}{comment}"]
+            annotation = self.code.annotation(d.type)
+            if isinstance(target, Optional):
+                return [f"{name}: TypeAlias = {annotation}{comment}"]
+            # A type alias, which can't be called: see typedef_base.
+            alias = f"TypeAliasType({name!r}, {annotation})"
+            return [f"{name} = {alias}{comment}"]
         code = self.code
         plain = code.plain(d)
         this = Ref(d.name)

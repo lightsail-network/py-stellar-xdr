@@ -20,6 +20,7 @@ from ._runtime import (
     JsonReader,
     JsonWriter,
     Reader,
+    TypeAliasType,
     UnionNamespace,
     Writer,
     XdrArm,
@@ -281,10 +282,10 @@ class Uint256(XdrBytes):
         return new_bytes(cls, xdr_json.read_hex_fixed(value, "Uint256", 32))
 
 
-Uint32: TypeAlias = int  # typedef unsigned int uint32;
-Int32: TypeAlias = int  # typedef int int32;
-Uint64: TypeAlias = int  # typedef unsigned hyper uint64;
-Int64: TypeAlias = int  # typedef hyper int64;
+Uint32 = TypeAliasType("Uint32", int)  # typedef unsigned int uint32;
+Int32 = TypeAliasType("Int32", int)  # typedef int int32;
+Uint64 = TypeAliasType("Uint64", int)  # typedef unsigned hyper uint64;
+Int64 = TypeAliasType("Int64", int)  # typedef hyper int64;
 
 
 @final

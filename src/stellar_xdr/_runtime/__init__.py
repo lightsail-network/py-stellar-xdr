@@ -1,5 +1,7 @@
 """The hand-written part of the package, used by the generated modules."""
 
+import typing
+from importlib import import_module
 from typing import TYPE_CHECKING, Any, TypeVar
 
 from . import _check as check
@@ -43,11 +45,28 @@ else:
 set_field = object.__setattr__
 """Set a field of an immutable instance, for constructors and decoders."""
 
+if TYPE_CHECKING:
+    import sys
+
+    if sys.version_info >= (3, 12):
+        from typing import TypeAliasType
+    else:
+        from typing_extensions import TypeAliasType
+else:
+    # In the standard library from Python 3.12; on 3.11 it comes from
+    # typing_extensions, which the package depends on there only. One expression, so
+    # that the version not running isn't a branch left uncovered.
+    TypeAliasType = (
+        getattr(typing, "TypeAliasType", None)
+        or import_module("typing_extensions").TypeAliasType
+    )
+
 __all__ = [
     "DEFAULT_MAX_DEPTH",
     "JsonReader",
     "JsonWriter",
     "Reader",
+    "TypeAliasType",
     "UnionNamespace",
     "Writer",
     "XdrArm",

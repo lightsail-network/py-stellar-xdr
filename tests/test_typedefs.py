@@ -1,7 +1,10 @@
 """Typedefs are classes that extend the Python type of their values."""
 
 import copy
+import inspect
 import pickle
+import typing
+from typing import Any
 
 import pytest
 
@@ -169,12 +172,49 @@ def test_a_class_without_slots_is_rejected() -> None:
             pass
 
 
-def test_some_typedefs_are_other_names_for_a_type() -> None:
-    # The integers a field holds are plain, and so is a value that may be None.
-    assert xdr.Uint32 is int
-    assert xdr.Int64 is int
+ALIASES = ["Uint32", "Int32", "Uint64", "Int64"]
+
+
+@pytest.mark.parametrize("name", ALIASES)
+def test_a_typedef_that_cannot_be_a_class_is_a_type_alias(name: str) -> None:
+    alias: Any = getattr(xdr, name)
+    assert alias.__name__ == name
+    # Another name for int would convert where it should check: 1.9 would become 1.
+    with pytest.raises(TypeError):
+        alias(1)
+    with pytest.raises(TypeError):
+        isinstance(1, alias)
+
+
+def test_reflection_gives_the_alias_whose_value_is_the_type() -> None:
+    hints = typing.get_type_hints(xdr.Price)
+    assert (hints["n"], hints["d"]) == (xdr.Int32, xdr.Int32)
+    assert hints["n"].__value__ is int
+    assert xdr.Uint64.__value__ is int
+
+
+def test_an_optional_typedef_is_the_union_with_none() -> None:
+    # As the type it names, it can't be called, and isinstance checks it correctly.
     assert xdr.SponsorshipDescriptor == xdr.PublicKey.Any | None
-    # A typedef of a union is the union: its arms, its Any and its decoding.
+    assert isinstance(None, xdr.SponsorshipDescriptor)
+    assert isinstance(xdr.PublicKey.Ed25519(KEY), xdr.SponsorshipDescriptor)
+    assert not isinstance(5, xdr.SponsorshipDescriptor)
+
+
+def test_a_field_of_an_alias_holds_a_plain_value_checked_by_its_xdr_type() -> None:
+    # struct Price { int32 n; int32 d; };
+    assert inspect.get_annotations(xdr.Price) == {"n": "Int32", "d": "Int32"}
+    assert type(xdr.Price(1, 2).n) is int
+    with pytest.raises(
+        ValueError, match=r"Price\.n: 2147483648 is out of range for int32"
+    ):
+        xdr.Price(2**31, 1)
+    with pytest.raises(TypeError, match=r"Price\.n: expected int, got float"):
+        xdr.Price(1.9, 1)  # type: ignore[arg-type]
+
+
+def test_a_typedef_of_a_union_is_the_union() -> None:
+    # Its arms, its Any and its decoding.
     assert xdr.AccountID is xdr.PublicKey
     account = xdr.AccountID.Ed25519(KEY)
     assert xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account

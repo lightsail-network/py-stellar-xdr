@@ -49,6 +49,7 @@ RUNTIME_NAMES: Final = (
     "JsonReader",
     "JsonWriter",
     "Reader",
+    "TypeAliasType",
     "UnionNamespace",
     "Writer",
     "XdrArm",
