@@ -17,23 +17,19 @@ from typing import Final, NoReturn, TypeVar
 
 import stellar_strkey as strkey
 
+from . import _integers
 from ._codec import check_max_depth
 from ._errors import XdrDepthError, XdrJsonError
+from ._integers import INT32, INT64, UINT32, UINT64, Bounds, out_of_range
 
-_INT32: Final = (-(2**31), 2**31 - 1)
-_UINT32: Final = (0, 2**32 - 1)
-_INT64: Final = (-(2**63), 2**63 - 1)
-_UINT64: Final = (0, 2**64 - 1)
-_UINT64_MASK: Final = 2**64 - 1
+_UINT64_MASK: Final = UINT64[1]
 
 # Canonical base 10: no sign but a minus, no leading zeros, no "-0".
 _DECIMAL: Final = re.compile(r"-?[1-9][0-9]*|0")
 _HEX: Final = re.compile(r"(?:[0-9a-fA-F]{2})*")
 _SCHEMA: Final = "$schema"
 
-# What a message quotes of the input. str() of an int with more than 4,300 digits
-# raises ValueError, so an integer is only shown up to the longest one XDR-JSON has.
-_MAX_SHOWN_BITS: Final = 256
+# What a message quotes of the input, other than an integer.
 _MAX_SHOWN_LENGTH: Final = 40
 # The longest strings of a 64-bit and of a 256-bit integer, with room for a sign. The
 # length is checked before int() is called, which refuses more than 4,300 digits.
@@ -130,7 +126,7 @@ def _expected(where: str, expected: str, value: object) -> NoReturn:
 def show(value: object) -> str:
     """Quote part of the input in a message, which stays short whatever the input."""
     if isinstance(value, int) and not isinstance(value, bool):
-        return str(value) if value.bit_length() <= _MAX_SHOWN_BITS else "a huge number"
+        return _integers.show(value)
     text = repr(value)
     if len(text) <= _MAX_SHOWN_LENGTH:
         return text
@@ -140,11 +136,11 @@ def show(value: object) -> str:
 # --- Numbers and booleans -------------------------------------------------------
 
 
-def _number(value: object, where: str, bounds: tuple[int, int], name: str) -> int:
+def _number(value: object, where: str, bounds: Bounds, name: str) -> int:
     if not isinstance(value, int) or isinstance(value, bool):
         _expected(where, "an integer", value)
     if not bounds[0] <= value <= bounds[1]:
-        _fail(where, f"{show(value)} is out of range for {name}")
+        _fail(where, out_of_range(value, name))
     # A subclass, such as an IntEnum member, is stored as a plain int, like constructors
     # store it.
     return value if value.__class__ is int else int(value)
@@ -152,15 +148,15 @@ def _number(value: object, where: str, bounds: tuple[int, int], name: str) -> in
 
 def read_int32(value: object, where: str) -> int:
     """Read a signed 32-bit integer, which SEP-51 writes as a JSON number."""
-    return _number(value, where, _INT32, "int32")
+    return _number(value, where, INT32, "int32")
 
 
 def read_uint32(value: object, where: str) -> int:
     """Read an unsigned 32-bit integer, which SEP-51 writes as a JSON number."""
-    return _number(value, where, _UINT32, "uint32")
+    return _number(value, where, UINT32, "uint32")
 
 
-def _decimal(value: object, where: str, bounds: tuple[int, int], name: str) -> int:
+def _decimal(value: object, where: str, bounds: Bounds, name: str) -> int:
     # SEP-51 writes 64-bit integers as strings, since JSON numbers can't hold them
     # exactly in many languages. Numbers are accepted too, as earlier versions of
     # SEP-51 wrote them.
@@ -173,18 +169,18 @@ def _decimal(value: object, where: str, bounds: tuple[int, int], name: str) -> i
     else:
         _expected(where, "an integer string", value)
     if not bounds[0] <= number <= bounds[1]:
-        _fail(where, f"{show(number)} is out of range for {name}")
+        _fail(where, out_of_range(number, name))
     return number
 
 
 def read_int64(value: object, where: str) -> int:
     """Read a signed 64-bit integer from a string or a number."""
-    return _decimal(value, where, _INT64, "int64")
+    return _decimal(value, where, INT64, "int64")
 
 
 def read_uint64(value: object, where: str) -> int:
     """Read an unsigned 64-bit integer from a string or a number."""
-    return _decimal(value, where, _UINT64, "uint64")
+    return _decimal(value, where, UINT64, "uint64")
 
 
 def read_boolean(value: object, where: str) -> bool:
@@ -194,14 +190,14 @@ def read_boolean(value: object, where: str) -> bool:
     return value
 
 
-def _big(value: object, where: str, bounds: tuple[int, int], name: str) -> int:
+def _big(value: object, where: str, bounds: Bounds, name: str) -> int:
     if not isinstance(value, str):
         _expected(where, "an integer string", value)
     if len(value) > _MAX_INT256_LENGTH or _DECIMAL.fullmatch(value) is None:
         _fail(where, f"{show(value)} is not a base 10 integer")
     number = int(value)
     if not bounds[0] <= number <= bounds[1]:
-        _fail(where, f"{show(number)} is out of range for {name}")
+        _fail(where, out_of_range(number, name))
     return number
 
 
