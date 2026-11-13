@@ -1,6 +1,7 @@
 """SEP-51 XDR-JSON: the representation of each kind of value, and strict reading."""
 
 import json
+import sys
 from typing import Any
 
 import pytest
@@ -79,6 +80,36 @@ def test_opaque_is_hex() -> None:
 def test_invalid_hex(text: str) -> None:
     with pytest.raises(xdr.XdrJsonError, match="not hex"):
         xdr.SCVal.from_json_value({"bytes": text})
+
+
+@pytest.mark.skipif(
+    sys.implementation.name != "cpython", reason="PyPy has no tracemalloc"
+)
+@pytest.mark.parametrize(
+    ("decoder", "message"),
+    [
+        (xdr.Hash, "expected 32 bytes, got 1000000"),
+        (xdr.DataValue, "expected at most 64 bytes, got 1000000"),
+    ],
+    ids=["fixed", "variable"],
+)
+def test_overlong_hex_is_rejected_before_it_is_read(
+    decoder: type[xdr.XdrBytes], message: str
+) -> None:
+    # Imported here: on PyPy, importing the module fails.
+    import tracemalloc  # noqa: PLC0415
+
+    # Hex for a million bytes, where at most 64 fit: rejected by its length alone,
+    # without matching or decoding 2 MB of text.
+    text = "00" * 1_000_000
+    tracemalloc.start()
+    try:
+        with pytest.raises(xdr.XdrJsonError, match=message):
+            decoder.from_json_value(text)
+        peak = tracemalloc.get_traced_memory()[1]
+    finally:
+        tracemalloc.stop()
+    assert peak < len(text) // 4
 
 
 def test_inline_fixed_opaque_is_hex() -> None:
