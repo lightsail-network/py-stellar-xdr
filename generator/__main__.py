@@ -11,8 +11,9 @@ import sys
 import tomllib
 from pathlib import Path
 
-from .emit import Generator, StrategyGenerator
 from .model import load
+from .package import Generator
+from .strategies import StrategyGenerator
 
 ROOT = Path(__file__).resolve().parent.parent
 PACKAGE = ROOT / "src" / "stellar_xdr"

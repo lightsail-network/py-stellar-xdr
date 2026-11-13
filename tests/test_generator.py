@@ -15,10 +15,11 @@ import pytest
 
 import stellar_xdr
 from generator import names, sep51
-from generator.emit import GenerationError, Generator, counted_types
+from generator.analysis import counted_types
 from generator.model import (
     Case,
     Enum,
+    GenerationError,
     InputError,
     Model,
     Struct,
@@ -26,6 +27,7 @@ from generator.model import (
     Union,
     load,
 )
+from generator.package import Generator
 
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")

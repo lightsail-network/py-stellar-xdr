@@ -6,13 +6,15 @@ do the conversion; the generator emits the calls.
 
 Every name in a rule is a name of the XDR definitions: a type, a field, or the case of
 a union. No rule refers to a Python name, so renaming an arm class in `names.py` can't
-change what a value looks like in JSON. The generator checks that every rule applies to
-a definition, and fails when one doesn't.
+change what a value looks like in JSON. `check` makes sure that every rule applies to a
+definition, and the generator fails when one doesn't.
 """
 
 from collections.abc import Mapping
 from dataclasses import dataclass, field
-from typing import Final
+from typing import Final, TypeVar
+
+from .model import GenerationError, Model, Struct, Typedef, Union
 
 
 @dataclass(frozen=True)
@@ -201,3 +203,76 @@ RULES: Final = Rules(
         ),
     },
 )
+
+
+# --- Checking the rules against the definitions --------------------------------------
+
+
+_D = TypeVar("_D", Struct, Union, Typedef)
+
+
+def defined(model: Model, name: str, kind: type[_D]) -> _D:
+    """The definition a SEP-51 rule names, which has to be of the kind it is for."""
+    d = model.by_name.get(name)
+    if not isinstance(d, kind):
+        msg = f"SEP-51 rule for {name}: the definitions have no such {kind.__name__}"
+        raise GenerationError(msg)
+    return d
+
+
+def check(model: Model, rules: Rules) -> None:
+    """Fail on a rule that applies to nothing, or that leaves an arm out.
+
+    A rule names definitions by their XDR names. When a definition is renamed or
+    removed upstream, its rule would otherwise stop applying without a word, and
+    the type would be written as a plain struct or union.
+    """
+    for name in rules.typedefs:
+        defined(model, name, Typedef)
+    for name, rule in rules.structs.items():
+        _check_struct_fields(defined(model, name, Struct), set(rule.fields))
+    for name, strkey_arms in rules.strkey_unions.items():
+        union = defined(model, name, Union)
+        _check_cases(union, [arm.case for arm in strkey_arms])
+        for arm in strkey_arms:
+            _check_payload(model, arm.payload)
+    for name, lengths in rules.length_unions.items():
+        union = defined(model, name, Union)
+        _check_cases(union, [case for case, _ in lengths])
+    both = rules.strkey_unions.keys() & rules.length_unions.keys()
+    if both:
+        msg = f"SEP-51 rules for {sorted(both)}: a strkey and a length rule each"
+        raise GenerationError(msg)
+
+
+def _check_struct_fields(d: Struct, fields: set[str]) -> None:
+    if fields != {f.name for f in d.fields}:
+        msg = f"SEP-51 rule for {d.name}: it doesn't name exactly its fields"
+        raise GenerationError(msg)
+
+
+def _check_cases(union: Union, cases: list[str]) -> None:
+    # A union written as a bare string has no key to say which arm it is, so
+    # every arm needs a rule, and a value to write.
+    expected = [c.name for arm in union.arms for c in arm.cases]
+    if sorted(cases) != sorted(str(c) for c in expected):
+        msg = f"SEP-51 rule for {union.name}: it doesn't name exactly its cases"
+        raise GenerationError(msg)
+    if any(arm.type is None for arm in union.arms):
+        msg = f"SEP-51 rule for {union.name}: an arm without a value has no string"
+        raise GenerationError(msg)
+
+
+def _check_payload(model: Model, payload: Payload) -> None:
+    if isinstance(payload, BuiltStruct):
+        _check_struct_fields(
+            defined(model, payload.struct, Struct), set(payload.fields)
+        )
+        for inner in payload.fields.values():
+            _check_payload(model, inner)
+    elif isinstance(payload, BuiltArm):
+        union = defined(model, payload.union, Union)
+        if payload.case not in [c.name for arm in union.arms for c in arm.cases]:
+            msg = f"SEP-51 rule for {union.name}: it has no case {payload.case}"
+            raise GenerationError(msg)
+        _check_payload(model, payload.payload)
