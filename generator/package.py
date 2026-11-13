@@ -132,24 +132,6 @@ def _ordered_typedefs(typedefs: list[Typedef]) -> list[Typedef]:
     return list(done.values())
 
 
-def _typedef_blocks(emit: Emitter, typedefs: list[Typedef]) -> list[list[str]]:
-    """The typedefs in order: a class by itself, aliases on consecutive lines."""
-    blocks: list[list[str]] = []
-    aliases: list[str] = []
-    for d in typedefs:
-        lines = emit.typedef(d)
-        if len(lines) == 1:
-            aliases += lines
-            continue
-        if aliases:
-            blocks.append(aliases)
-            aliases = []
-        blocks.append(lines)
-    if aliases:
-        blocks.append(aliases)
-    return blocks
-
-
 def _imports(others: dict[str, set[str]], body: str) -> list[str]:
     """The imports of a module: what its code uses, and what the others define."""
     used = _names_used(body)
@@ -244,10 +226,10 @@ class Generator:
         if consts:
             blocks.append([line for d in consts for line in emit.const(d)])
         blocks += [emit.enum(d) for d in enums]
-        blocks += _typedef_blocks(emit, simple)
+        blocks += [emit.typedef(d) for d in simple]
         for d in classes:
             blocks.append(emit.struct(d) if isinstance(d, Struct) else emit.union(d))
-        blocks += _typedef_blocks(emit, composite)
+        blocks += [emit.typedef(d) for d in composite]
         body = "\n\n\n".join("\n".join(b) for b in blocks)
         public = sorted(_public_name(d) for d in module.definitions)
         exports = "\n".join(f"    {n!r}," for n in public)

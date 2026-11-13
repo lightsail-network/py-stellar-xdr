@@ -581,19 +581,17 @@ class Emitter:
     def typedef(self, d: Typedef) -> list[str]:
         """A typedef: a class that extends the type of its values, or another name."""
         name = names.type_name(d.name)
-        comment = f"  # {' '.join(d.source.split())}"
         kind = typedef_base(self.model, d)
         if kind is None:
-            target = self.ctx.model.resolve(d.type)
-            if isinstance(target, Struct | Enum | Union):
-                # The type itself: a union's namespace, with its arms and its `Any`.
-                return [f"{name} = {self.ctx.use(target.name)}{comment}"]
-            annotation = self.code.annotation(d.type)
-            if isinstance(target, Optional):
-                return [f"{name}: TypeAlias = {annotation}{comment}"]
-            # A type alias, which can't be called: see typedef_base.
-            alias = f"TypeAliasType({name!r}, {annotation})"
-            return [f"{name} = {alias}{comment}"]
+            # A name with a docstring of its own, which documentation tools show.
+            line, what = self._typedef_name(d, name)
+            summary, *more = what
+            doc = [
+                f"XDR typedef ``{d.name}``: {summary}",
+                *more,
+                *source_block(d.source),
+            ]
+            return [line, *docstring(doc)]
         code = self.code
         plain = code.plain(d)
         this = Ref(d.name)
@@ -632,6 +630,25 @@ class Emitter:
             f"    return {new}(cls, {code.from_json_plain(d, 'value', name, 0)})",
         ]
         return ["@final", f"class {name}({base}):", *indent(body)]
+
+    def _typedef_name(self, d: Typedef, name: str) -> tuple[str, list[str]]:
+        """The line that names a typedef that isn't a class, and what it names."""
+        target = self.ctx.model.resolve(d.type)
+        if isinstance(target, Struct | Enum | Union):
+            # The type itself: a union's namespace, with its arms and its `Any`.
+            this = self.ctx.use(target.name)
+            kind = type(target).__name__.lower()
+            return f"{name} = {this}", [f"the {kind} ``{this}`` itself."]
+        annotation = self.code.annotation(d.type)
+        if isinstance(target, Optional):
+            return f"{name}: TypeAlias = {annotation}", [f"``{annotation}``."]
+        # A type alias, which can't be called: see typedef_base.
+        return f"{name} = TypeAliasType({name!r}, {annotation})", [
+            f"a type alias of ``{annotation}``.",
+            "",
+            "It can't be called or used with ``isinstance``. A field of this type",
+            f"holds a plain ``{annotation}``, checked against the XDR type.",
+        ]
 
     def const(self, d: Const) -> list[str]:
         """A constant."""

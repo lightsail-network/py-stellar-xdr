@@ -488,7 +488,7 @@ def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
     assert "Uint32 = TypeAliasType('Uint32', int)" in source
     assert "Flag = TypeAliasType('Flag', bool)" in source
     assert "Maybe: TypeAlias = Count | None" in source
-    assert "\nT = S  # " in source
+    assert '\nT = S\n"""XDR typedef ``T``: the struct ``S`` itself.' in source
     assert "class Seconds(XdrInt):" in source
     assert "class Count(XdrInt):" in source
     assert "class Counts(XdrArray[Count]):" in source
