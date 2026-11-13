@@ -10,18 +10,9 @@ the right type that XDR can't represent, so that any constructed value can be en
 """
 
 from collections.abc import Callable, Sequence
-from typing import Any, Final, cast
+from typing import Any, cast
 
-_INT32_MIN: Final = -(2**31)
-_INT32_MAX: Final = 2**31 - 1
-_UINT32_MAX: Final = 2**32 - 1
-_INT64_MIN: Final = -(2**63)
-_INT64_MAX: Final = 2**63 - 1
-_UINT64_MAX: Final = 2**64 - 1
-
-# str() of an int with more than 4,300 digits raises ValueError, so a message only
-# quotes an integer that is no longer than the longest XDR-JSON one, of 256 bits.
-_MAX_SHOWN_BITS: Final = 256
+from ._integers import INT32, INT64, UINT32, UINT64, Bounds, out_of_range
 
 Check = Callable[..., Any]
 
@@ -30,13 +21,12 @@ def _type_error(where: str, expected: str, value: object) -> TypeError:
     return TypeError(f"{where}: expected {expected}, got {type(value).__name__}")
 
 
-def _integer(value: object, where: str, low: int, high: int, name: str) -> int:
+def _integer(value: object, where: str, bounds: Bounds, name: str) -> int:
     # bool is a subclass of int, but True is not a sensible integer argument.
     if not isinstance(value, int) or isinstance(value, bool):
         raise _type_error(where, "int", value)
-    if not low <= value <= high:
-        shown = value if value.bit_length() <= _MAX_SHOWN_BITS else "a huge number"
-        msg = f"{where}: {shown} is out of range for {name}"
+    if not bounds[0] <= value <= bounds[1]:
+        msg = f"{where}: {out_of_range(value, name)}"
         raise ValueError(msg)
     # A subclass such as an IntEnum member is stored as a plain int.
     return value if value.__class__ is int else int(value)
@@ -44,22 +34,22 @@ def _integer(value: object, where: str, low: int, high: int, name: str) -> int:
 
 def int32(value: object, where: str) -> int:
     """Check a signed 32-bit integer."""
-    return _integer(value, where, _INT32_MIN, _INT32_MAX, "int32")
+    return _integer(value, where, INT32, "int32")
 
 
 def uint32(value: object, where: str) -> int:
     """Check an unsigned 32-bit integer."""
-    return _integer(value, where, 0, _UINT32_MAX, "uint32")
+    return _integer(value, where, UINT32, "uint32")
 
 
 def int64(value: object, where: str) -> int:
     """Check a signed 64-bit integer."""
-    return _integer(value, where, _INT64_MIN, _INT64_MAX, "int64")
+    return _integer(value, where, INT64, "int64")
 
 
 def uint64(value: object, where: str) -> int:
     """Check an unsigned 64-bit integer."""
-    return _integer(value, where, 0, _UINT64_MAX, "uint64")
+    return _integer(value, where, UINT64, "uint64")
 
 
 def boolean(value: object, where: str) -> bool:

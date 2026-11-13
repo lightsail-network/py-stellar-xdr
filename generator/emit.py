@@ -1634,6 +1634,8 @@ class Generator(_Emitter):
 
 # --- Hypothesis strategies for the tests ----------------------------------------------
 
+# The ranges are written out here, not taken from the package: the tests then state
+# them a second time, and the generator runs without importing what it generates.
 _INTEGER_RANGES: Final = {
     "int": ("-(2**31)", "2**31 - 1"),
     "unsigned_int": ("0", "2**32 - 1"),
