@@ -59,6 +59,8 @@ Some arguments are converted on the way in:
   bytes are not sequences of XDR values and are rejected.
 - XDR strings, such as `SCVal.Symbol` and `Memo.Text`, accept `str`, which is encoded
   as UTF-8, and are stored as `bytes`, since an XDR string can hold any bytes.
+- A field of a [typedef](#typedefs), such as a `Hash`, accepts the plain value, here
+  `bytes`, and stores it as a `Hash`.
 - Enum fields need a member of the enum, not a plain integer.
 
 ```python
@@ -206,33 +208,75 @@ assert repr(xdr.SCValType.SCV_U32) == "SCValType.SCV_U32"
 
 ## Typedefs
 
-A typedef is a type alias of the type it names, not a class of its own:
-
-- Fixed-length opaque data, such as `Hash` and `Uint256`, is a `NewType` of `bytes`.
-  Type checkers then tell a hash from other bytes; at runtime, `xdr.Hash(data)` returns
-  `data` unchanged. Its length is checked where it is used. Typedefs of these get a
-  `NewType` of their own: a `ContractID` and a `PoolID` are both 32-byte hashes, but
-  are written as different strkeys, so type checkers keep them apart.
-- Other typedefs are plain aliases: `Uint32` is `int`, and `SCVec` is
-  `tuple[SCVal.Any, ...]`.
-- A typedef of a union is an alias of the union's `Any`: `AccountID` and `NodeID` are
-  both `PublicKey.Any`. Their values are arms of the union, so an account ID is built
-  with `PublicKey.Ed25519`, not with `AccountID`.
-
-Since a typedef has no methods, its codec is in `stellar_xdr.typedefs`, under the same
-name:
+A typedef is a class that extends the Python type of its values: `bytes` for opaque
+data and strings, `int` for integers, `tuple` for arrays. A `Hash` is a `bytes`, a
+`SequenceNumber` is an `int` and an `SCVec` is a `tuple`, and each can be used as one:
 
 ```python
 import stellar_xdr as xdr
-from stellar_xdr import typedefs
 
-changes = typedefs.LedgerEntryChanges.from_xdr_base64("AAAAAA==")
+key = xdr.Hash(bytes(32))
+assert key == bytes(32)
+assert key.hex() == "00" * 32
+
+items = xdr.SCVec([xdr.SCVal.U32(1), xdr.SCVal.Void()])
+assert len(items) == 2
+assert items[0] == xdr.SCVal.U32(1)
+
+assert xdr.SequenceNumber(5) + 1 == 6
+```
+
+The class checks the value, and gives it the methods every type has:
+
+```python
+import stellar_xdr as xdr
+
+try:
+    xdr.Hash(b"too short")
+except ValueError as error:
+    message = str(error)
+assert message == "Hash: expected 32 bytes, got 9"
+
+changes = xdr.LedgerEntryChanges.from_xdr_base64("AAAAAA==")
 assert changes == ()
-assert typedefs.SCVec.to_xdr_base64([xdr.SCVal.Void()]) == "AAAAAQAAAAE="
+assert xdr.SCVec([xdr.SCVal.Void()]).to_xdr_base64() == "AAAAAQAAAAE="
+```
 
-account: xdr.AccountID = xdr.PublicKey.Ed25519(xdr.Uint256(bytes(32)))
-assert typedefs.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account
-assert xdr.PublicKey.from_xdr_bytes(account.to_xdr_bytes()) == account
+A constructor takes the plain value and stores it as the type of its field. The value
+then knows how it is written: a `ContractID` and a `PoolID` are both 32 bytes, but one
+is a `C...` address in JSON and the other an `L...`.
+
+```python
+import stellar_xdr as xdr
+
+address = xdr.SCAddress.Contract(bytes(32))
+assert type(address.contract_id) is xdr.ContractID
+assert address.contract_id.to_json_value() == (
+    "CAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABSC4"
+)
+assert repr(address.contract_id) == f"ContractID({bytes(32)!r})"
+```
+
+What an operation on a value returns is a plain value again: `key[:4]` is a `bytes` and
+`number + 1` an `int`. Pass it to a constructor like any other plain value.
+
+Three kinds of typedef are not classes of their own, but other names:
+
+- `Uint32`, `Int32`, `Uint64` and `Int64` are `int`. Every integer field would
+  otherwise hold an object of its own.
+- A typedef of a union is the union: `AccountID` and `NodeID` are `PublicKey`, with its
+  arms and its decoding. Annotate with `AccountID.Any`.
+- `SponsorshipDescriptor` is an optional account ID, and `None` can't be a value of a
+  class of its own.
+
+```python
+import stellar_xdr as xdr
+
+assert xdr.Uint32 is int
+assert xdr.AccountID is xdr.PublicKey
+
+account: xdr.AccountID.Any = xdr.AccountID.Ed25519(bytes(32))
+assert xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account
 ```
 
 ## Encoding and decoding
@@ -247,8 +291,8 @@ assert value.to_xdr_bytes() == bytes.fromhex("000000050000000000000001")
 assert value.to_xdr_base64() == "AAAABQAAAAAAAAAB"
 ```
 
-Decoding starts from the type: a struct's class, an enum, or a union such as `SCVal`,
-which returns the arm the data holds.
+Decoding starts from the type: a struct's class, an enum, a typedef, or a union such
+as `SCVal`, which returns the arm the data holds.
 
 ```python
 import stellar_xdr as xdr
@@ -387,7 +431,7 @@ optional field that is left out as null.
 ```python
 import stellar_xdr as xdr
 
-account = xdr.MuxedAccount.Ed25519(xdr.Uint256(bytes(32)))
+account = xdr.MuxedAccount.Ed25519(bytes(32))
 assert account.to_json_value() == (
     "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF"
 )

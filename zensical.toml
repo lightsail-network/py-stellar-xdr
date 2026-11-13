@@ -23,7 +23,6 @@ nav = [
         { "Stellar-SCP.x" = "api/scp.md" },
         { "Stellar-transaction.x" = "api/transaction.md" },
         { "Stellar-types.x" = "api/types.md" },
-        { "stellar_xdr.typedefs" = "api/typedefs.md" },
     ] },
     { "Changelog" = "changelog.md" },
 ]

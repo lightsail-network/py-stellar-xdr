@@ -51,6 +51,9 @@ def test_round_trip(
     assert copy.deepcopy(value) == value
     # Equality is never true across types, whatever the fields hold.
     assert value != object()
+    if issubclass(type(value), bytes | int | tuple):
+        # A typedef's value or an enum member: its class returns it as it is.
+        assert type(value)(value) is value
 
 
 @pytest.mark.parametrize(("name", "union", "strategy"), CASES, ids=IDS)

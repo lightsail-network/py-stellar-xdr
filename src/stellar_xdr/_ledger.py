@@ -25,6 +25,8 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrArray,
+    XdrBytes,
     XdrEnum,
     XdrStruct,
     check,
@@ -32,6 +34,9 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_int,
+    new_tuple,
     set_field,
     xdr_json,
 )
@@ -344,7 +349,39 @@ _TRANSACTION_EVENT_STAGE_JSON_MEMBERS: Final = xdr_json.inverse(
 )
 
 
-UpgradeType: TypeAlias = bytes  # typedef opaque UpgradeType<128>;
+@final
+class UpgradeType(XdrBytes):
+    """XDR typedef ``UpgradeType``.
+
+    ```xdr
+    typedef opaque UpgradeType<128>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "UpgradeType")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, 128))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(128))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "UpgradeType", 128))
 
 
 @final
@@ -362,10 +399,10 @@ class LedgerCloseValueSignature(XdrStruct):
 
     __slots__ = ("node_id", "signature")
 
-    node_id: NodeID
+    node_id: NodeID.Any
     signature: Signature
 
-    def __init__(self, node_id: NodeID, signature: Signature) -> None:
+    def __init__(self, node_id: NodeID.Any, signature: bytes) -> None:
         set_field(
             self,
             "node_id",
@@ -379,7 +416,7 @@ class LedgerCloseValueSignature(XdrStruct):
         set_field(
             self,
             "signature",
-            check.opaque_var(signature, "LedgerCloseValueSignature.signature", 64),
+            Signature._checked(signature, "LedgerCloseValueSignature.signature"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -398,7 +435,7 @@ class LedgerCloseValueSignature(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "node_id", PublicKey._decode(reader))
-        set_field(obj, "signature", reader.opaque_var(64))
+        set_field(obj, "signature", new_bytes(Signature, reader.opaque_var(64)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -417,8 +454,11 @@ class LedgerCloseValueSignature(XdrStruct):
         set_field(
             obj,
             "signature",
-            xdr_json.read_hex_var(
-                fields["signature"], "LedgerCloseValueSignature.signature", 64
+            new_bytes(
+                Signature,
+                xdr_json.read_hex_var(
+                    fields["signature"], "LedgerCloseValueSignature.signature", 64
+                ),
             ),
         )
         return obj
@@ -453,25 +493,21 @@ class StellarValueProposedValue(XdrStruct):
 
     def __init__(
         self,
-        tx_set_hash: Hash,
-        previous_ledger_hash: Hash,
+        tx_set_hash: bytes,
+        previous_ledger_hash: bytes,
         previous_ledger_version: Uint32,
         lc_value_signature: LedgerCloseValueSignature,
     ) -> None:
         set_field(
             self,
             "tx_set_hash",
-            check.opaque_fixed(
-                tx_set_hash, "StellarValueProposedValue.tx_set_hash", 32
-            ),
+            Hash._checked(tx_set_hash, "StellarValueProposedValue.tx_set_hash"),
         )
         set_field(
             self,
             "previous_ledger_hash",
-            check.opaque_fixed(
-                previous_ledger_hash,
-                "StellarValueProposedValue.previous_ledger_hash",
-                32,
+            Hash._checked(
+                previous_ledger_hash, "StellarValueProposedValue.previous_ledger_hash"
             ),
         )
         set_field(
@@ -522,8 +558,10 @@ class StellarValueProposedValue(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "tx_set_hash", reader.opaque_aligned(32))
-        set_field(obj, "previous_ledger_hash", reader.opaque_aligned(32))
+        set_field(obj, "tx_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
+        set_field(
+            obj, "previous_ledger_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         set_field(obj, "previous_ledger_version", reader.uint32())
         set_field(obj, "lc_value_signature", LedgerCloseValueSignature._decode(reader))
         return obj
@@ -552,17 +590,23 @@ class StellarValueProposedValue(XdrStruct):
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["tx_set_hash"], "StellarValueProposedValue.tx_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["tx_set_hash"], "StellarValueProposedValue.tx_set_hash", 32
+                ),
             ),
         )
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.read_hex_fixed(
-                fields["previous_ledger_hash"],
-                "StellarValueProposedValue.previous_ledger_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["previous_ledger_hash"],
+                    "StellarValueProposedValue.previous_ledger_hash",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -600,12 +644,14 @@ class StellarValueSignedMsValue(XdrStruct):
     lc_value_signature: LedgerCloseValueSignature
 
     def __init__(
-        self, close_time_ms: TimePointMs, lc_value_signature: LedgerCloseValueSignature
+        self, close_time_ms: Uint64, lc_value_signature: LedgerCloseValueSignature
     ) -> None:
         set_field(
             self,
             "close_time_ms",
-            check.uint64(close_time_ms, "StellarValueSignedMsValue.close_time_ms"),
+            TimePointMs._checked(
+                close_time_ms, "StellarValueSignedMsValue.close_time_ms"
+            ),
         )
         set_field(
             self,
@@ -637,7 +683,7 @@ class StellarValueSignedMsValue(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "close_time_ms", reader.uint64())
+        set_field(obj, "close_time_ms", new_int(TimePointMs, reader.uint64()))
         set_field(obj, "lc_value_signature", LedgerCloseValueSignature._decode(reader))
         return obj
 
@@ -656,8 +702,11 @@ class StellarValueSignedMsValue(XdrStruct):
         set_field(
             obj,
             "close_time_ms",
-            xdr_json.read_uint64(
-                fields["close_time_ms"], "StellarValueSignedMsValue.close_time_ms"
+            new_int(
+                TimePointMs,
+                xdr_json.read_uint64(
+                    fields["close_time_ms"], "StellarValueSignedMsValue.close_time_ms"
+                ),
             ),
         )
         set_field(
@@ -700,31 +749,29 @@ class StellarValueProposedMsValue(XdrStruct):
 
     def __init__(
         self,
-        close_time_ms: TimePointMs,
-        tx_set_hash: Hash,
-        previous_ledger_hash: Hash,
+        close_time_ms: Uint64,
+        tx_set_hash: bytes,
+        previous_ledger_hash: bytes,
         previous_ledger_version: Uint32,
         lc_value_signature: LedgerCloseValueSignature,
     ) -> None:
         set_field(
             self,
             "close_time_ms",
-            check.uint64(close_time_ms, "StellarValueProposedMsValue.close_time_ms"),
-        )
-        set_field(
-            self,
-            "tx_set_hash",
-            check.opaque_fixed(
-                tx_set_hash, "StellarValueProposedMsValue.tx_set_hash", 32
+            TimePointMs._checked(
+                close_time_ms, "StellarValueProposedMsValue.close_time_ms"
             ),
         )
         set_field(
             self,
+            "tx_set_hash",
+            Hash._checked(tx_set_hash, "StellarValueProposedMsValue.tx_set_hash"),
+        )
+        set_field(
+            self,
             "previous_ledger_hash",
-            check.opaque_fixed(
-                previous_ledger_hash,
-                "StellarValueProposedMsValue.previous_ledger_hash",
-                32,
+            Hash._checked(
+                previous_ledger_hash, "StellarValueProposedMsValue.previous_ledger_hash"
             ),
         )
         set_field(
@@ -778,9 +825,11 @@ class StellarValueProposedMsValue(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "close_time_ms", reader.uint64())
-        set_field(obj, "tx_set_hash", reader.opaque_aligned(32))
-        set_field(obj, "previous_ledger_hash", reader.opaque_aligned(32))
+        set_field(obj, "close_time_ms", new_int(TimePointMs, reader.uint64()))
+        set_field(obj, "tx_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
+        set_field(
+            obj, "previous_ledger_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         set_field(obj, "previous_ledger_version", reader.uint32())
         set_field(obj, "lc_value_signature", LedgerCloseValueSignature._decode(reader))
         return obj
@@ -811,24 +860,33 @@ class StellarValueProposedMsValue(XdrStruct):
         set_field(
             obj,
             "close_time_ms",
-            xdr_json.read_uint64(
-                fields["close_time_ms"], "StellarValueProposedMsValue.close_time_ms"
+            new_int(
+                TimePointMs,
+                xdr_json.read_uint64(
+                    fields["close_time_ms"], "StellarValueProposedMsValue.close_time_ms"
+                ),
             ),
         )
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["tx_set_hash"], "StellarValueProposedMsValue.tx_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["tx_set_hash"], "StellarValueProposedMsValue.tx_set_hash", 32
+                ),
             ),
         )
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.read_hex_fixed(
-                fields["previous_ledger_hash"],
-                "StellarValueProposedMsValue.previous_ledger_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["previous_ledger_hash"],
+                    "StellarValueProposedMsValue.previous_ledger_hash",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -1281,23 +1339,23 @@ class StellarValue(XdrStruct):
 
     def __init__(
         self,
-        tx_set_hash: Hash,
-        close_time: TimePoint,
-        upgrades: Sequence[UpgradeType],
+        tx_set_hash: bytes,
+        close_time: Uint64,
+        upgrades: Sequence[bytes],
         ext: StellarValueExt.Any,
     ) -> None:
         set_field(
-            self,
-            "tx_set_hash",
-            check.opaque_fixed(tx_set_hash, "StellarValue.tx_set_hash", 32),
+            self, "tx_set_hash", Hash._checked(tx_set_hash, "StellarValue.tx_set_hash")
         )
         set_field(
-            self, "close_time", check.uint64(close_time, "StellarValue.close_time")
+            self,
+            "close_time",
+            TimePoint._checked(close_time, "StellarValue.close_time"),
         )
         set_field(
             self,
             "upgrades",
-            check.array(upgrades, "StellarValue.upgrades", 6, check.opaque_var, 128),
+            check.array(upgrades, "StellarValue.upgrades", 6, UpgradeType._checked),
         )
         set_field(
             self,
@@ -1333,12 +1391,17 @@ class StellarValue(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "tx_set_hash", reader.opaque_aligned(32))
-        set_field(obj, "close_time", reader.uint64())
+        set_field(obj, "tx_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
+        set_field(obj, "close_time", new_int(TimePoint, reader.uint64()))
         set_field(
             obj,
             "upgrades",
-            tuple([reader.opaque_var(128) for _ in range(reader.count(6, 4))]),
+            tuple(
+                [
+                    new_bytes(UpgradeType, reader.opaque_var(128))
+                    for _ in range(reader.count(6, 4))
+                ]
+            ),
         )
         set_field(obj, "ext", StellarValueExt._decode(reader))
         return obj
@@ -1360,14 +1423,20 @@ class StellarValue(XdrStruct):
         set_field(
             obj,
             "tx_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["tx_set_hash"], "StellarValue.tx_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["tx_set_hash"], "StellarValue.tx_set_hash", 32
+                ),
             ),
         )
         set_field(
             obj,
             "close_time",
-            xdr_json.read_uint64(fields["close_time"], "StellarValue.close_time"),
+            new_int(
+                TimePoint,
+                xdr_json.read_uint64(fields["close_time"], "StellarValue.close_time"),
+            ),
         )
         set_field(
             obj,
@@ -1375,8 +1444,9 @@ class StellarValue(XdrStruct):
             xdr_json.read_items(
                 xdr_json.read_array(fields["upgrades"], "StellarValue.upgrades", 6),
                 "StellarValue.upgrades",
-                lambda item0: xdr_json.read_hex_var(
-                    item0, "StellarValue.upgrades", 128
+                lambda item0: new_bytes(
+                    UpgradeType,
+                    xdr_json.read_hex_var(item0, "StellarValue.upgrades", 128),
                 ),
             ),
         )
@@ -1843,10 +1913,10 @@ class LedgerHeader(XdrStruct):
     def __init__(
         self,
         ledger_version: Uint32,
-        previous_ledger_hash: Hash,
+        previous_ledger_hash: bytes,
         scp_value: StellarValue,
-        tx_set_result_hash: Hash,
-        bucket_list_hash: Hash,
+        tx_set_result_hash: bytes,
+        bucket_list_hash: bytes,
         ledger_seq: Uint32,
         total_coins: Int64,
         fee_pool: Int64,
@@ -1855,7 +1925,7 @@ class LedgerHeader(XdrStruct):
         base_fee: Uint32,
         base_reserve: Uint32,
         max_tx_set_size: Uint32,
-        skip_list: Sequence[Hash],
+        skip_list: Sequence[bytes],
         ext: LedgerHeaderExt.Any,
     ) -> None:
         set_field(
@@ -1866,9 +1936,7 @@ class LedgerHeader(XdrStruct):
         set_field(
             self,
             "previous_ledger_hash",
-            check.opaque_fixed(
-                previous_ledger_hash, "LedgerHeader.previous_ledger_hash", 32
-            ),
+            Hash._checked(previous_ledger_hash, "LedgerHeader.previous_ledger_hash"),
         )
         set_field(
             self,
@@ -1878,14 +1946,12 @@ class LedgerHeader(XdrStruct):
         set_field(
             self,
             "tx_set_result_hash",
-            check.opaque_fixed(
-                tx_set_result_hash, "LedgerHeader.tx_set_result_hash", 32
-            ),
+            Hash._checked(tx_set_result_hash, "LedgerHeader.tx_set_result_hash"),
         )
         set_field(
             self,
             "bucket_list_hash",
-            check.opaque_fixed(bucket_list_hash, "LedgerHeader.bucket_list_hash", 32),
+            Hash._checked(bucket_list_hash, "LedgerHeader.bucket_list_hash"),
         )
         set_field(
             self, "ledger_seq", check.uint32(ledger_seq, "LedgerHeader.ledger_seq")
@@ -1914,9 +1980,7 @@ class LedgerHeader(XdrStruct):
         set_field(
             self,
             "skip_list",
-            check.array_fixed(
-                skip_list, "LedgerHeader.skip_list", 4, check.opaque_fixed, 32
-            ),
+            check.array_fixed(skip_list, "LedgerHeader.skip_list", 4, Hash._checked),
         )
         set_field(
             self,
@@ -1991,10 +2055,12 @@ class LedgerHeader(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "ledger_version", reader.uint32())
-        set_field(obj, "previous_ledger_hash", reader.opaque_aligned(32))
+        set_field(
+            obj, "previous_ledger_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         set_field(obj, "scp_value", StellarValue._decode(reader))
-        set_field(obj, "tx_set_result_hash", reader.opaque_aligned(32))
-        set_field(obj, "bucket_list_hash", reader.opaque_aligned(32))
+        set_field(obj, "tx_set_result_hash", new_bytes(Hash, reader.opaque_aligned(32)))
+        set_field(obj, "bucket_list_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "ledger_seq", reader.uint32())
         set_field(obj, "total_coins", reader.int64())
         set_field(obj, "fee_pool", reader.int64())
@@ -2004,7 +2070,9 @@ class LedgerHeader(XdrStruct):
         set_field(obj, "base_reserve", reader.uint32())
         set_field(obj, "max_tx_set_size", reader.uint32())
         set_field(
-            obj, "skip_list", tuple([reader.opaque_aligned(32) for _ in range(4)])
+            obj,
+            "skip_list",
+            tuple([new_bytes(Hash, reader.opaque_aligned(32)) for _ in range(4)]),
         )
         set_field(obj, "ext", LedgerHeaderExt._decode(reader))
         return obj
@@ -2062,23 +2130,34 @@ class LedgerHeader(XdrStruct):
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.read_hex_fixed(
-                fields["previous_ledger_hash"], "LedgerHeader.previous_ledger_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["previous_ledger_hash"],
+                    "LedgerHeader.previous_ledger_hash",
+                    32,
+                ),
             ),
         )
         set_field(obj, "scp_value", StellarValue._from_json(fields["scp_value"], ctx))
         set_field(
             obj,
             "tx_set_result_hash",
-            xdr_json.read_hex_fixed(
-                fields["tx_set_result_hash"], "LedgerHeader.tx_set_result_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["tx_set_result_hash"], "LedgerHeader.tx_set_result_hash", 32
+                ),
             ),
         )
         set_field(
             obj,
             "bucket_list_hash",
-            xdr_json.read_hex_fixed(
-                fields["bucket_list_hash"], "LedgerHeader.bucket_list_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["bucket_list_hash"], "LedgerHeader.bucket_list_hash", 32
+                ),
             ),
         )
         set_field(
@@ -2131,8 +2210,8 @@ class LedgerHeader(XdrStruct):
                     fields["skip_list"], "LedgerHeader.skip_list", 4
                 ),
                 "LedgerHeader.skip_list",
-                lambda item0: xdr_json.read_hex_fixed(
-                    item0, "LedgerHeader.skip_list", 32
+                lambda item0: new_bytes(
+                    Hash, xdr_json.read_hex_fixed(item0, "LedgerHeader.skip_list", 32)
                 ),
             ),
         )
@@ -2157,16 +2236,16 @@ class ConfigUpgradeSetKey(XdrStruct):
     contract_id: ContractID
     content_hash: Hash
 
-    def __init__(self, contract_id: ContractID, content_hash: Hash) -> None:
+    def __init__(self, contract_id: bytes, content_hash: bytes) -> None:
         set_field(
             self,
             "contract_id",
-            check.opaque_fixed(contract_id, "ConfigUpgradeSetKey.contract_id", 32),
+            ContractID._checked(contract_id, "ConfigUpgradeSetKey.contract_id"),
         )
         set_field(
             self,
             "content_hash",
-            check.opaque_fixed(content_hash, "ConfigUpgradeSetKey.content_hash", 32),
+            Hash._checked(content_hash, "ConfigUpgradeSetKey.content_hash"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2187,8 +2266,8 @@ class ConfigUpgradeSetKey(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "contract_id", reader.opaque_aligned(32))
-        set_field(obj, "content_hash", reader.opaque_aligned(32))
+        set_field(obj, "contract_id", new_bytes(ContractID, reader.opaque_aligned(32)))
+        set_field(obj, "content_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2206,15 +2285,21 @@ class ConfigUpgradeSetKey(XdrStruct):
         set_field(
             obj,
             "contract_id",
-            xdr_json.read_contract(
-                fields["contract_id"], "ConfigUpgradeSetKey.contract_id"
+            new_bytes(
+                ContractID,
+                xdr_json.read_contract(
+                    fields["contract_id"], "ConfigUpgradeSetKey.contract_id"
+                ),
             ),
         )
         set_field(
             obj,
             "content_hash",
-            xdr_json.read_hex_fixed(
-                fields["content_hash"], "ConfigUpgradeSetKey.content_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["content_hash"], "ConfigUpgradeSetKey.content_hash", 32
+                ),
             ),
         )
         return obj
@@ -2823,13 +2908,7 @@ class ParallelTxsComponent(XdrStruct):
                 execution_stages,
                 "ParallelTxsComponent.execution_stages",
                 None,
-                check.array,
-                None,
-                check.array,
-                None,
-                check.union,
-                _TRANSACTION_ENVELOPE_CLASSES,
-                "TransactionEnvelope",
+                ParallelTxExecutionStage._checked,
             ),
         )
 
@@ -2867,16 +2946,18 @@ class ParallelTxsComponent(XdrStruct):
             "execution_stages",
             tuple(
                 [
-                    tuple(
+                    new_tuple(
+                        ParallelTxExecutionStage,
                         [
-                            tuple(
+                            new_tuple(
+                                DependentTxCluster,
                                 [
                                     TransactionEnvelope._decode(reader)
                                     for _ in range(reader.count(None, 68))
-                                ]
+                                ],
                             )
                             for _ in range(reader.count(None, 4))
-                        ]
+                        ],
                     )
                     for _ in range(reader.count(None, 4))
                 ]
@@ -2923,17 +3004,25 @@ class ParallelTxsComponent(XdrStruct):
                     None,
                 ),
                 "ParallelTxsComponent.execution_stages",
-                lambda item0: xdr_json.read_items(
-                    xdr_json.read_array(
-                        item0, "ParallelTxsComponent.execution_stages", None
-                    ),
-                    "ParallelTxsComponent.execution_stages",
-                    lambda item1: xdr_json.read_items(
+                lambda item0: new_tuple(
+                    ParallelTxExecutionStage,
+                    xdr_json.read_items(
                         xdr_json.read_array(
-                            item1, "ParallelTxsComponent.execution_stages", None
+                            item0, "ParallelTxsComponent.execution_stages", None
                         ),
                         "ParallelTxsComponent.execution_stages",
-                        lambda item2: TransactionEnvelope._from_json(item2, ctx),
+                        lambda item1: new_tuple(
+                            DependentTxCluster,
+                            xdr_json.read_items(
+                                xdr_json.read_array(
+                                    item1, "ParallelTxsComponent.execution_stages", None
+                                ),
+                                "ParallelTxsComponent.execution_stages",
+                                lambda item2: TransactionEnvelope._from_json(
+                                    item2, ctx
+                                ),
+                            ),
+                        ),
                     ),
                 ),
             ),
@@ -3463,14 +3552,12 @@ class TransactionSet(XdrStruct):
     txs: tuple[TransactionEnvelope.Any, ...]
 
     def __init__(
-        self, previous_ledger_hash: Hash, txs: Sequence[TransactionEnvelope.Any]
+        self, previous_ledger_hash: bytes, txs: Sequence[TransactionEnvelope.Any]
     ) -> None:
         set_field(
             self,
             "previous_ledger_hash",
-            check.opaque_fixed(
-                previous_ledger_hash, "TransactionSet.previous_ledger_hash", 32
-            ),
+            Hash._checked(previous_ledger_hash, "TransactionSet.previous_ledger_hash"),
         )
         set_field(
             self,
@@ -3505,7 +3592,9 @@ class TransactionSet(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "previous_ledger_hash", reader.opaque_aligned(32))
+        set_field(
+            obj, "previous_ledger_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         set_field(
             obj,
             "txs",
@@ -3533,10 +3622,13 @@ class TransactionSet(XdrStruct):
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.read_hex_fixed(
-                fields["previous_ledger_hash"],
-                "TransactionSet.previous_ledger_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["previous_ledger_hash"],
+                    "TransactionSet.previous_ledger_hash",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -3570,13 +3662,13 @@ class TransactionSetV1(XdrStruct):
     phases: tuple[TransactionPhase.Any, ...]
 
     def __init__(
-        self, previous_ledger_hash: Hash, phases: Sequence[TransactionPhase.Any]
+        self, previous_ledger_hash: bytes, phases: Sequence[TransactionPhase.Any]
     ) -> None:
         set_field(
             self,
             "previous_ledger_hash",
-            check.opaque_fixed(
-                previous_ledger_hash, "TransactionSetV1.previous_ledger_hash", 32
+            Hash._checked(
+                previous_ledger_hash, "TransactionSetV1.previous_ledger_hash"
             ),
         )
         set_field(
@@ -3612,7 +3704,9 @@ class TransactionSetV1(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "previous_ledger_hash", reader.opaque_aligned(32))
+        set_field(
+            obj, "previous_ledger_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         set_field(
             obj,
             "phases",
@@ -3637,10 +3731,13 @@ class TransactionSetV1(XdrStruct):
         set_field(
             obj,
             "previous_ledger_hash",
-            xdr_json.read_hex_fixed(
-                fields["previous_ledger_hash"],
-                "TransactionSetV1.previous_ledger_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["previous_ledger_hash"],
+                    "TransactionSetV1.previous_ledger_hash",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -3820,13 +3917,11 @@ class TransactionResultPair(XdrStruct):
     transaction_hash: Hash
     result: TransactionResult
 
-    def __init__(self, transaction_hash: Hash, result: TransactionResult) -> None:
+    def __init__(self, transaction_hash: bytes, result: TransactionResult) -> None:
         set_field(
             self,
             "transaction_hash",
-            check.opaque_fixed(
-                transaction_hash, "TransactionResultPair.transaction_hash", 32
-            ),
+            Hash._checked(transaction_hash, "TransactionResultPair.transaction_hash"),
         )
         set_field(
             self,
@@ -3852,7 +3947,7 @@ class TransactionResultPair(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "transaction_hash", reader.opaque_aligned(32))
+        set_field(obj, "transaction_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "result", TransactionResult._decode(reader))
         return obj
 
@@ -3871,8 +3966,13 @@ class TransactionResultPair(XdrStruct):
         set_field(
             obj,
             "transaction_hash",
-            xdr_json.read_hex_fixed(
-                fields["transaction_hash"], "TransactionResultPair.transaction_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["transaction_hash"],
+                    "TransactionResultPair.transaction_hash",
+                    32,
+                ),
             ),
         )
         set_field(obj, "result", TransactionResult._from_json(fields["result"], ctx))
@@ -4663,11 +4763,9 @@ class LedgerHeaderHistoryEntry(XdrStruct):
     ext: LedgerHeaderHistoryEntryExt.Any
 
     def __init__(
-        self, hash: Hash, header: LedgerHeader, ext: LedgerHeaderHistoryEntryExt.Any
+        self, hash: bytes, header: LedgerHeader, ext: LedgerHeaderHistoryEntryExt.Any
     ) -> None:
-        set_field(
-            self, "hash", check.opaque_fixed(hash, "LedgerHeaderHistoryEntry.hash", 32)
-        )
+        set_field(self, "hash", Hash._checked(hash, "LedgerHeaderHistoryEntry.hash"))
         set_field(
             self,
             "header",
@@ -4704,7 +4802,7 @@ class LedgerHeaderHistoryEntry(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "hash", reader.opaque_aligned(32))
+        set_field(obj, "hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "header", LedgerHeader._decode(reader))
         set_field(obj, "ext", LedgerHeaderHistoryEntryExt._decode(reader))
         return obj
@@ -4725,8 +4823,11 @@ class LedgerHeaderHistoryEntry(XdrStruct):
         set_field(
             obj,
             "hash",
-            xdr_json.read_hex_fixed(
-                fields["hash"], "LedgerHeaderHistoryEntry.hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["hash"], "LedgerHeaderHistoryEntry.hash", 32
+                ),
             ),
         )
         set_field(obj, "header", LedgerHeader._from_json(fields["header"], ctx))
@@ -5432,14 +5533,7 @@ class OperationMeta(XdrStruct):
         set_field(
             self,
             "changes",
-            check.array(
-                changes,
-                "OperationMeta.changes",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
-            ),
+            LedgerEntryChanges._checked(changes, "OperationMeta.changes"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -5461,11 +5555,12 @@ class OperationMeta(XdrStruct):
         set_field(
             obj,
             "changes",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         return obj
@@ -5480,10 +5575,15 @@ class OperationMeta(XdrStruct):
         set_field(
             obj,
             "changes",
-            xdr_json.read_items(
-                xdr_json.read_array(fields["changes"], "OperationMeta.changes", None),
-                "OperationMeta.changes",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["changes"], "OperationMeta.changes", None
+                    ),
+                    "OperationMeta.changes",
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
+                ),
             ),
         )
         return obj
@@ -5515,14 +5615,7 @@ class TransactionMetaV1(XdrStruct):
         set_field(
             self,
             "tx_changes",
-            check.array(
-                tx_changes,
-                "TransactionMetaV1.tx_changes",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
-            ),
+            LedgerEntryChanges._checked(tx_changes, "TransactionMetaV1.tx_changes"),
         )
         set_field(
             self,
@@ -5560,11 +5653,12 @@ class TransactionMetaV1(XdrStruct):
         set_field(
             obj,
             "tx_changes",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -5591,12 +5685,15 @@ class TransactionMetaV1(XdrStruct):
         set_field(
             obj,
             "tx_changes",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes"], "TransactionMetaV1.tx_changes", None
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes"], "TransactionMetaV1.tx_changes", None
+                    ),
+                    "TransactionMetaV1.tx_changes",
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV1.tx_changes",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -5644,13 +5741,8 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             self,
             "tx_changes_before",
-            check.array(
-                tx_changes_before,
-                "TransactionMetaV2.tx_changes_before",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_before, "TransactionMetaV2.tx_changes_before"
             ),
         )
         set_field(
@@ -5667,13 +5759,8 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             self,
             "tx_changes_after",
-            check.array(
-                tx_changes_after,
-                "TransactionMetaV2.tx_changes_after",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_after, "TransactionMetaV2.tx_changes_after"
             ),
         )
 
@@ -5713,11 +5800,12 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -5730,11 +5818,12 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         return obj
@@ -5761,14 +5850,17 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_before"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_before"],
+                        "TransactionMetaV2.tx_changes_before",
+                        None,
+                    ),
                     "TransactionMetaV2.tx_changes_before",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV2.tx_changes_before",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -5785,14 +5877,17 @@ class TransactionMetaV2(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_after"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_after"],
+                        "TransactionMetaV2.tx_changes_after",
+                        None,
+                    ),
                     "TransactionMetaV2.tx_changes_after",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV2.tx_changes_after",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         return obj
@@ -6063,7 +6158,7 @@ class ContractEvent(XdrStruct):
     def __init__(
         self,
         ext: ExtensionPoint.Any,
-        contract_id: ContractID | None,
+        contract_id: bytes | None,
         type: ContractEventType,
         body: ContractEventBody.Any,
     ) -> None:
@@ -6078,7 +6173,7 @@ class ContractEvent(XdrStruct):
             self,
             "contract_id",
             check.optional(
-                contract_id, "ContractEvent.contract_id", check.opaque_fixed, 32
+                contract_id, "ContractEvent.contract_id", ContractID._checked
             ),
         )
         set_field(
@@ -6125,7 +6220,11 @@ class ContractEvent(XdrStruct):
         set_field(
             obj,
             "contract_id",
-            (reader.opaque_aligned(32) if reader.present() else None),
+            (
+                new_bytes(ContractID, reader.opaque_aligned(32))
+                if reader.present()
+                else None
+            ),
         )
         set_field(obj, "type", ContractEventType._decode(reader))
         set_field(obj, "body", ContractEventBody._decode(reader))
@@ -6159,8 +6258,11 @@ class ContractEvent(XdrStruct):
             (
                 None
                 if fields.get("contract_id") is None
-                else xdr_json.read_contract(
-                    fields.get("contract_id"), "ContractEvent.contract_id"
+                else new_bytes(
+                    ContractID,
+                    xdr_json.read_contract(
+                        fields.get("contract_id"), "ContractEvent.contract_id"
+                    ),
                 )
             ),
         )
@@ -6836,13 +6938,8 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             self,
             "tx_changes_before",
-            check.array(
-                tx_changes_before,
-                "TransactionMetaV3.tx_changes_before",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_before, "TransactionMetaV3.tx_changes_before"
             ),
         )
         set_field(
@@ -6859,13 +6956,8 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             self,
             "tx_changes_after",
-            check.array(
-                tx_changes_after,
-                "TransactionMetaV3.tx_changes_after",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_after, "TransactionMetaV3.tx_changes_after"
             ),
         )
         set_field(
@@ -6926,11 +7018,12 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -6943,11 +7036,12 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -6991,14 +7085,17 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_before"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_before"],
+                        "TransactionMetaV3.tx_changes_before",
+                        None,
+                    ),
                     "TransactionMetaV3.tx_changes_before",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV3.tx_changes_before",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -7015,14 +7112,17 @@ class TransactionMetaV3(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_after"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_after"],
+                        "TransactionMetaV3.tx_changes_after",
+                        None,
+                    ),
                     "TransactionMetaV3.tx_changes_after",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV3.tx_changes_after",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -7075,14 +7175,7 @@ class OperationMetaV2(XdrStruct):
         set_field(
             self,
             "changes",
-            check.array(
-                changes,
-                "OperationMetaV2.changes",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
-            ),
+            LedgerEntryChanges._checked(changes, "OperationMetaV2.changes"),
         )
         set_field(
             self,
@@ -7120,11 +7213,12 @@ class OperationMetaV2(XdrStruct):
         set_field(
             obj,
             "changes",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -7153,10 +7247,15 @@ class OperationMetaV2(XdrStruct):
         set_field(
             obj,
             "changes",
-            xdr_json.read_items(
-                xdr_json.read_array(fields["changes"], "OperationMetaV2.changes", None),
-                "OperationMetaV2.changes",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["changes"], "OperationMetaV2.changes", None
+                    ),
+                    "OperationMetaV2.changes",
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
+                ),
             ),
         )
         set_field(
@@ -7391,13 +7490,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             self,
             "tx_changes_before",
-            check.array(
-                tx_changes_before,
-                "TransactionMetaV4.tx_changes_before",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_before, "TransactionMetaV4.tx_changes_before"
             ),
         )
         set_field(
@@ -7414,13 +7508,8 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             self,
             "tx_changes_after",
-            check.array(
-                tx_changes_after,
-                "TransactionMetaV4.tx_changes_after",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                tx_changes_after, "TransactionMetaV4.tx_changes_after"
             ),
         )
         set_field(
@@ -7513,11 +7602,12 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -7530,11 +7620,12 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(
@@ -7601,14 +7692,17 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_before",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_before"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_before"],
+                        "TransactionMetaV4.tx_changes_before",
+                        None,
+                    ),
                     "TransactionMetaV4.tx_changes_before",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV4.tx_changes_before",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -7625,14 +7719,17 @@ class TransactionMetaV4(XdrStruct):
         set_field(
             obj,
             "tx_changes_after",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["tx_changes_after"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["tx_changes_after"],
+                        "TransactionMetaV4.tx_changes_after",
+                        None,
+                    ),
                     "TransactionMetaV4.tx_changes_after",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionMetaV4.tx_changes_after",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -8155,13 +8252,8 @@ class TransactionResultMeta(XdrStruct):
         set_field(
             self,
             "fee_processing",
-            check.array(
-                fee_processing,
-                "TransactionResultMeta.fee_processing",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                fee_processing, "TransactionResultMeta.fee_processing"
             ),
         )
         set_field(
@@ -8208,11 +8300,12 @@ class TransactionResultMeta(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(obj, "tx_apply_processing", TransactionMeta._decode(reader))
@@ -8239,14 +8332,17 @@ class TransactionResultMeta(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["fee_processing"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["fee_processing"],
+                        "TransactionResultMeta.fee_processing",
+                        None,
+                    ),
                     "TransactionResultMeta.fee_processing",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionResultMeta.fee_processing",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -8317,13 +8413,8 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             self,
             "fee_processing",
-            check.array(
-                fee_processing,
-                "TransactionResultMetaV1.fee_processing",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
+            LedgerEntryChanges._checked(
+                fee_processing, "TransactionResultMetaV1.fee_processing"
             ),
         )
         set_field(
@@ -8339,13 +8430,9 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             self,
             "post_tx_apply_fee_processing",
-            check.array(
+            LedgerEntryChanges._checked(
                 post_tx_apply_fee_processing,
                 "TransactionResultMetaV1.post_tx_apply_fee_processing",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
             ),
         )
 
@@ -8391,22 +8478,24 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         set_field(obj, "tx_apply_processing", TransactionMeta._decode(reader))
         set_field(
             obj,
             "post_tx_apply_fee_processing",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         return obj
@@ -8443,14 +8532,17 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             obj,
             "fee_processing",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["fee_processing"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["fee_processing"],
+                        "TransactionResultMetaV1.fee_processing",
+                        None,
+                    ),
                     "TransactionResultMetaV1.fee_processing",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionResultMetaV1.fee_processing",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         set_field(
@@ -8461,14 +8553,17 @@ class TransactionResultMetaV1(XdrStruct):
         set_field(
             obj,
             "post_tx_apply_fee_processing",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["post_tx_apply_fee_processing"],
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["post_tx_apply_fee_processing"],
+                        "TransactionResultMetaV1.post_tx_apply_fee_processing",
+                        None,
+                    ),
                     "TransactionResultMetaV1.post_tx_apply_fee_processing",
-                    None,
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "TransactionResultMetaV1.post_tx_apply_fee_processing",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         return obj
@@ -8508,14 +8603,7 @@ class UpgradeEntryMeta(XdrStruct):
         set_field(
             self,
             "changes",
-            check.array(
-                changes,
-                "UpgradeEntryMeta.changes",
-                None,
-                check.union,
-                _LEDGER_ENTRY_CHANGE_CLASSES,
-                "LedgerEntryChange",
-            ),
+            LedgerEntryChanges._checked(changes, "UpgradeEntryMeta.changes"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -8539,11 +8627,12 @@ class UpgradeEntryMeta(XdrStruct):
         set_field(
             obj,
             "changes",
-            tuple(
+            new_tuple(
+                LedgerEntryChanges,
                 [
                     LedgerEntryChange._decode(reader)
                     for _ in range(reader.count(None, 12))
-                ]
+                ],
             ),
         )
         return obj
@@ -8562,12 +8651,15 @@ class UpgradeEntryMeta(XdrStruct):
         set_field(
             obj,
             "changes",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["changes"], "UpgradeEntryMeta.changes", None
+            new_tuple(
+                LedgerEntryChanges,
+                xdr_json.read_items(
+                    xdr_json.read_array(
+                        fields["changes"], "UpgradeEntryMeta.changes", None
+                    ),
+                    "UpgradeEntryMeta.changes",
+                    lambda item0: LedgerEntryChange._from_json(item0, ctx),
                 ),
-                "UpgradeEntryMeta.changes",
-                lambda item0: LedgerEntryChange._from_json(item0, ctx),
             ),
         )
         return obj
@@ -10003,15 +10095,188 @@ _LEDGER_CLOSE_META_JSON_ARMS: Final[dict[str, type[LedgerCloseMeta.Any]]] = {
 _LEDGER_CLOSE_META_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
-DependentTxCluster: TypeAlias = tuple[
-    TransactionEnvelope.Any, ...
-]  # typedef TransactionEnvelope DependentTxCluster<>;
-ParallelTxExecutionStage: TypeAlias = tuple[
-    DependentTxCluster, ...
-]  # typedef DependentTxCluster ParallelTxExecutionStage<>;
-LedgerEntryChanges: TypeAlias = tuple[
-    LedgerEntryChange.Any, ...
-]  # typedef LedgerEntryChange LedgerEntryChanges<>;
+@final
+class DependentTxCluster(XdrArray[TransactionEnvelope.Any]):
+    """XDR typedef ``DependentTxCluster``.
+
+    ```xdr
+    typedef TransactionEnvelope DependentTxCluster<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[TransactionEnvelope.Any]) -> Self:
+        return cls._checked(value, "DependentTxCluster")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls,
+            check.array(
+                value,
+                where,
+                None,
+                check.union,
+                _TRANSACTION_ENVELOPE_CLASSES,
+                "TransactionEnvelope",
+            ),
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls,
+            [
+                TransactionEnvelope._decode(reader)
+                for _ in range(reader.count(None, 68))
+            ],
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "DependentTxCluster", None),
+                "DependentTxCluster",
+                lambda item0: TransactionEnvelope._from_json(item0, ctx),
+            ),
+        )
+
+
+@final
+class ParallelTxExecutionStage(XdrArray[DependentTxCluster]):
+    """XDR typedef ``ParallelTxExecutionStage``.
+
+    ```xdr
+    typedef DependentTxCluster ParallelTxExecutionStage<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[Sequence[TransactionEnvelope.Any]]) -> Self:
+        return cls._checked(value, "ParallelTxExecutionStage")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls, check.array(value, where, None, DependentTxCluster._checked)
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            writer.uint32(len(item0))
+            for item1 in item0:
+                item1._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls,
+            [
+                new_tuple(
+                    DependentTxCluster,
+                    [
+                        TransactionEnvelope._decode(reader)
+                        for _ in range(reader.count(None, 68))
+                    ],
+                )
+                for _ in range(reader.count(None, 4))
+            ],
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [[item1._to_json(ctx) for item1 in item0] for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "ParallelTxExecutionStage", None),
+                "ParallelTxExecutionStage",
+                lambda item0: new_tuple(
+                    DependentTxCluster,
+                    xdr_json.read_items(
+                        xdr_json.read_array(item0, "ParallelTxExecutionStage", None),
+                        "ParallelTxExecutionStage",
+                        lambda item1: TransactionEnvelope._from_json(item1, ctx),
+                    ),
+                ),
+            ),
+        )
+
+
+@final
+class LedgerEntryChanges(XdrArray[LedgerEntryChange.Any]):
+    """XDR typedef ``LedgerEntryChanges``.
+
+    ```xdr
+    typedef LedgerEntryChange LedgerEntryChanges<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[LedgerEntryChange.Any]) -> Self:
+        return cls._checked(value, "LedgerEntryChanges")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls,
+            check.array(
+                value,
+                where,
+                None,
+                check.union,
+                _LEDGER_ENTRY_CHANGE_CLASSES,
+                "LedgerEntryChange",
+            ),
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls,
+            [LedgerEntryChange._decode(reader) for _ in range(reader.count(None, 12))],
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "LedgerEntryChanges", None),
+                "LedgerEntryChanges",
+                lambda item0: LedgerEntryChange._from_json(item0, ctx),
+            ),
+        )
 
 
 __all__ = [

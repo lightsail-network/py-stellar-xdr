@@ -101,7 +101,7 @@ def test_the_modules_of_the_x_files_are_private() -> None:
         for module in pkgutil.iter_modules(stellar_xdr.__path__)
         if not module.name.startswith("_")
     }
-    assert public == {"typedefs"}
+    assert public == set()
     assert stellar_xdr.SCVal.__module__ == "stellar_xdr._contract"
 
 
@@ -338,7 +338,7 @@ def test_invalid_numbers_are_rejected(
         ),
         # Definitions named like something else the package exports.
         (document(const("PROTOCOL_VERSION", 31)), "PROTOCOL_VERSION is reserved"),
-        (document(const("typedefs", 1)), "typedefs is reserved"),
+        (document(const("replace", 1)), "replace is reserved"),
         (document(typedef("xdrError", {"kind": "int"})), "XdrError is reserved"),
         # A `.x` file whose module would take the place of the runtime.
         (
@@ -356,6 +356,54 @@ def test_ambiguous_definitions_fail_generation(
     model = load_document(tmp_path, data)
     with pytest.raises(GenerationError, match=message):
         Generator(model, PROTOCOL, sep51.Rules()).sources()
+
+
+def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
+    tmp_path: Path,
+) -> None:
+    data = document(
+        typedef("uint32", {"kind": "unsigned_int"}),
+        typedef("Flag", {"kind": "bool"}),
+        typedef("Count", {"kind": "ref", "name": "uint32"}),
+        typedef(
+            "Counts", {"kind": "var_array", "element": {"kind": "ref", "name": "Count"}}
+        ),
+        typedef(
+            "Maybe", {"kind": "optional", "element": {"kind": "ref", "name": "Count"}}
+        ),
+        struct("S", ("count", {"kind": "ref", "name": "Count"})),
+        typedef("T", {"kind": "ref", "name": "S"}),
+    )
+    source = Generator(
+        load_document(tmp_path, data), PROTOCOL, sep51.Rules()
+    ).sources()["_test.py"]
+    # A typedef of a primitive, of a bool, of an optional value and of a struct are
+    # other names; the rest are classes that extend the type of their values.
+    assert "Uint32: TypeAlias = int" in source
+    assert "Flag: TypeAlias = bool" in source
+    assert "Maybe: TypeAlias = Count | None" in source
+    assert "\nT = S  # " in source
+    assert "class Count(XdrInt):" in source
+    assert "class Counts(XdrArray[Count]):" in source
+    count = source.split("class Count(XdrInt):")[1].split("@final")[0]
+    assert "return new_int(cls, check.uint32(value, where))" in count
+    assert "return new_int(cls, reader.uint32())" in count
+    # A 32-bit integer is written to JSON as it is: as a plain int.
+    assert "return int(self)" in count
+    counts = source.split("class Counts(XdrArray[Count]):")[1]
+    assert "check.array(value, where, None, Count._checked)" in counts
+    assert (
+        "[new_int(Count, reader.uint32()) for _ in range(reader.count(None, 4))]"
+        in (counts)
+    )
+    assert "[int(item0) for item0 in self]" in counts
+    struct_code = source.split("class S(XdrStruct):")[1].split("@final")[0]
+    assert "def __init__(self, count: Uint32) -> None:" in struct_code
+    assert "count: Count\n" in struct_code
+    assert "Count._checked(count, 'S.count')" in struct_code
+    assert "new_int(Count, xdr_json.read_uint32(fields['count'], 'S.count'))" in (
+        struct_code
+    )
 
 
 def test_a_word_in_the_xdr_source_is_not_a_use_of_a_name(tmp_path: Path) -> None:

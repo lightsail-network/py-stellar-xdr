@@ -10,21 +10,37 @@ import sys
 from typing import assert_never, assert_type
 
 import stellar_xdr as xdr
-from stellar_xdr import typedefs
 
 
 def construction() -> None:
     assert_type(xdr.SCVal.U32(5), xdr.SCVal.U32)
     assert_type(xdr.SCVal.U32(5).u32, int)
-    assert_type(xdr.SCVal.Symbol("transfer").sym, bytes)
-    assert_type(xdr.SCVal.Vec([xdr.SCVal.Void()]).vec, tuple[xdr.SCVal.Any, ...] | None)
+    assert_type(xdr.SCVal.Symbol("transfer").sym, xdr.SCSymbol)
+    assert_type(xdr.SCVal.Vec([xdr.SCVal.Void()]).vec, xdr.SCVec | None)
     xdr.SCVal.U32("5")  # type: ignore[arg-type]
     xdr.UInt128Parts(1)  # type: ignore[call-arg]
-    xdr.SCAddress.Contract(bytes(32))  # type: ignore[arg-type]
+    # A constructor takes the plain value and stores the typedef's.
+    assert_type(xdr.SCAddress.Contract(bytes(32)).contract_id, xdr.ContractID)
     xdr.SCAddress.Contract(xdr.ContractID(bytes(32)))
-    # A pool ID or a plain hash is not a contract ID.
-    xdr.SCAddress.Contract(xdr.PoolID(bytes(32)))  # type: ignore[arg-type]
-    xdr.SCAddress.Contract(xdr.Hash(bytes(32)))  # type: ignore[arg-type]
+    xdr.SCAddress.Contract("C...")  # type: ignore[arg-type]
+
+
+def typedefs(value: xdr.SCVal.Vec, key: xdr.Hash, number: xdr.SequenceNumber) -> None:
+    # A typedef's value is also a value of the type it extends.
+    assert_type(key[:4], bytes)
+    assert_type(key.hex(), str)
+    assert_type(number + 1, int)
+    if value.vec is not None:
+        assert_type(value.vec[0], xdr.SCVal.Any)
+        assert_type(len(value.vec), int)
+    assert_type(xdr.Hash(bytes(32)), xdr.Hash)
+    assert_type(xdr.SCVec([xdr.SCVal.Void()]), xdr.SCVec)
+    xdr.SCVec([1])  # type: ignore[list-item]
+    assert_type(xdr.Hash.from_xdr_bytes(bytes(32)), xdr.Hash)
+    assert_type(key.to_xdr_bytes(), bytes)
+    # A typedef of a union is the union under another name.
+    account: xdr.AccountID.Any = xdr.PublicKey.Ed25519(bytes(32))
+    assert_type(xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()), xdr.PublicKey.Any)
 
 
 def immutability(value: xdr.UInt128Parts) -> None:
@@ -38,9 +54,9 @@ def decoding(data: bytes) -> None:
     )
     assert_type(xdr.UInt128Parts.from_xdr_bytes(data), xdr.UInt128Parts)
     assert_type(xdr.SCValType.from_xdr_bytes(data), xdr.SCValType)
+    assert_type(xdr.LedgerEntryChanges.from_xdr_bytes(data), xdr.LedgerEntryChanges)
     assert_type(
-        typedefs.LedgerEntryChanges.from_xdr_bytes(data),
-        tuple[xdr.LedgerEntryChange.Any, ...],
+        xdr.LedgerEntryChanges.from_xdr_bytes(data)[0], xdr.LedgerEntryChange.Any
     )
     assert_type(
         list(xdr.decode_stream(xdr.SCSpecEntry, data)), list[xdr.SCSpecEntry.Any]
@@ -55,7 +71,7 @@ def narrowing(value: xdr.SCVal.Any) -> None:
         case xdr.SCVal.U32(n):
             assert_type(n, int)
         case xdr.SCVal.Vec(items):
-            assert_type(items, tuple[xdr.SCVal.Any, ...] | None)
+            assert_type(items, xdr.SCVec | None)
         case _:
             pass
 

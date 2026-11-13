@@ -7,7 +7,6 @@ import pytest
 import stellar_strkey as strkey
 
 import stellar_xdr as xdr
-from stellar_xdr import typedefs
 
 KEY = bytes(range(32))
 HASH = bytes(32)
@@ -181,13 +180,13 @@ def test_an_empty_signed_payload_has_no_json() -> None:
 
 
 def test_ids_are_strkeys() -> None:
-    assert typedefs.ContractID.to_json_value(xdr.ContractID(HASH)).startswith("C")
-    assert typedefs.PoolID.to_json_value(xdr.PoolID(HASH)).startswith("L")
+    assert xdr.ContractID(HASH).to_json_value().startswith("C")
+    assert xdr.PoolID(HASH).to_json_value().startswith("L")
     claimable = xdr.ClaimableBalanceID.V0(xdr.Hash(HASH))
     assert (
         xdr.ClaimableBalanceID.from_json_value(claimable.to_json_value()) == claimable
     )
-    assert typedefs.NodeID.from_json_value(G) == xdr.PublicKey.Ed25519(xdr.Uint256(KEY))
+    assert xdr.NodeID.from_json_value(G) == xdr.PublicKey.Ed25519(KEY)
 
 
 @pytest.mark.parametrize(
@@ -211,8 +210,8 @@ def test_invalid_strkeys(value: object, message: str) -> None:
     [
         (xdr.PublicKey, C),
         (xdr.ClaimableBalanceID, C),
-        (typedefs.PoolID, C),
-        (typedefs.ContractID, G),
+        (xdr.PoolID, C),
+        (xdr.ContractID, G),
         (xdr.MuxedEd25519Account, C),
         (xdr.MuxedContract, C),
         (xdr.SignerKeyEd25519SignedPayload, C),
@@ -353,11 +352,14 @@ def test_recursion_beyond_python_limits_is_an_error() -> None:
 
 
 def test_typedef_json() -> None:
-    assert typedefs.Int64.to_json_value(5) == "5"
-    assert typedefs.SCVec.to_json_value([xdr.SCVal.U32(1)]) == [{"u32": 1}]
-    with pytest.raises(TypeError):
-        typedefs.SCVec.to_json_value([1])  # type: ignore[list-item]
-    assert typedefs.Hash.from_json_value(HASH.hex()) == HASH
+    assert xdr.SequenceNumber(5).to_json_value() == "5"
+    assert xdr.SCVec([xdr.SCVal.U32(1)]).to_json_value() == [{"u32": 1}]
+    assert xdr.SCSymbol("a b").to_json_value() == "a b"
+    decoded = xdr.Hash.from_json_value(HASH.hex())
+    assert decoded == HASH
+    assert type(decoded) is xdr.Hash
+    with pytest.raises(xdr.XdrJsonError, match=r"^SCVec: expected an array, got null$"):
+        xdr.SCVec.from_json_value(None)
 
 
 def test_json_text_round_trip() -> None:

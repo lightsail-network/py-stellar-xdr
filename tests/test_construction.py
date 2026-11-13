@@ -57,11 +57,13 @@ def test_fixed_opaque_needs_the_exact_length() -> None:
         xdr.SCAddress.Contract(bytearray(KEY))  # type: ignore[arg-type]
 
 
-def test_a_bytes_subclass_is_stored_as_plain_bytes() -> None:
+def test_bytes_of_any_class_are_stored_as_the_type_of_the_field() -> None:
     class Key(bytes):
         pass
 
-    assert xdr.SCAddress.Contract(Key(KEY)).contract_id.__class__ is bytes  # type: ignore[arg-type]
+    assert type(xdr.SCAddress.Contract(Key(KEY)).contract_id) is xdr.ContractID
+    assert type(xdr.SCAddress.Contract(xdr.PoolID(KEY)).contract_id) is xdr.ContractID
+    assert type(xdr.SCVal.Bytes(Key(b"abc")).bytes) is xdr.SCBytes
 
 
 def test_variable_opaque_has_a_maximum() -> None:

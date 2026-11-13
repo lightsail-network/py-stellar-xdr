@@ -44,7 +44,6 @@ OUTPUT = ROOT / "tests" / "vectors" / "network_values.json.gz"
 sys.path.insert(0, str(ROOT / "src"))
 
 import stellar_xdr as xdr  # noqa: E402
-from stellar_xdr import typedefs  # noqa: E402
 from stellar_xdr._runtime import UnionNamespace  # noqa: E402
 
 NETWORKS = {
@@ -166,7 +165,7 @@ def parts(value: Any) -> Iterator[tuple[str, Any]]:  # noqa: ANN401 - any XDR va
     if name is not None:
         yield name, value
     if type(value) in FEE_CHANGES:
-        # A typedef has no class to recognize it by, so its one use is named here.
+        # Of the many LedgerEntryChanges in a ledger, only these are kept by themselves.
         yield "LedgerEntryChanges", value.fee_processing
     if isinstance(value, tuple):
         for item in value:
@@ -200,22 +199,11 @@ class Collector:
     def add(self, network: str, value: Any) -> None:  # noqa: ANN401
         """Add a decoded value and every collected value inside it."""
         for part_name, part in parts(value):
-            codec = getattr(typedefs, part_name, None)
-            if codec is not None:
-                self._candidate(network, part_name, codec.to_xdr_base64(part), part)
-            else:
-                self._candidate(network, part_name, part.to_xdr_base64())
+            self._candidate(network, part_name, part.to_xdr_base64(), part)
 
     def add_xdr(self, network: str, name: str, text: str | None) -> None:
-        """Add a value given as base64, of a type or a typedef."""
+        """Add a value given as base64."""
         if not text:
-            return
-        codec = getattr(typedefs, name, None)
-        if codec is not None:
-            # A typedef has no class; keep it as it is, and its parts too.
-            self._candidate(network, name, text, codec.from_xdr_base64(text))
-            for item in codec.from_xdr_base64(text):
-                self.add(network, item)
             return
         self.add(network, getattr(xdr, name).from_xdr_base64(text))
         if name not in UNITS.values():
@@ -338,11 +326,7 @@ def from_rpc(collector: Collector, network: str, settings: dict[str, Any]) -> No
 def check(vectors: list[dict[str, str]]) -> None:
     """Every kept value encodes back to the same bytes."""
     for v in vectors:
-        codec = getattr(typedefs, v["type"], None)
-        if codec is not None:
-            encoded = codec.to_xdr_base64(codec.from_xdr_base64(v["xdr"]))
-        else:
-            encoded = getattr(xdr, v["type"]).from_xdr_base64(v["xdr"]).to_xdr_base64()
+        encoded = getattr(xdr, v["type"]).from_xdr_base64(v["xdr"]).to_xdr_base64()
         if encoded != v["xdr"]:
             sys.exit(f"{v['type']} does not re-encode: {v['xdr'][:60]}...")
 
@@ -351,8 +335,7 @@ def report(vectors: list[dict[str, str]]) -> None:
     """Print how much of the definitions the vectors hold."""
     found: set[str] = set()
     for v in vectors:
-        codec = getattr(typedefs, v["type"], None) or getattr(xdr, v["type"])
-        coverage(codec.from_xdr_base64(v["xdr"]), found)
+        coverage(getattr(xdr, v["type"]).from_xdr_base64(v["xdr"]), found)
     arms: set[str] = set()
     for name in xdr.__all__:
         if isinstance(getattr(xdr, name), UnionNamespace):

@@ -56,6 +56,7 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrArray,
     XdrEnum,
     XdrStruct,
     check,
@@ -63,6 +64,9 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_int,
+    new_tuple,
     set_field,
     xdr_json,
 )
@@ -2320,12 +2324,10 @@ class MuxedAccountMed25519(XdrStruct):
     id: Uint64
     ed25519: Uint256
 
-    def __init__(self, id: Uint64, ed25519: Uint256) -> None:
+    def __init__(self, id: Uint64, ed25519: bytes) -> None:
         set_field(self, "id", check.uint64(id, "MuxedAccountMed25519.id"))
         set_field(
-            self,
-            "ed25519",
-            check.opaque_fixed(ed25519, "MuxedAccountMed25519.ed25519", 32),
+            self, "ed25519", Uint256._checked(ed25519, "MuxedAccountMed25519.ed25519")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2344,7 +2346,7 @@ class MuxedAccountMed25519(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "id", reader.uint64())
-        set_field(obj, "ed25519", reader.opaque_aligned(32))
+        set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2354,7 +2356,7 @@ class MuxedAccountMed25519(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         parts = xdr_json.read_muxed_account(value, "MuxedAccountMed25519")
         obj = new(cls)
-        set_field(obj, "ed25519", parts[0])
+        set_field(obj, "ed25519", new_bytes(Uint256, parts[0]))
         set_field(obj, "id", parts[1])
         return obj
 
@@ -2388,11 +2390,11 @@ class MuxedAccount(metaclass=UnionNamespace):
             CryptoKeyType.KEY_TYPE_ED25519
         )
 
-        def __init__(self, ed25519: Uint256) -> None:
+        def __init__(self, ed25519: bytes) -> None:
             set_field(
                 self,
                 "ed25519",
-                check.opaque_fixed(ed25519, "MuxedAccount.Ed25519.ed25519", 32),
+                Uint256._checked(ed25519, "MuxedAccount.Ed25519.ed25519"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -2410,7 +2412,7 @@ class MuxedAccount(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "ed25519", reader.opaque_aligned(32))
+            set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2507,12 +2509,12 @@ class MuxedAccount(metaclass=UnionNamespace):
         key = xdr_json.read_strkey(value, "MuxedAccount")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(MuxedAccount.Ed25519)
-            set_field(arm0, "ed25519", key.key)
+            set_field(arm0, "ed25519", new_bytes(Uint256, key.key))
             return arm0
         if isinstance(key, strkey.MuxedEd25519Account):
             part1 = new(MuxedAccountMed25519)
             set_field(part1, "id", key.id)
-            set_field(part1, "ed25519", key.key)
+            set_field(part1, "ed25519", new_bytes(Uint256, key.key))
             arm2 = new(MuxedAccount.MuxedEd25519)
             set_field(arm2, "med25519", part1)
             return arm2
@@ -2561,12 +2563,12 @@ class DecoratedSignature(XdrStruct):
     hint: SignatureHint
     signature: Signature
 
-    def __init__(self, hint: SignatureHint, signature: Signature) -> None:
-        set_field(self, "hint", check.opaque_fixed(hint, "DecoratedSignature.hint", 4))
+    def __init__(self, hint: bytes, signature: bytes) -> None:
+        set_field(self, "hint", SignatureHint._checked(hint, "DecoratedSignature.hint"))
         set_field(
             self,
             "signature",
-            check.opaque_var(signature, "DecoratedSignature.signature", 64),
+            Signature._checked(signature, "DecoratedSignature.signature"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2584,8 +2586,8 @@ class DecoratedSignature(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "hint", reader.opaque_aligned(4))
-        set_field(obj, "signature", reader.opaque_var(64))
+        set_field(obj, "hint", new_bytes(SignatureHint, reader.opaque_aligned(4)))
+        set_field(obj, "signature", new_bytes(Signature, reader.opaque_var(64)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2600,13 +2602,19 @@ class DecoratedSignature(XdrStruct):
         set_field(
             obj,
             "hint",
-            xdr_json.read_hex_fixed(fields["hint"], "DecoratedSignature.hint", 4),
+            new_bytes(
+                SignatureHint,
+                xdr_json.read_hex_fixed(fields["hint"], "DecoratedSignature.hint", 4),
+            ),
         )
         set_field(
             obj,
             "signature",
-            xdr_json.read_hex_var(
-                fields["signature"], "DecoratedSignature.signature", 64
+            new_bytes(
+                Signature,
+                xdr_json.read_hex_var(
+                    fields["signature"], "DecoratedSignature.signature", 64
+                ),
             ),
         )
         return obj
@@ -2627,10 +2635,10 @@ class CreateAccountOp(XdrStruct):
 
     __slots__ = ("destination", "starting_balance")
 
-    destination: AccountID
+    destination: AccountID.Any
     starting_balance: Int64
 
-    def __init__(self, destination: AccountID, starting_balance: Int64) -> None:
+    def __init__(self, destination: AccountID.Any, starting_balance: Int64) -> None:
         set_field(
             self,
             "destination",
@@ -3583,7 +3591,7 @@ class SetOptionsOp(XdrStruct):
         "signer",
     )
 
-    inflation_dest: AccountID | None
+    inflation_dest: AccountID.Any | None
     clear_flags: Uint32 | None
     set_flags: Uint32 | None
     master_weight: Uint32 | None
@@ -3595,7 +3603,7 @@ class SetOptionsOp(XdrStruct):
 
     def __init__(
         self,
-        inflation_dest: AccountID | None,
+        inflation_dest: AccountID.Any | None,
         clear_flags: Uint32 | None,
         set_flags: Uint32 | None,
         master_weight: Uint32 | None,
@@ -3649,7 +3657,7 @@ class SetOptionsOp(XdrStruct):
         set_field(
             self,
             "home_domain",
-            check.optional(home_domain, "SetOptionsOp.home_domain", check.string, 32),
+            check.optional(home_domain, "SetOptionsOp.home_domain", String32._checked),
         )
         set_field(
             self,
@@ -3752,7 +3760,9 @@ class SetOptionsOp(XdrStruct):
             obj, "high_threshold", (reader.uint32() if reader.present() else None)
         )
         set_field(
-            obj, "home_domain", (reader.opaque_var(32) if reader.present() else None)
+            obj,
+            "home_domain",
+            (new_bytes(String32, reader.opaque_var(32)) if reader.present() else None),
         )
         set_field(obj, "signer", (Signer._decode(reader) if reader.present() else None))
         return obj
@@ -3898,8 +3908,11 @@ class SetOptionsOp(XdrStruct):
             (
                 None
                 if fields.get("home_domain") is None
-                else xdr_json.read_string(
-                    fields.get("home_domain"), "SetOptionsOp.home_domain", 32
+                else new_bytes(
+                    String32,
+                    xdr_json.read_string(
+                        fields.get("home_domain"), "SetOptionsOp.home_domain", 32
+                    ),
                 )
             ),
         )
@@ -4291,12 +4304,12 @@ class AllowTrustOp(XdrStruct):
 
     __slots__ = ("trustor", "asset", "authorize")
 
-    trustor: AccountID
+    trustor: AccountID.Any
     asset: AssetCode.Any
     authorize: Uint32
 
     def __init__(
-        self, trustor: AccountID, asset: AssetCode.Any, authorize: Uint32
+        self, trustor: AccountID.Any, asset: AssetCode.Any, authorize: Uint32
     ) -> None:
         set_field(
             self,
@@ -4378,14 +4391,14 @@ class ManageDataOp(XdrStruct):
     data_name: String64
     data_value: DataValue | None
 
-    def __init__(self, data_name: bytes | str, data_value: DataValue | None) -> None:
+    def __init__(self, data_name: bytes | str, data_value: bytes | None) -> None:
         set_field(
-            self, "data_name", check.string(data_name, "ManageDataOp.data_name", 64)
+            self, "data_name", String64._checked(data_name, "ManageDataOp.data_name")
         )
         set_field(
             self,
             "data_value",
-            check.optional(data_value, "ManageDataOp.data_value", check.opaque_var, 64),
+            check.optional(data_value, "ManageDataOp.data_value", DataValue._checked),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -4407,9 +4420,11 @@ class ManageDataOp(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "data_name", reader.opaque_var(64))
+        set_field(obj, "data_name", new_bytes(String64, reader.opaque_var(64)))
         set_field(
-            obj, "data_value", (reader.opaque_var(64) if reader.present() else None)
+            obj,
+            "data_value",
+            (new_bytes(DataValue, reader.opaque_var(64)) if reader.present() else None),
         )
         return obj
 
@@ -4431,7 +4446,10 @@ class ManageDataOp(XdrStruct):
         set_field(
             obj,
             "data_name",
-            xdr_json.read_string(fields["data_name"], "ManageDataOp.data_name", 64),
+            new_bytes(
+                String64,
+                xdr_json.read_string(fields["data_name"], "ManageDataOp.data_name", 64),
+            ),
         )
         set_field(
             obj,
@@ -4439,8 +4457,11 @@ class ManageDataOp(XdrStruct):
             (
                 None
                 if fields.get("data_value") is None
-                else xdr_json.read_hex_var(
-                    fields.get("data_value"), "ManageDataOp.data_value", 64
+                else new_bytes(
+                    DataValue,
+                    xdr_json.read_hex_var(
+                        fields.get("data_value"), "ManageDataOp.data_value", 64
+                    ),
                 )
             ),
         )
@@ -4463,8 +4484,10 @@ class BumpSequenceOp(XdrStruct):
 
     bump_to: SequenceNumber
 
-    def __init__(self, bump_to: SequenceNumber) -> None:
-        set_field(self, "bump_to", check.int64(bump_to, "BumpSequenceOp.bump_to"))
+    def __init__(self, bump_to: Int64) -> None:
+        set_field(
+            self, "bump_to", SequenceNumber._checked(bump_to, "BumpSequenceOp.bump_to")
+        )
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not BumpSequenceOp:
@@ -4480,7 +4503,7 @@ class BumpSequenceOp(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "bump_to", reader.int64())
+        set_field(obj, "bump_to", new_int(SequenceNumber, reader.int64()))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -4493,7 +4516,10 @@ class BumpSequenceOp(XdrStruct):
         set_field(
             obj,
             "bump_to",
-            xdr_json.read_int64(fields["bump_to"], "BumpSequenceOp.bump_to"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(fields["bump_to"], "BumpSequenceOp.bump_to"),
+            ),
         )
         return obj
 
@@ -4680,9 +4706,9 @@ class BeginSponsoringFutureReservesOp(XdrStruct):
 
     __slots__ = ("sponsored_id",)
 
-    sponsored_id: AccountID
+    sponsored_id: AccountID.Any
 
-    def __init__(self, sponsored_id: AccountID) -> None:
+    def __init__(self, sponsored_id: AccountID.Any) -> None:
         set_field(
             self,
             "sponsored_id",
@@ -4741,10 +4767,10 @@ class RevokeSponsorshipOpSigner(XdrStruct):
 
     __slots__ = ("account_id", "signer_key")
 
-    account_id: AccountID
+    account_id: AccountID.Any
     signer_key: SignerKey.Any
 
-    def __init__(self, account_id: AccountID, signer_key: SignerKey.Any) -> None:
+    def __init__(self, account_id: AccountID.Any, signer_key: SignerKey.Any) -> None:
         set_field(
             self,
             "account_id",
@@ -5165,14 +5191,14 @@ class SetTrustLineFlagsOp(XdrStruct):
 
     __slots__ = ("trustor", "asset", "clear_flags", "set_flags")
 
-    trustor: AccountID
+    trustor: AccountID.Any
     asset: Asset.Any
     clear_flags: Uint32
     set_flags: Uint32
 
     def __init__(
         self,
-        trustor: AccountID,
+        trustor: AccountID.Any,
         asset: Asset.Any,
         clear_flags: Uint32,
         set_flags: Uint32,
@@ -5299,7 +5325,7 @@ class LiquidityPoolDepositOp(XdrStruct):
 
     def __init__(
         self,
-        liquidity_pool_id: PoolID,
+        liquidity_pool_id: bytes,
         max_amount_a: Int64,
         max_amount_b: Int64,
         min_price: Price,
@@ -5308,8 +5334,8 @@ class LiquidityPoolDepositOp(XdrStruct):
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "LiquidityPoolDepositOp.liquidity_pool_id", 32
+            PoolID._checked(
+                liquidity_pool_id, "LiquidityPoolDepositOp.liquidity_pool_id"
             ),
         )
         set_field(
@@ -5366,7 +5392,9 @@ class LiquidityPoolDepositOp(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         set_field(obj, "max_amount_a", reader.int64())
         set_field(obj, "max_amount_b", reader.int64())
         set_field(obj, "min_price", Price._decode(reader))
@@ -5399,8 +5427,12 @@ class LiquidityPoolDepositOp(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "LiquidityPoolDepositOp.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"],
+                    "LiquidityPoolDepositOp.liquidity_pool_id",
+                ),
             ),
         )
         set_field(
@@ -5446,7 +5478,7 @@ class LiquidityPoolWithdrawOp(XdrStruct):
 
     def __init__(
         self,
-        liquidity_pool_id: PoolID,
+        liquidity_pool_id: bytes,
         amount: Int64,
         min_amount_a: Int64,
         min_amount_b: Int64,
@@ -5454,8 +5486,8 @@ class LiquidityPoolWithdrawOp(XdrStruct):
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "LiquidityPoolWithdrawOp.liquidity_pool_id", 32
+            PoolID._checked(
+                liquidity_pool_id, "LiquidityPoolWithdrawOp.liquidity_pool_id"
             ),
         )
         set_field(self, "amount", check.int64(amount, "LiquidityPoolWithdrawOp.amount"))
@@ -5500,7 +5532,9 @@ class LiquidityPoolWithdrawOp(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         set_field(obj, "amount", reader.int64())
         set_field(obj, "min_amount_a", reader.int64())
         set_field(obj, "min_amount_b", reader.int64())
@@ -5525,8 +5559,12 @@ class LiquidityPoolWithdrawOp(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "LiquidityPoolWithdrawOp.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"],
+                    "LiquidityPoolWithdrawOp.liquidity_pool_id",
+                ),
             ),
         )
         set_field(
@@ -5569,7 +5607,7 @@ class ContractIDPreimageFromAddress(XdrStruct):
     address: SCAddress.Any
     salt: Uint256
 
-    def __init__(self, address: SCAddress.Any, salt: Uint256) -> None:
+    def __init__(self, address: SCAddress.Any, salt: bytes) -> None:
         set_field(
             self,
             "address",
@@ -5581,9 +5619,7 @@ class ContractIDPreimageFromAddress(XdrStruct):
             ),
         )
         set_field(
-            self,
-            "salt",
-            check.opaque_fixed(salt, "ContractIDPreimageFromAddress.salt", 32),
+            self, "salt", Uint256._checked(salt, "ContractIDPreimageFromAddress.salt")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -5602,7 +5638,7 @@ class ContractIDPreimageFromAddress(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "address", SCAddress._decode(reader))
-        set_field(obj, "salt", reader.opaque_aligned(32))
+        set_field(obj, "salt", new_bytes(Uint256, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -5618,8 +5654,11 @@ class ContractIDPreimageFromAddress(XdrStruct):
         set_field(
             obj,
             "salt",
-            xdr_json.read_hex_fixed(
-                fields["salt"], "ContractIDPreimageFromAddress.salt", 32
+            new_bytes(
+                Uint256,
+                xdr_json.read_hex_fixed(
+                    fields["salt"], "ContractIDPreimageFromAddress.salt", 32
+                ),
             ),
         )
         return obj
@@ -6099,7 +6138,7 @@ class InvokeContractArgs(XdrStruct):
         set_field(
             self,
             "function_name",
-            check.string(function_name, "InvokeContractArgs.function_name", 32),
+            SCSymbol._checked(function_name, "InvokeContractArgs.function_name"),
         )
         set_field(
             self,
@@ -6139,7 +6178,7 @@ class InvokeContractArgs(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "contract_address", SCAddress._decode(reader))
-        set_field(obj, "function_name", reader.opaque_var(32))
+        set_field(obj, "function_name", new_bytes(SCSymbol, reader.opaque_var(32)))
         set_field(
             obj,
             "args",
@@ -6168,8 +6207,11 @@ class InvokeContractArgs(XdrStruct):
         set_field(
             obj,
             "function_name",
-            xdr_json.read_string(
-                fields["function_name"], "InvokeContractArgs.function_name", 32
+            new_bytes(
+                SCSymbol,
+                xdr_json.read_string(
+                    fields["function_name"], "InvokeContractArgs.function_name", 32
+                ),
             ),
         )
         set_field(
@@ -9780,12 +9822,12 @@ class HashIDPreimageOperationId(XdrStruct):
 
     __slots__ = ("source_account", "seq_num", "op_num")
 
-    source_account: AccountID
+    source_account: AccountID.Any
     seq_num: SequenceNumber
     op_num: Uint32
 
     def __init__(
-        self, source_account: AccountID, seq_num: SequenceNumber, op_num: Uint32
+        self, source_account: AccountID.Any, seq_num: Int64, op_num: Uint32
     ) -> None:
         set_field(
             self,
@@ -9798,7 +9840,9 @@ class HashIDPreimageOperationId(XdrStruct):
             ),
         )
         set_field(
-            self, "seq_num", check.int64(seq_num, "HashIDPreimageOperationId.seq_num")
+            self,
+            "seq_num",
+            SequenceNumber._checked(seq_num, "HashIDPreimageOperationId.seq_num"),
         )
         set_field(
             self, "op_num", check.uint32(op_num, "HashIDPreimageOperationId.op_num")
@@ -9827,7 +9871,7 @@ class HashIDPreimageOperationId(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "source_account", PublicKey._decode(reader))
-        set_field(obj, "seq_num", reader.int64())
+        set_field(obj, "seq_num", new_int(SequenceNumber, reader.int64()))
         set_field(obj, "op_num", reader.uint32())
         return obj
 
@@ -9850,7 +9894,12 @@ class HashIDPreimageOperationId(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.read_int64(fields["seq_num"], "HashIDPreimageOperationId.seq_num"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(
+                    fields["seq_num"], "HashIDPreimageOperationId.seq_num"
+                ),
+            ),
         )
         set_field(
             obj,
@@ -9878,7 +9927,7 @@ class HashIDPreimageRevokeId(XdrStruct):
 
     __slots__ = ("source_account", "seq_num", "op_num", "liquidity_pool_id", "asset")
 
-    source_account: AccountID
+    source_account: AccountID.Any
     seq_num: SequenceNumber
     op_num: Uint32
     liquidity_pool_id: PoolID
@@ -9886,10 +9935,10 @@ class HashIDPreimageRevokeId(XdrStruct):
 
     def __init__(
         self,
-        source_account: AccountID,
-        seq_num: SequenceNumber,
+        source_account: AccountID.Any,
+        seq_num: Int64,
         op_num: Uint32,
-        liquidity_pool_id: PoolID,
+        liquidity_pool_id: bytes,
         asset: Asset.Any,
     ) -> None:
         set_field(
@@ -9903,14 +9952,16 @@ class HashIDPreimageRevokeId(XdrStruct):
             ),
         )
         set_field(
-            self, "seq_num", check.int64(seq_num, "HashIDPreimageRevokeId.seq_num")
+            self,
+            "seq_num",
+            SequenceNumber._checked(seq_num, "HashIDPreimageRevokeId.seq_num"),
         )
         set_field(self, "op_num", check.uint32(op_num, "HashIDPreimageRevokeId.op_num"))
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "HashIDPreimageRevokeId.liquidity_pool_id", 32
+            PoolID._checked(
+                liquidity_pool_id, "HashIDPreimageRevokeId.liquidity_pool_id"
             ),
         )
         set_field(
@@ -9953,9 +10004,11 @@ class HashIDPreimageRevokeId(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "source_account", PublicKey._decode(reader))
-        set_field(obj, "seq_num", reader.int64())
+        set_field(obj, "seq_num", new_int(SequenceNumber, reader.int64()))
         set_field(obj, "op_num", reader.uint32())
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         set_field(obj, "asset", Asset._decode(reader))
         return obj
 
@@ -9982,7 +10035,12 @@ class HashIDPreimageRevokeId(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.read_int64(fields["seq_num"], "HashIDPreimageRevokeId.seq_num"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(
+                    fields["seq_num"], "HashIDPreimageRevokeId.seq_num"
+                ),
+            ),
         )
         set_field(
             obj,
@@ -9992,8 +10050,12 @@ class HashIDPreimageRevokeId(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "HashIDPreimageRevokeId.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"],
+                    "HashIDPreimageRevokeId.liquidity_pool_id",
+                ),
             ),
         )
         set_field(obj, "asset", Asset._from_json(fields["asset"], ctx))
@@ -10019,12 +10081,12 @@ class HashIDPreimageContractId(XdrStruct):
     contract_id_preimage: ContractIDPreimage.Any
 
     def __init__(
-        self, network_id: Hash, contract_id_preimage: ContractIDPreimage.Any
+        self, network_id: bytes, contract_id_preimage: ContractIDPreimage.Any
     ) -> None:
         set_field(
             self,
             "network_id",
-            check.opaque_fixed(network_id, "HashIDPreimageContractId.network_id", 32),
+            Hash._checked(network_id, "HashIDPreimageContractId.network_id"),
         )
         set_field(
             self,
@@ -10057,7 +10119,7 @@ class HashIDPreimageContractId(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "network_id", reader.opaque_aligned(32))
+        set_field(obj, "network_id", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "contract_id_preimage", ContractIDPreimage._decode(reader))
         return obj
 
@@ -10076,8 +10138,11 @@ class HashIDPreimageContractId(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.read_hex_fixed(
-                fields["network_id"], "HashIDPreimageContractId.network_id", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["network_id"], "HashIDPreimageContractId.network_id", 32
+                ),
             ),
         )
         set_field(
@@ -10112,7 +10177,7 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
 
     def __init__(
         self,
-        network_id: Hash,
+        network_id: bytes,
         nonce: Int64,
         signature_expiration_ledger: Uint32,
         invocation: SorobanAuthorizedInvocation,
@@ -10120,9 +10185,7 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
         set_field(
             self,
             "network_id",
-            check.opaque_fixed(
-                network_id, "HashIDPreimageSorobanAuthorization.network_id", 32
-            ),
+            Hash._checked(network_id, "HashIDPreimageSorobanAuthorization.network_id"),
         )
         set_field(
             self,
@@ -10177,7 +10240,7 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "network_id", reader.opaque_aligned(32))
+        set_field(obj, "network_id", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "nonce", reader.int64())
         set_field(obj, "signature_expiration_ledger", reader.uint32())
         set_field(obj, "invocation", SorobanAuthorizedInvocation._decode(reader))
@@ -10202,10 +10265,13 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.read_hex_fixed(
-                fields["network_id"],
-                "HashIDPreimageSorobanAuthorization.network_id",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["network_id"],
+                    "HashIDPreimageSorobanAuthorization.network_id",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -10263,7 +10329,7 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
 
     def __init__(
         self,
-        network_id: Hash,
+        network_id: bytes,
         nonce: Int64,
         signature_expiration_ledger: Uint32,
         address: SCAddress.Any,
@@ -10272,10 +10338,8 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
         set_field(
             self,
             "network_id",
-            check.opaque_fixed(
-                network_id,
-                "HashIDPreimageSorobanAuthorizationWithAddress.network_id",
-                32,
+            Hash._checked(
+                network_id, "HashIDPreimageSorobanAuthorizationWithAddress.network_id"
             ),
         )
         set_field(
@@ -10344,7 +10408,7 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "network_id", reader.opaque_aligned(32))
+        set_field(obj, "network_id", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "nonce", reader.int64())
         set_field(obj, "signature_expiration_ledger", reader.uint32())
         set_field(obj, "address", SCAddress._decode(reader))
@@ -10377,10 +10441,13 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.read_hex_fixed(
-                fields["network_id"],
-                "HashIDPreimageSorobanAuthorizationWithAddress.network_id",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["network_id"],
+                    "HashIDPreimageSorobanAuthorizationWithAddress.network_id",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -10976,8 +11043,8 @@ class Memo(metaclass=UnionNamespace):
         hash: Hash
         type: ClassVar[Literal[MemoType.MEMO_HASH]] = MemoType.MEMO_HASH
 
-        def __init__(self, hash: Hash) -> None:
-            set_field(self, "hash", check.opaque_fixed(hash, "Memo.Hash.hash", 32))
+        def __init__(self, hash: bytes) -> None:
+            set_field(self, "hash", Hash._checked(hash, "Memo.Hash.hash"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.Hash:
@@ -10994,7 +11061,7 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "hash", reader.opaque_aligned(32))
+            set_field(obj, "hash", new_bytes(Hash, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -11003,7 +11070,11 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "hash", xdr_json.read_hex_fixed(value, "Memo.Hash.hash", 32))
+            set_field(
+                obj,
+                "hash",
+                new_bytes(Hash, xdr_json.read_hex_fixed(value, "Memo.Hash.hash", 32)),
+            )
             return obj
 
     @final
@@ -11015,12 +11086,8 @@ class Memo(metaclass=UnionNamespace):
         ret_hash: Hash
         type: ClassVar[Literal[MemoType.MEMO_RETURN]] = MemoType.MEMO_RETURN
 
-        def __init__(self, ret_hash: Hash) -> None:
-            set_field(
-                self,
-                "ret_hash",
-                check.opaque_fixed(ret_hash, "Memo.Return.ret_hash", 32),
-            )
+        def __init__(self, ret_hash: bytes) -> None:
+            set_field(self, "ret_hash", Hash._checked(ret_hash, "Memo.Return.ret_hash"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.Return:
@@ -11037,7 +11104,7 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "ret_hash", reader.opaque_aligned(32))
+            set_field(obj, "ret_hash", new_bytes(Hash, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -11049,7 +11116,9 @@ class Memo(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "ret_hash",
-                xdr_json.read_hex_fixed(value, "Memo.Return.ret_hash", 32),
+                new_bytes(
+                    Hash, xdr_json.read_hex_fixed(value, "Memo.Return.ret_hash", 32)
+                ),
             )
             return obj
 
@@ -11157,9 +11226,9 @@ class TimeBounds(XdrStruct):
     min_time: TimePoint
     max_time: TimePoint
 
-    def __init__(self, min_time: TimePoint, max_time: TimePoint) -> None:
-        set_field(self, "min_time", check.uint64(min_time, "TimeBounds.min_time"))
-        set_field(self, "max_time", check.uint64(max_time, "TimeBounds.max_time"))
+    def __init__(self, min_time: Uint64, max_time: Uint64) -> None:
+        set_field(self, "min_time", TimePoint._checked(min_time, "TimeBounds.min_time"))
+        set_field(self, "max_time", TimePoint._checked(max_time, "TimeBounds.max_time"))
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeBounds:
@@ -11176,8 +11245,8 @@ class TimeBounds(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "min_time", reader.uint64())
-        set_field(obj, "max_time", reader.uint64())
+        set_field(obj, "min_time", new_int(TimePoint, reader.uint64()))
+        set_field(obj, "max_time", new_int(TimePoint, reader.uint64()))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -11190,12 +11259,18 @@ class TimeBounds(XdrStruct):
         set_field(
             obj,
             "min_time",
-            xdr_json.read_uint64(fields["min_time"], "TimeBounds.min_time"),
+            new_int(
+                TimePoint,
+                xdr_json.read_uint64(fields["min_time"], "TimeBounds.min_time"),
+            ),
         )
         set_field(
             obj,
             "max_time",
-            xdr_json.read_uint64(fields["max_time"], "TimeBounds.max_time"),
+            new_int(
+                TimePoint,
+                xdr_json.read_uint64(fields["max_time"], "TimeBounds.max_time"),
+            ),
         )
         return obj
 
@@ -11329,8 +11404,8 @@ class PreconditionsV2(XdrStruct):
         self,
         time_bounds: TimeBounds | None,
         ledger_bounds: LedgerBounds | None,
-        min_seq_num: SequenceNumber | None,
-        min_seq_age: Duration,
+        min_seq_num: Int64 | None,
+        min_seq_age: Uint64,
         min_seq_ledger_gap: Uint32,
         extra_signers: Sequence[SignerKey.Any],
     ) -> None:
@@ -11354,12 +11429,14 @@ class PreconditionsV2(XdrStruct):
         set_field(
             self,
             "min_seq_num",
-            check.optional(min_seq_num, "PreconditionsV2.min_seq_num", check.int64),
+            check.optional(
+                min_seq_num, "PreconditionsV2.min_seq_num", SequenceNumber._checked
+            ),
         )
         set_field(
             self,
             "min_seq_age",
-            check.uint64(min_seq_age, "PreconditionsV2.min_seq_age"),
+            Duration._checked(min_seq_age, "PreconditionsV2.min_seq_age"),
         )
         set_field(
             self,
@@ -11439,8 +11516,12 @@ class PreconditionsV2(XdrStruct):
             "ledger_bounds",
             (LedgerBounds._decode(reader) if reader.present() else None),
         )
-        set_field(obj, "min_seq_num", (reader.int64() if reader.present() else None))
-        set_field(obj, "min_seq_age", reader.uint64())
+        set_field(
+            obj,
+            "min_seq_num",
+            (new_int(SequenceNumber, reader.int64()) if reader.present() else None),
+        )
+        set_field(obj, "min_seq_age", new_int(Duration, reader.uint64()))
         set_field(obj, "min_seq_ledger_gap", reader.uint32())
         set_field(
             obj,
@@ -11505,15 +11586,23 @@ class PreconditionsV2(XdrStruct):
             (
                 None
                 if fields.get("min_seq_num") is None
-                else xdr_json.read_int64(
-                    fields.get("min_seq_num"), "PreconditionsV2.min_seq_num"
+                else new_int(
+                    SequenceNumber,
+                    xdr_json.read_int64(
+                        fields.get("min_seq_num"), "PreconditionsV2.min_seq_num"
+                    ),
                 )
             ),
         )
         set_field(
             obj,
             "min_seq_age",
-            xdr_json.read_uint64(fields["min_seq_age"], "PreconditionsV2.min_seq_age"),
+            new_int(
+                Duration,
+                xdr_json.read_uint64(
+                    fields["min_seq_age"], "PreconditionsV2.min_seq_age"
+                ),
+            ),
         )
         set_field(
             obj,
@@ -12549,9 +12638,9 @@ class TransactionV0(XdrStruct):
 
     def __init__(
         self,
-        source_account_ed25519: Uint256,
+        source_account_ed25519: bytes,
         fee: Uint32,
-        seq_num: SequenceNumber,
+        seq_num: Int64,
         time_bounds: TimeBounds | None,
         memo: Memo.Any,
         operations: Sequence[Operation],
@@ -12560,12 +12649,14 @@ class TransactionV0(XdrStruct):
         set_field(
             self,
             "source_account_ed25519",
-            check.opaque_fixed(
-                source_account_ed25519, "TransactionV0.source_account_ed25519", 32
+            Uint256._checked(
+                source_account_ed25519, "TransactionV0.source_account_ed25519"
             ),
         )
         set_field(self, "fee", check.uint32(fee, "TransactionV0.fee"))
-        set_field(self, "seq_num", check.int64(seq_num, "TransactionV0.seq_num"))
+        set_field(
+            self, "seq_num", SequenceNumber._checked(seq_num, "TransactionV0.seq_num")
+        )
         set_field(
             self,
             "time_bounds",
@@ -12639,9 +12730,11 @@ class TransactionV0(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "source_account_ed25519", reader.opaque_aligned(32))
+        set_field(
+            obj, "source_account_ed25519", new_bytes(Uint256, reader.opaque_aligned(32))
+        )
         set_field(obj, "fee", reader.uint32())
-        set_field(obj, "seq_num", reader.int64())
+        set_field(obj, "seq_num", new_int(SequenceNumber, reader.int64()))
         set_field(
             obj,
             "time_bounds",
@@ -12689,17 +12782,23 @@ class TransactionV0(XdrStruct):
         set_field(
             obj,
             "source_account_ed25519",
-            xdr_json.read_hex_fixed(
-                fields["source_account_ed25519"],
-                "TransactionV0.source_account_ed25519",
-                32,
+            new_bytes(
+                Uint256,
+                xdr_json.read_hex_fixed(
+                    fields["source_account_ed25519"],
+                    "TransactionV0.source_account_ed25519",
+                    32,
+                ),
             ),
         )
         set_field(obj, "fee", xdr_json.read_uint32(fields["fee"], "TransactionV0.fee"))
         set_field(
             obj,
             "seq_num",
-            xdr_json.read_int64(fields["seq_num"], "TransactionV0.seq_num"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(fields["seq_num"], "TransactionV0.seq_num"),
+            ),
         )
         set_field(
             obj,
@@ -13053,7 +13152,7 @@ class Transaction(XdrStruct):
         self,
         source_account: MuxedAccount.Any,
         fee: Uint32,
-        seq_num: SequenceNumber,
+        seq_num: Int64,
         cond: Preconditions.Any,
         memo: Memo.Any,
         operations: Sequence[Operation],
@@ -13070,7 +13169,9 @@ class Transaction(XdrStruct):
             ),
         )
         set_field(self, "fee", check.uint32(fee, "Transaction.fee"))
-        set_field(self, "seq_num", check.int64(seq_num, "Transaction.seq_num"))
+        set_field(
+            self, "seq_num", SequenceNumber._checked(seq_num, "Transaction.seq_num")
+        )
         set_field(
             self,
             "cond",
@@ -13139,7 +13240,7 @@ class Transaction(XdrStruct):
         obj = new(cls)
         set_field(obj, "source_account", MuxedAccount._decode(reader))
         set_field(obj, "fee", reader.uint32())
-        set_field(obj, "seq_num", reader.int64())
+        set_field(obj, "seq_num", new_int(SequenceNumber, reader.int64()))
         set_field(obj, "cond", Preconditions._decode(reader))
         set_field(obj, "memo", Memo._decode(reader))
         set_field(
@@ -13178,7 +13279,10 @@ class Transaction(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.read_int64(fields["seq_num"], "Transaction.seq_num"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(fields["seq_num"], "Transaction.seq_num"),
+            ),
         )
         set_field(obj, "cond", Preconditions._from_json(fields["cond"], ctx))
         set_field(obj, "memo", Memo._from_json(fields["memo"], ctx))
@@ -14281,15 +14385,13 @@ class TransactionSignaturePayload(XdrStruct):
 
     def __init__(
         self,
-        network_id: Hash,
+        network_id: bytes,
         tagged_transaction: TransactionSignaturePayloadTaggedTransaction.Any,
     ) -> None:
         set_field(
             self,
             "network_id",
-            check.opaque_fixed(
-                network_id, "TransactionSignaturePayload.network_id", 32
-            ),
+            Hash._checked(network_id, "TransactionSignaturePayload.network_id"),
         )
         set_field(
             self,
@@ -14322,7 +14424,7 @@ class TransactionSignaturePayload(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "network_id", reader.opaque_aligned(32))
+        set_field(obj, "network_id", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(
             obj,
             "tagged_transaction",
@@ -14345,8 +14447,11 @@ class TransactionSignaturePayload(XdrStruct):
         set_field(
             obj,
             "network_id",
-            xdr_json.read_hex_fixed(
-                fields["network_id"], "TransactionSignaturePayload.network_id", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["network_id"], "TransactionSignaturePayload.network_id", 32
+                ),
             ),
         )
         set_field(
@@ -14399,7 +14504,7 @@ class ClaimOfferAtomV0(XdrStruct):
 
     def __init__(
         self,
-        seller_ed25519: Uint256,
+        seller_ed25519: bytes,
         offer_id: Int64,
         asset_sold: Asset.Any,
         amount_sold: Int64,
@@ -14409,7 +14514,7 @@ class ClaimOfferAtomV0(XdrStruct):
         set_field(
             self,
             "seller_ed25519",
-            check.opaque_fixed(seller_ed25519, "ClaimOfferAtomV0.seller_ed25519", 32),
+            Uint256._checked(seller_ed25519, "ClaimOfferAtomV0.seller_ed25519"),
         )
         set_field(self, "offer_id", check.int64(offer_id, "ClaimOfferAtomV0.offer_id"))
         set_field(
@@ -14473,7 +14578,7 @@ class ClaimOfferAtomV0(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "seller_ed25519", reader.opaque_aligned(32))
+        set_field(obj, "seller_ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
         set_field(obj, "offer_id", reader.int64())
         set_field(obj, "asset_sold", Asset._decode(reader))
         set_field(obj, "amount_sold", reader.int64())
@@ -14509,8 +14614,11 @@ class ClaimOfferAtomV0(XdrStruct):
         set_field(
             obj,
             "seller_ed25519",
-            xdr_json.read_hex_fixed(
-                fields["seller_ed25519"], "ClaimOfferAtomV0.seller_ed25519", 32
+            new_bytes(
+                Uint256,
+                xdr_json.read_hex_fixed(
+                    fields["seller_ed25519"], "ClaimOfferAtomV0.seller_ed25519", 32
+                ),
             ),
         )
         set_field(
@@ -14566,7 +14674,7 @@ class ClaimOfferAtom(XdrStruct):
         "amount_bought",
     )
 
-    seller_id: AccountID
+    seller_id: AccountID.Any
     offer_id: Int64
     asset_sold: Asset.Any
     amount_sold: Int64
@@ -14575,7 +14683,7 @@ class ClaimOfferAtom(XdrStruct):
 
     def __init__(
         self,
-        seller_id: AccountID,
+        seller_id: AccountID.Any,
         offer_id: Int64,
         asset_sold: Asset.Any,
         amount_sold: Int64,
@@ -14741,7 +14849,7 @@ class ClaimLiquidityAtom(XdrStruct):
 
     def __init__(
         self,
-        liquidity_pool_id: PoolID,
+        liquidity_pool_id: bytes,
         asset_sold: Asset.Any,
         amount_sold: Int64,
         asset_bought: Asset.Any,
@@ -14750,9 +14858,7 @@ class ClaimLiquidityAtom(XdrStruct):
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "ClaimLiquidityAtom.liquidity_pool_id", 32
-            ),
+            PoolID._checked(liquidity_pool_id, "ClaimLiquidityAtom.liquidity_pool_id"),
         )
         set_field(
             self,
@@ -14812,7 +14918,9 @@ class ClaimLiquidityAtom(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         set_field(obj, "asset_sold", Asset._decode(reader))
         set_field(obj, "amount_sold", reader.int64())
         set_field(obj, "asset_bought", Asset._decode(reader))
@@ -14845,8 +14953,11 @@ class ClaimLiquidityAtom(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "ClaimLiquidityAtom.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"], "ClaimLiquidityAtom.liquidity_pool_id"
+                ),
             ),
         )
         set_field(obj, "asset_sold", Asset._from_json(fields["asset_sold"], ctx))
@@ -15857,11 +15968,13 @@ class SimplePaymentResult(XdrStruct):
 
     __slots__ = ("destination", "asset", "amount")
 
-    destination: AccountID
+    destination: AccountID.Any
     asset: Asset.Any
     amount: Int64
 
-    def __init__(self, destination: AccountID, asset: Asset.Any, amount: Int64) -> None:
+    def __init__(
+        self, destination: AccountID.Any, asset: Asset.Any, amount: Int64
+    ) -> None:
         set_field(
             self,
             "destination",
@@ -20689,10 +20802,10 @@ class InflationPayout(XdrStruct):
 
     __slots__ = ("destination", "amount")
 
-    destination: AccountID
+    destination: AccountID.Any
     amount: Int64
 
-    def __init__(self, destination: AccountID, amount: Int64) -> None:
+    def __init__(self, destination: AccountID.Any, amount: Int64) -> None:
         set_field(
             self,
             "destination",
@@ -24538,13 +24651,11 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
             Literal[InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_SUCCESS]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_SUCCESS
 
-        def __init__(self, success: Hash) -> None:
+        def __init__(self, success: bytes) -> None:
             set_field(
                 self,
                 "success",
-                check.opaque_fixed(
-                    success, "InvokeHostFunctionResult.Success.success", 32
-                ),
+                Hash._checked(success, "InvokeHostFunctionResult.Success.success"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -24562,7 +24673,7 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "success", reader.opaque_aligned(32))
+            set_field(obj, "success", new_bytes(Hash, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -24574,8 +24685,11 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "success",
-                xdr_json.read_hex_fixed(
-                    value, "InvokeHostFunctionResult.Success.success", 32
+                new_bytes(
+                    Hash,
+                    xdr_json.read_hex_fixed(
+                        value, "InvokeHostFunctionResult.Success.success", 32
+                    ),
                 ),
             )
             return obj
@@ -28803,12 +28917,12 @@ class InnerTransactionResultPair(XdrStruct):
     transaction_hash: Hash
     result: InnerTransactionResult
 
-    def __init__(self, transaction_hash: Hash, result: InnerTransactionResult) -> None:
+    def __init__(self, transaction_hash: bytes, result: InnerTransactionResult) -> None:
         set_field(
             self,
             "transaction_hash",
-            check.opaque_fixed(
-                transaction_hash, "InnerTransactionResultPair.transaction_hash", 32
+            Hash._checked(
+                transaction_hash, "InnerTransactionResultPair.transaction_hash"
             ),
         )
         set_field(
@@ -28837,7 +28951,7 @@ class InnerTransactionResultPair(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "transaction_hash", reader.opaque_aligned(32))
+        set_field(obj, "transaction_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "result", InnerTransactionResult._decode(reader))
         return obj
 
@@ -28856,10 +28970,13 @@ class InnerTransactionResultPair(XdrStruct):
         set_field(
             obj,
             "transaction_hash",
-            xdr_json.read_hex_fixed(
-                fields["transaction_hash"],
-                "InnerTransactionResultPair.transaction_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["transaction_hash"],
+                    "InnerTransactionResultPair.transaction_hash",
+                    32,
+                ),
             ),
         )
         set_field(
@@ -30107,9 +30224,57 @@ class TransactionResult(XdrStruct):
         return obj
 
 
-SorobanAuthorizationEntries: TypeAlias = tuple[
-    SorobanAuthorizationEntry, ...
-]  # typedef SorobanAuthorizationEntry SorobanAuthorizationEntries<>;
+@final
+class SorobanAuthorizationEntries(XdrArray[SorobanAuthorizationEntry]):
+    """XDR typedef ``SorobanAuthorizationEntries``.
+
+    ```xdr
+    typedef SorobanAuthorizationEntry SorobanAuthorizationEntries<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[SorobanAuthorizationEntry]) -> Self:
+        return cls._checked(value, "SorobanAuthorizationEntries")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls,
+            check.array(value, where, None, check.instance, SorobanAuthorizationEntry),
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls,
+            [
+                SorobanAuthorizationEntry._decode(reader)
+                for _ in range(reader.count(None, 24))
+            ],
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "SorobanAuthorizationEntries", None),
+                "SorobanAuthorizationEntries",
+                lambda item0: SorobanAuthorizationEntry._from_json(item0, ctx),
+            ),
+        )
 
 
 __all__ = [
