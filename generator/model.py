@@ -212,6 +212,10 @@ class InputError(Exception):
     """`xdr.json` has a shape the generator doesn't handle."""
 
 
+class GenerationError(Exception):
+    """The model can't be turned into valid, unambiguous Python."""
+
+
 def _keys(
     obj: dict[str, Any],
     required: AbstractSet[str],
