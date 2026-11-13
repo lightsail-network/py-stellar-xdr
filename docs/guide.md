@@ -269,23 +269,42 @@ assert repr(address.contract_id) == f"ContractID({bytes(32)!r})"
 What an operation on a value returns is a plain value again: `key[:4]` is a `bytes` and
 `number + 1` an `int`. Pass it to a constructor like any other plain value.
 
-Three kinds of typedef are not classes of their own, but other names:
-
-- `Uint32`, `Int32`, `Uint64` and `Int64` are `int`. Every integer field would
-  otherwise hold an object of its own.
-- A typedef of a union is the union: `AccountID` and `NodeID` are `PublicKey`, with its
-  arms and its decoding. Annotate with `AccountID.Any`.
-- `SponsorshipDescriptor` is an optional account ID, and `None` can't be a value of a
-  class of its own.
+A typedef of a union is the union: `AccountID` and `NodeID` are `PublicKey`, with its
+arms and its decoding. Annotate with `AccountID.Any`:
 
 ```python
 import stellar_xdr as xdr
 
-assert xdr.Uint32 is int
 assert xdr.AccountID is xdr.PublicKey
 
 account: xdr.AccountID.Any = xdr.AccountID.Ed25519(bytes(32))
 assert xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()) == account
+```
+
+`Uint32`, `Int32`, `Uint64` and `Int64`, which nearly every integer field refers to, are
+type aliases rather than classes: names for annotations, which, like a union, can't be
+called or used with `isinstance`. A field of one holds a plain `int`, checked against
+the range of its XDR type like any other field. Were `Uint32` another name for `int`,
+`Uint32(1.9)` would be `1`, and `isinstance(-1, Uint32)` would be true. Reflection, such
+as `typing.get_type_hints`, gives the alias; its `__value__` is `int`.
+
+```python
+import stellar_xdr as xdr
+
+price = xdr.Price(1, 2)  # struct Price { int32 n; int32 d; };
+assert type(price.n) is int
+
+try:
+    xdr.Price(2**31, 1)
+except ValueError as error:
+    message = str(error)
+assert message == "Price.n: 2147483648 is out of range for int32"
+
+try:
+    xdr.Int32(1)  # type checkers report this too
+except TypeError:
+    message = "not callable"
+assert message == "not callable"
 ```
 
 ## Values of any type

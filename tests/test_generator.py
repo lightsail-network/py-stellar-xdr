@@ -469,6 +469,7 @@ def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
         typedef("uint32", {"kind": "unsigned_int"}),
         typedef("Flag", {"kind": "bool"}),
         typedef("Count", {"kind": "ref", "name": "uint32"}),
+        typedef("Seconds", {"kind": "unsigned_hyper"}),
         typedef(
             "Counts", {"kind": "var_array", "element": {"kind": "ref", "name": "Count"}}
         ),
@@ -481,12 +482,14 @@ def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
     source = Generator(
         load_document(tmp_path, data), PROTOCOL, sep51.Rules()
     ).sources()["_test.py"]
-    # A typedef of a primitive, of a bool, of an optional value and of a struct are
-    # other names; the rest are classes that extend the type of their values.
-    assert "Uint32: TypeAlias = int" in source
-    assert "Flag: TypeAlias = bool" in source
+    # uint32 and its like and a bool are type aliases, an optional value is the union
+    # with None, and a typedef of a struct is the struct. The rest are classes that
+    # extend the type of their values, however they refer to the integer.
+    assert "Uint32 = TypeAliasType('Uint32', int)" in source
+    assert "Flag = TypeAliasType('Flag', bool)" in source
     assert "Maybe: TypeAlias = Count | None" in source
     assert "\nT = S  # " in source
+    assert "class Seconds(XdrInt):" in source
     assert "class Count(XdrInt):" in source
     assert "class Counts(XdrArray[Count]):" in source
     count = source.split("class Count(XdrInt):")[1].split("@final")[0]
@@ -709,6 +712,33 @@ def test_a_rule_whose_types_changed_upstream_fails_generation(
 ) -> None:
     with pytest.raises(GenerationError, match=re.escape(message)):
         Generator(model, PROTOCOL)
+
+
+def sequence_number_written(how: str) -> Model:
+    """The model with SequenceNumber, an int64 on the wire, written another way."""
+    if how == "as int64":
+        return MODEL
+    if how == "as hyper":
+        return with_type("SequenceNumber", "", HYPER)
+    # Through a typedef of its own: typedef int64 Base; typedef Base SequenceNumber;
+    old = MODEL.get("SequenceNumber")
+    assert isinstance(old, Typedef)
+    base = dataclasses.replace(old, name="Base")
+    renamed = tuple(base if d is old else d for d in MODEL.definitions)
+    return Model(MODEL.files, (*renamed, dataclasses.replace(old, type=Ref("Base"))))
+
+
+@pytest.mark.parametrize("how", ["as int64", "as hyper", "through another typedef"])
+def test_an_integer_typedef_is_a_class_however_upstream_writes_it(how: str) -> None:
+    model = sequence_number_written(how)
+    source = Generator(model, PROTOCOL).sources()["_ledger_entries.py"]
+    assert "class SequenceNumber(XdrInt):" in source
+
+
+def test_only_the_integer_typedefs_of_a_width_are_type_aliases() -> None:
+    source = Generator(MODEL, PROTOCOL).sources()["_types.py"]
+    aliases = re.findall(r"^(\w+) = TypeAliasType\(", source, re.MULTILINE)
+    assert aliases == ["Uint32", "Int32", "Uint64", "Int64"]
 
 
 def test_a_rule_that_builds_an_arm_without_a_value_fails_generation() -> None:

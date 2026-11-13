@@ -58,19 +58,31 @@ TYPEDEF_NEW: Final = {
 }
 
 
+# The typedefs that give an XDR integer its width, which nearly every integer field
+# refers to. A class of their own would make every such field hold an object instead
+# of a plain int, so their values are plain ints. Every other integer typedef, such as
+# SequenceNumber, is a class, however upstream writes it: `typedef int64` and
+# `typedef hyper` give the same.
+PLAIN_INTEGERS: Final = frozenset({"uint32", "int32", "uint64", "int64"})
+
+
 def typedef_base(model: Model, d: Typedef) -> str | None:
-    """The base class of a typedef that is a class of its own, or None for an alias.
+    """The base class of a typedef that is a class of its own, or None.
 
     A typedef is a class that extends the Python type of its values: `bytes` for
-    opaque data and strings, `int` for integers, `tuple` for arrays. Three kinds of
-    typedef can't be one, and are other names for what they define:
+    opaque data and strings, `int` for integers, `tuple` for arrays. The rest are
+    not classes:
 
-    - `uint32` and the other typedefs of a primitive: every integer field would hold
-      an object of its own instead of a plain `int`;
-    - a typedef of an optional value, since `None` can't be an instance of it;
-    - a typedef of a struct, an enum or a union, which is that type itself.
+    - a typedef of a struct, an enum or a union is that type itself;
+    - a typedef of an optional value is another name for it, `X | None`, since `None`
+      can't be an instance of a class of its own. Like the type it names, it can't
+      be called, and `isinstance` checks it correctly;
+    - the typedefs in `PLAIN_INTEGERS`, and a typedef of `bool`, which can't be
+      extended, are type aliases (`TypeAliasType`): names for annotations, which
+      can't be called or used with `isinstance`. Another name for `int` could be
+      called, and would convert where it should check: `1.9` would become `1`.
     """
-    if isinstance(d.type, Primitive):
+    if d.name in PLAIN_INTEGERS:
         return None
     t: TypeRef = d.type
     while isinstance(t, Ref):

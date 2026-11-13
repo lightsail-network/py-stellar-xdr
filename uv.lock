@@ -1059,6 +1059,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "stellar-strkey" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'" },
 ]
 
 [package.dev-dependencies]
@@ -1084,7 +1085,10 @@ test = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "stellar-strkey", specifier = ">=0.2.0,<0.3.0" }]
+requires-dist = [
+    { name = "stellar-strkey", specifier = ">=0.2.0,<0.3.0" },
+    { name = "typing-extensions", marker = "python_full_version < '3.12'", specifier = ">=4.6" },
+]
 
 [package.metadata.requires-dev]
 dev = [

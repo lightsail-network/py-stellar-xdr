@@ -43,6 +43,15 @@ def typedefs(value: xdr.SCVal.Vec, key: xdr.Hash, number: xdr.SequenceNumber) ->
     assert_type(xdr.AccountID.from_xdr_bytes(account.to_xdr_bytes()), xdr.PublicKey.Any)
 
 
+def type_aliases(port: xdr.Uint32, price: xdr.Price) -> None:
+    # A typedef that can't be a class is a type alias: a name for annotations, which
+    # can't be called or used with isinstance.
+    assert_type(port + 1, int)
+    assert_type(price.n, int)
+    xdr.Uint32(1.9)  # type: ignore[operator]
+    isinstance(port, xdr.Uint32)  # type: ignore[arg-type]
+
+
 def immutability(value: xdr.UInt128Parts) -> None:
     value.hi = 1  # type: ignore[misc]
 
