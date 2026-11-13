@@ -57,13 +57,23 @@ def test_input_must_be_bytes() -> None:
 def test_the_type_must_be_one_that_decodes() -> None:
     # An arm only encodes: decoding starts from its union.
     with pytest.raises(
-        TypeError, match=r"^expected a struct, an enum or a union, got SCVal\.U32$"
+        TypeError,
+        match=r"^expected a struct, an enum, a union or a typedef, got SCVal\.U32$",
     ):
         xdr.decode_stream(xdr.SCVal.U32, b"")  # type: ignore[arg-type]
     with pytest.raises(TypeError, match=r"got str$"):
         xdr.decode_stream("SCVal", b"")  # type: ignore[arg-type]
 
 
-def test_typedef_values_need_their_codec() -> None:
-    with pytest.raises(TypeError, match=r"stellar_xdr\.typedefs"):
+def test_typedefs() -> None:
+    numbers = [xdr.SequenceNumber(1), xdr.SequenceNumber(2)]
+    data = xdr.encode_stream(numbers)
+    assert data == bytes([0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 2])
+    decoded = list(xdr.decode_stream(xdr.SequenceNumber, data))
+    assert decoded == numbers
+    assert type(decoded[0]) is xdr.SequenceNumber
+
+
+def test_plain_values_have_no_type_to_encode_them_by() -> None:
+    with pytest.raises(TypeError, match="expected a value of an XDR type, got int"):
         xdr.encode_stream([1])  # type: ignore[list-item]

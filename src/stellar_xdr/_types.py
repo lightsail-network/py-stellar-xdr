@@ -11,7 +11,7 @@ file between releases.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Final, Literal, NewType, Self, TypeAlias, final
+from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 import stellar_strkey as strkey
 
@@ -23,13 +23,17 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrBytes,
     XdrEnum,
+    XdrInt,
     XdrStruct,
     check,
     decode_base64,
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_int,
     set_field,
     xdr_json,
 )
@@ -207,14 +211,150 @@ _CLAIMABLE_BALANCE_ID_TYPE_JSON_MEMBERS: Final = xdr_json.inverse(
 )
 
 
-Hash = NewType("Hash", bytes)  # typedef opaque Hash[32];
-Uint256 = NewType("Uint256", bytes)  # typedef opaque uint256[32];
+@final
+class Hash(XdrBytes):
+    """XDR typedef ``Hash``.
+
+    ```xdr
+    typedef opaque Hash[32];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "Hash")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_fixed(value, "Hash", 32))
+
+
+@final
+class Uint256(XdrBytes):
+    """XDR typedef ``uint256``.
+
+    ```xdr
+    typedef opaque uint256[32];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "Uint256")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_fixed(value, "Uint256", 32))
+
+
 Uint32: TypeAlias = int  # typedef unsigned int uint32;
 Int32: TypeAlias = int  # typedef int int32;
 Uint64: TypeAlias = int  # typedef unsigned hyper uint64;
 Int64: TypeAlias = int  # typedef hyper int64;
-Signature: TypeAlias = bytes  # typedef opaque Signature<64>;
-SignatureHint = NewType("SignatureHint", bytes)  # typedef opaque SignatureHint[4];
+
+
+@final
+class Signature(XdrBytes):
+    """XDR typedef ``Signature``.
+
+    ```xdr
+    typedef opaque Signature<64>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "Signature")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, 64))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(64))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "Signature", 64))
+
+
+@final
+class SignatureHint(XdrBytes):
+    """XDR typedef ``SignatureHint``.
+
+    ```xdr
+    typedef opaque SignatureHint[4];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "SignatureHint")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 4))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(4))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_fixed(value, "SignatureHint", 4))
 
 
 class ExtensionPoint(metaclass=UnionNamespace):
@@ -365,11 +505,9 @@ class PublicKey(metaclass=UnionNamespace):
             PublicKeyType.PUBLIC_KEY_TYPE_ED25519
         )
 
-        def __init__(self, ed25519: Uint256) -> None:
+        def __init__(self, ed25519: bytes) -> None:
             set_field(
-                self,
-                "ed25519",
-                check.opaque_fixed(ed25519, "PublicKey.Ed25519.ed25519", 32),
+                self, "ed25519", Uint256._checked(ed25519, "PublicKey.Ed25519.ed25519")
             )
 
         def __eq__(self, other: object) -> bool:
@@ -387,7 +525,7 @@ class PublicKey(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "ed25519", reader.opaque_aligned(32))
+            set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -443,7 +581,7 @@ class PublicKey(metaclass=UnionNamespace):
         key = xdr_json.read_strkey(value, "PublicKey")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(PublicKey.Ed25519)
-            set_field(arm0, "ed25519", key.key)
+            set_field(arm0, "ed25519", new_bytes(Uint256, key.key))
             return arm0
         xdr_json.wrong_strkey("PublicKey", key)
 
@@ -489,11 +627,11 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
     ed25519: Uint256
     payload: bytes
 
-    def __init__(self, ed25519: Uint256, payload: bytes) -> None:
+    def __init__(self, ed25519: bytes, payload: bytes) -> None:
         set_field(
             self,
             "ed25519",
-            check.opaque_fixed(ed25519, "SignerKeyEd25519SignedPayload.ed25519", 32),
+            Uint256._checked(ed25519, "SignerKeyEd25519SignedPayload.ed25519"),
         )
         set_field(
             self,
@@ -516,7 +654,7 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "ed25519", reader.opaque_aligned(32))
+        set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
         set_field(obj, "payload", reader.opaque_var(64))
         return obj
 
@@ -527,7 +665,7 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         parts = xdr_json.read_signed_payload(value, "SignerKeyEd25519SignedPayload")
         obj = new(cls)
-        set_field(obj, "ed25519", parts[0])
+        set_field(obj, "ed25519", new_bytes(Uint256, parts[0]))
         set_field(obj, "payload", parts[1])
         return obj
 
@@ -569,11 +707,9 @@ class SignerKey(metaclass=UnionNamespace):
             SignerKeyType.SIGNER_KEY_TYPE_ED25519
         )
 
-        def __init__(self, ed25519: Uint256) -> None:
+        def __init__(self, ed25519: bytes) -> None:
             set_field(
-                self,
-                "ed25519",
-                check.opaque_fixed(ed25519, "SignerKey.Ed25519.ed25519", 32),
+                self, "ed25519", Uint256._checked(ed25519, "SignerKey.Ed25519.ed25519")
             )
 
         def __eq__(self, other: object) -> bool:
@@ -591,7 +727,7 @@ class SignerKey(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "ed25519", reader.opaque_aligned(32))
+            set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -608,11 +744,11 @@ class SignerKey(metaclass=UnionNamespace):
             SignerKeyType.SIGNER_KEY_TYPE_PRE_AUTH_TX
         )
 
-        def __init__(self, pre_auth_tx: Uint256) -> None:
+        def __init__(self, pre_auth_tx: bytes) -> None:
             set_field(
                 self,
                 "pre_auth_tx",
-                check.opaque_fixed(pre_auth_tx, "SignerKey.PreAuthTx.pre_auth_tx", 32),
+                Uint256._checked(pre_auth_tx, "SignerKey.PreAuthTx.pre_auth_tx"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -630,7 +766,7 @@ class SignerKey(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "pre_auth_tx", reader.opaque_aligned(32))
+            set_field(obj, "pre_auth_tx", new_bytes(Uint256, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -647,9 +783,9 @@ class SignerKey(metaclass=UnionNamespace):
             SignerKeyType.SIGNER_KEY_TYPE_HASH_X
         )
 
-        def __init__(self, hash_x: Uint256) -> None:
+        def __init__(self, hash_x: bytes) -> None:
             set_field(
-                self, "hash_x", check.opaque_fixed(hash_x, "SignerKey.HashX.hash_x", 32)
+                self, "hash_x", Uint256._checked(hash_x, "SignerKey.HashX.hash_x")
             )
 
         def __eq__(self, other: object) -> bool:
@@ -667,7 +803,7 @@ class SignerKey(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "hash_x", reader.opaque_aligned(32))
+            set_field(obj, "hash_x", new_bytes(Uint256, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -772,19 +908,19 @@ class SignerKey(metaclass=UnionNamespace):
         key = xdr_json.read_strkey(value, "SignerKey")
         if isinstance(key, strkey.Ed25519PublicKey):
             arm0 = new(SignerKey.Ed25519)
-            set_field(arm0, "ed25519", key.key)
+            set_field(arm0, "ed25519", new_bytes(Uint256, key.key))
             return arm0
         if isinstance(key, strkey.PreAuthTx):
             arm1 = new(SignerKey.PreAuthTx)
-            set_field(arm1, "pre_auth_tx", key.hash)
+            set_field(arm1, "pre_auth_tx", new_bytes(Uint256, key.hash))
             return arm1
         if isinstance(key, strkey.HashX):
             arm2 = new(SignerKey.HashX)
-            set_field(arm2, "hash_x", key.hash)
+            set_field(arm2, "hash_x", new_bytes(Uint256, key.hash))
             return arm2
         if isinstance(key, strkey.Ed25519SignedPayload):
             part3 = new(SignerKeyEd25519SignedPayload)
-            set_field(part3, "ed25519", key.key)
+            set_field(part3, "ed25519", new_bytes(Uint256, key.key))
             set_field(part3, "payload", key.payload)
             arm4 = new(SignerKey.Ed25519SignedPayload)
             set_field(arm4, "ed25519_signed_payload", part3)
@@ -1358,10 +1494,8 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
             ClaimableBalanceIDType.CLAIMABLE_BALANCE_ID_TYPE_V0
         )
 
-        def __init__(self, v0: Hash) -> None:
-            set_field(
-                self, "v0", check.opaque_fixed(v0, "ClaimableBalanceID.V0.v0", 32)
-            )
+        def __init__(self, v0: bytes) -> None:
+            set_field(self, "v0", Hash._checked(v0, "ClaimableBalanceID.V0.v0"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimableBalanceID.V0:
@@ -1378,7 +1512,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "v0", reader.opaque_aligned(32))
+            set_field(obj, "v0", new_bytes(Hash, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1434,7 +1568,7 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
         key = xdr_json.read_strkey(value, "ClaimableBalanceID")
         if isinstance(key, strkey.ClaimableBalance):
             arm0 = new(ClaimableBalanceID.V0)
-            set_field(arm0, "v0", key.hash)
+            set_field(arm0, "v0", new_bytes(Hash, key.hash))
             return arm0
         xdr_json.wrong_strkey("ClaimableBalanceID", key)
 
@@ -1462,13 +1596,183 @@ _CLAIMABLE_BALANCE_ID_ARMS: Final[dict[int, type[ClaimableBalanceID.Any]]] = {
 _CLAIMABLE_BALANCE_ID_CLASSES: Final = frozenset(_CLAIMABLE_BALANCE_ID_ARMS.values())
 
 
-TimePoint: TypeAlias = Uint64  # typedef uint64 TimePoint;
-Duration: TypeAlias = Uint64  # typedef uint64 Duration;
-TimePointMs: TypeAlias = Uint64  # typedef uint64 TimePointMs;
-NodeID: TypeAlias = PublicKey.Any  # typedef PublicKey NodeID;
-AccountID: TypeAlias = PublicKey.Any  # typedef PublicKey AccountID;
-ContractID = NewType("ContractID", bytes)  # typedef Hash ContractID;
-PoolID = NewType("PoolID", bytes)  # typedef Hash PoolID;
+@final
+class TimePoint(XdrInt):
+    """XDR typedef ``TimePoint``.
+
+    ```xdr
+    typedef uint64 TimePoint;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Uint64) -> Self:
+        return cls._checked(value, "TimePoint")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_int(cls, check.uint64(value, where))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint64(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_int(cls, reader.uint64())
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return str(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_int(cls, xdr_json.read_uint64(value, "TimePoint"))
+
+
+@final
+class Duration(XdrInt):
+    """XDR typedef ``Duration``.
+
+    ```xdr
+    typedef uint64 Duration;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Uint64) -> Self:
+        return cls._checked(value, "Duration")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_int(cls, check.uint64(value, where))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint64(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_int(cls, reader.uint64())
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return str(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_int(cls, xdr_json.read_uint64(value, "Duration"))
+
+
+@final
+class TimePointMs(XdrInt):
+    """XDR typedef ``TimePointMs``.
+
+    ```xdr
+    typedef uint64 TimePointMs;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Uint64) -> Self:
+        return cls._checked(value, "TimePointMs")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_int(cls, check.uint64(value, where))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint64(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_int(cls, reader.uint64())
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return str(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_int(cls, xdr_json.read_uint64(value, "TimePointMs"))
+
+
+NodeID = PublicKey  # typedef PublicKey NodeID;
+AccountID = PublicKey  # typedef PublicKey AccountID;
+
+
+@final
+class ContractID(XdrBytes):
+    """XDR typedef ``ContractID``.
+
+    ```xdr
+    typedef Hash ContractID;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "ContractID")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_contract(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_contract(value, "ContractID"))
+
+
+@final
+class PoolID(XdrBytes):
+    """XDR typedef ``PoolID``.
+
+    ```xdr
+    typedef Hash PoolID;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "PoolID")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_liquidity_pool(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_liquidity_pool(value, "PoolID"))
 
 
 __all__ = [

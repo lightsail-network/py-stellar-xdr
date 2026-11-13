@@ -22,6 +22,8 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrArray,
+    XdrBytes,
     XdrEnum,
     XdrStruct,
     check,
@@ -29,6 +31,8 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_tuple,
     set_field,
     xdr_json,
 )
@@ -551,7 +555,39 @@ _CONFIG_SETTING_ID_JSON_NAMES: Final[dict[ConfigSettingID, str]] = {
 _CONFIG_SETTING_ID_JSON_MEMBERS: Final = xdr_json.inverse(_CONFIG_SETTING_ID_JSON_NAMES)
 
 
-EncodedLedgerKey: TypeAlias = bytes  # typedef opaque EncodedLedgerKey<>;
+@final
+class EncodedLedgerKey(XdrBytes):
+    """XDR typedef ``EncodedLedgerKey``.
+
+    ```xdr
+    typedef opaque EncodedLedgerKey<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "EncodedLedgerKey")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, None))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(None))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "EncodedLedgerKey", None))
 
 
 @final
@@ -2465,11 +2501,11 @@ class FrozenLedgerKeys(XdrStruct):
 
     keys: tuple[EncodedLedgerKey, ...]
 
-    def __init__(self, keys: Sequence[EncodedLedgerKey]) -> None:
+    def __init__(self, keys: Sequence[bytes]) -> None:
         set_field(
             self,
             "keys",
-            check.array(keys, "FrozenLedgerKeys.keys", None, check.opaque_var, None),
+            check.array(keys, "FrozenLedgerKeys.keys", None, EncodedLedgerKey._checked),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2491,7 +2527,12 @@ class FrozenLedgerKeys(XdrStruct):
         set_field(
             obj,
             "keys",
-            tuple([reader.opaque_var(None) for _ in range(reader.count(None, 4))]),
+            tuple(
+                [
+                    new_bytes(EncodedLedgerKey, reader.opaque_var(None))
+                    for _ in range(reader.count(None, 4))
+                ]
+            ),
         )
         return obj
 
@@ -2508,8 +2549,9 @@ class FrozenLedgerKeys(XdrStruct):
             xdr_json.read_items(
                 xdr_json.read_array(fields["keys"], "FrozenLedgerKeys.keys", None),
                 "FrozenLedgerKeys.keys",
-                lambda item0: xdr_json.read_hex_var(
-                    item0, "FrozenLedgerKeys.keys", None
+                lambda item0: new_bytes(
+                    EncodedLedgerKey,
+                    xdr_json.read_hex_var(item0, "FrozenLedgerKeys.keys", None),
                 ),
             ),
         )
@@ -2534,9 +2576,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
     keys_to_unfreeze: tuple[EncodedLedgerKey, ...]
 
     def __init__(
-        self,
-        keys_to_freeze: Sequence[EncodedLedgerKey],
-        keys_to_unfreeze: Sequence[EncodedLedgerKey],
+        self, keys_to_freeze: Sequence[bytes], keys_to_unfreeze: Sequence[bytes]
     ) -> None:
         set_field(
             self,
@@ -2545,8 +2585,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
                 keys_to_freeze,
                 "FrozenLedgerKeysDelta.keys_to_freeze",
                 None,
-                check.opaque_var,
-                None,
+                EncodedLedgerKey._checked,
             ),
         )
         set_field(
@@ -2556,8 +2595,7 @@ class FrozenLedgerKeysDelta(XdrStruct):
                 keys_to_unfreeze,
                 "FrozenLedgerKeysDelta.keys_to_unfreeze",
                 None,
-                check.opaque_var,
-                None,
+                EncodedLedgerKey._checked,
             ),
         )
 
@@ -2586,12 +2624,22 @@ class FrozenLedgerKeysDelta(XdrStruct):
         set_field(
             obj,
             "keys_to_freeze",
-            tuple([reader.opaque_var(None) for _ in range(reader.count(None, 4))]),
+            tuple(
+                [
+                    new_bytes(EncodedLedgerKey, reader.opaque_var(None))
+                    for _ in range(reader.count(None, 4))
+                ]
+            ),
         )
         set_field(
             obj,
             "keys_to_unfreeze",
-            tuple([reader.opaque_var(None) for _ in range(reader.count(None, 4))]),
+            tuple(
+                [
+                    new_bytes(EncodedLedgerKey, reader.opaque_var(None))
+                    for _ in range(reader.count(None, 4))
+                ]
+            ),
         )
         return obj
 
@@ -2617,8 +2665,11 @@ class FrozenLedgerKeysDelta(XdrStruct):
                     None,
                 ),
                 "FrozenLedgerKeysDelta.keys_to_freeze",
-                lambda item0: xdr_json.read_hex_var(
-                    item0, "FrozenLedgerKeysDelta.keys_to_freeze", None
+                lambda item0: new_bytes(
+                    EncodedLedgerKey,
+                    xdr_json.read_hex_var(
+                        item0, "FrozenLedgerKeysDelta.keys_to_freeze", None
+                    ),
                 ),
             ),
         )
@@ -2632,8 +2683,11 @@ class FrozenLedgerKeysDelta(XdrStruct):
                     None,
                 ),
                 "FrozenLedgerKeysDelta.keys_to_unfreeze",
-                lambda item0: xdr_json.read_hex_var(
-                    item0, "FrozenLedgerKeysDelta.keys_to_unfreeze", None
+                lambda item0: new_bytes(
+                    EncodedLedgerKey,
+                    xdr_json.read_hex_var(
+                        item0, "FrozenLedgerKeysDelta.keys_to_unfreeze", None
+                    ),
                 ),
             ),
         )
@@ -2655,13 +2709,11 @@ class FreezeBypassTxs(XdrStruct):
 
     tx_hashes: tuple[Hash, ...]
 
-    def __init__(self, tx_hashes: Sequence[Hash]) -> None:
+    def __init__(self, tx_hashes: Sequence[bytes]) -> None:
         set_field(
             self,
             "tx_hashes",
-            check.array(
-                tx_hashes, "FreezeBypassTxs.tx_hashes", None, check.opaque_fixed, 32
-            ),
+            check.array(tx_hashes, "FreezeBypassTxs.tx_hashes", None, Hash._checked),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2683,7 +2735,12 @@ class FreezeBypassTxs(XdrStruct):
         set_field(
             obj,
             "tx_hashes",
-            tuple([reader.opaque_aligned(32) for _ in range(reader.count(None, 32))]),
+            tuple(
+                [
+                    new_bytes(Hash, reader.opaque_aligned(32))
+                    for _ in range(reader.count(None, 32))
+                ]
+            ),
         )
         return obj
 
@@ -2702,8 +2759,9 @@ class FreezeBypassTxs(XdrStruct):
                     fields["tx_hashes"], "FreezeBypassTxs.tx_hashes", None
                 ),
                 "FreezeBypassTxs.tx_hashes",
-                lambda item0: xdr_json.read_hex_fixed(
-                    item0, "FreezeBypassTxs.tx_hashes", 32
+                lambda item0: new_bytes(
+                    Hash,
+                    xdr_json.read_hex_fixed(item0, "FreezeBypassTxs.tx_hashes", 32),
                 ),
             ),
         )
@@ -2727,23 +2785,17 @@ class FreezeBypassTxsDelta(XdrStruct):
     add_txs: tuple[Hash, ...]
     remove_txs: tuple[Hash, ...]
 
-    def __init__(self, add_txs: Sequence[Hash], remove_txs: Sequence[Hash]) -> None:
+    def __init__(self, add_txs: Sequence[bytes], remove_txs: Sequence[bytes]) -> None:
         set_field(
             self,
             "add_txs",
-            check.array(
-                add_txs, "FreezeBypassTxsDelta.add_txs", None, check.opaque_fixed, 32
-            ),
+            check.array(add_txs, "FreezeBypassTxsDelta.add_txs", None, Hash._checked),
         )
         set_field(
             self,
             "remove_txs",
             check.array(
-                remove_txs,
-                "FreezeBypassTxsDelta.remove_txs",
-                None,
-                check.opaque_fixed,
-                32,
+                remove_txs, "FreezeBypassTxsDelta.remove_txs", None, Hash._checked
             ),
         )
 
@@ -2769,12 +2821,22 @@ class FreezeBypassTxsDelta(XdrStruct):
         set_field(
             obj,
             "add_txs",
-            tuple([reader.opaque_aligned(32) for _ in range(reader.count(None, 32))]),
+            tuple(
+                [
+                    new_bytes(Hash, reader.opaque_aligned(32))
+                    for _ in range(reader.count(None, 32))
+                ]
+            ),
         )
         set_field(
             obj,
             "remove_txs",
-            tuple([reader.opaque_aligned(32) for _ in range(reader.count(None, 32))]),
+            tuple(
+                [
+                    new_bytes(Hash, reader.opaque_aligned(32))
+                    for _ in range(reader.count(None, 32))
+                ]
+            ),
         )
         return obj
 
@@ -2798,8 +2860,9 @@ class FreezeBypassTxsDelta(XdrStruct):
                     fields["add_txs"], "FreezeBypassTxsDelta.add_txs", None
                 ),
                 "FreezeBypassTxsDelta.add_txs",
-                lambda item0: xdr_json.read_hex_fixed(
-                    item0, "FreezeBypassTxsDelta.add_txs", 32
+                lambda item0: new_bytes(
+                    Hash,
+                    xdr_json.read_hex_fixed(item0, "FreezeBypassTxsDelta.add_txs", 32),
                 ),
             ),
         )
@@ -2811,8 +2874,11 @@ class FreezeBypassTxsDelta(XdrStruct):
                     fields["remove_txs"], "FreezeBypassTxsDelta.remove_txs", None
                 ),
                 "FreezeBypassTxsDelta.remove_txs",
-                lambda item0: xdr_json.read_hex_fixed(
-                    item0, "FreezeBypassTxsDelta.remove_txs", 32
+                lambda item0: new_bytes(
+                    Hash,
+                    xdr_json.read_hex_fixed(
+                        item0, "FreezeBypassTxsDelta.remove_txs", 32
+                    ),
                 ),
             ),
         )
@@ -3247,12 +3313,9 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 self,
                 "contract_cost_params_cpu_insns",
-                check.array(
+                ContractCostParams._checked(
                     contract_cost_params_cpu_insns,
                     "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
-                    1024,
-                    check.instance,
-                    ContractCostParamEntry,
                 ),
             )
 
@@ -3286,11 +3349,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_cpu_insns",
-                tuple(
+                new_tuple(
+                    ContractCostParams,
                     [
                         ContractCostParamEntry._decode(reader)
                         for _ in range(reader.count(1024, 20))
-                    ]
+                    ],
                 ),
             )
             return obj
@@ -3308,14 +3372,17 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_cpu_insns",
-                xdr_json.read_items(
-                    xdr_json.read_array(
-                        value,
+                new_tuple(
+                    ContractCostParams,
+                    xdr_json.read_items(
+                        xdr_json.read_array(
+                            value,
+                            "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
+                            1024,
+                        ),
                         "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
-                        1024,
+                        lambda item0: ContractCostParamEntry._from_json(item0, ctx),
                     ),
-                    "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
-                    lambda item0: ContractCostParamEntry._from_json(item0, ctx),
                 ),
             )
             return obj
@@ -3337,12 +3404,9 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 self,
                 "contract_cost_params_mem_bytes",
-                check.array(
+                ContractCostParams._checked(
                     contract_cost_params_mem_bytes,
                     "ConfigSettingEntry.ContractCostParamsMemoryBytes.contract_cost_params_mem_bytes",
-                    1024,
-                    check.instance,
-                    ContractCostParamEntry,
                 ),
             )
 
@@ -3376,11 +3440,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_mem_bytes",
-                tuple(
+                new_tuple(
+                    ContractCostParams,
                     [
                         ContractCostParamEntry._decode(reader)
                         for _ in range(reader.count(1024, 20))
-                    ]
+                    ],
                 ),
             )
             return obj
@@ -3398,14 +3463,17 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "contract_cost_params_mem_bytes",
-                xdr_json.read_items(
-                    xdr_json.read_array(
-                        value,
+                new_tuple(
+                    ContractCostParams,
+                    xdr_json.read_items(
+                        xdr_json.read_array(
+                            value,
+                            "ConfigSettingEntry.ContractCostParamsMemoryBytes.contract_cost_params_mem_bytes",
+                            1024,
+                        ),
                         "ConfigSettingEntry.ContractCostParamsMemoryBytes.contract_cost_params_mem_bytes",
-                        1024,
+                        lambda item0: ContractCostParamEntry._from_json(item0, ctx),
                     ),
-                    "ConfigSettingEntry.ContractCostParamsMemoryBytes.contract_cost_params_mem_bytes",
-                    lambda item0: ContractCostParamEntry._from_json(item0, ctx),
                 ),
             )
             return obj
@@ -4351,9 +4419,56 @@ _CONFIG_SETTING_ENTRY_JSON_ARMS: Final[dict[str, type[ConfigSettingEntry.Any]]] 
 _CONFIG_SETTING_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
-ContractCostParams: TypeAlias = tuple[
-    ContractCostParamEntry, ...
-]  # typedef ContractCostParamEntry ContractCostParams<CONTRACT_COST_COUNT_LIMIT>;
+@final
+class ContractCostParams(XdrArray[ContractCostParamEntry]):
+    """XDR typedef ``ContractCostParams``.
+
+    ```xdr
+    typedef ContractCostParamEntry ContractCostParams<CONTRACT_COST_COUNT_LIMIT>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[ContractCostParamEntry]) -> Self:
+        return cls._checked(value, "ContractCostParams")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls, check.array(value, where, 1024, check.instance, ContractCostParamEntry)
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls,
+            [
+                ContractCostParamEntry._decode(reader)
+                for _ in range(reader.count(1024, 20))
+            ],
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "ContractCostParams", 1024),
+                "ContractCostParams",
+                lambda item0: ContractCostParamEntry._from_json(item0, ctx),
+            ),
+        )
 
 
 __all__ = [

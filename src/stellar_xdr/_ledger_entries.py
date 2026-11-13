@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, NewType, Self, TypeAlias, final
+from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._contract import _SC_ADDRESS_CLASSES, _SC_VAL_CLASSES, SCAddress, SCVal
 from ._contract_config_setting import (
@@ -28,13 +28,17 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrBytes,
     XdrEnum,
+    XdrInt,
     XdrStruct,
     check,
     decode_base64,
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_int,
     set_field,
     xdr_json,
 )
@@ -54,6 +58,7 @@ from ._types import (
     SignerKey,
     TimePoint,
     Uint32,
+    Uint64,
 )
 
 MASK_ACCOUNT_FLAGS: Final = 7  # const MASK_ACCOUNT_FLAGS = 0x7;
@@ -655,12 +660,214 @@ _HOT_ARCHIVE_BUCKET_ENTRY_TYPE_JSON_MEMBERS: Final = xdr_json.inverse(
 )
 
 
-Thresholds = NewType("Thresholds", bytes)  # typedef opaque Thresholds[4];
-String32: TypeAlias = bytes  # typedef string string32<32>;
-String64: TypeAlias = bytes  # typedef string string64<64>;
-DataValue: TypeAlias = bytes  # typedef opaque DataValue<64>;
-AssetCode4 = NewType("AssetCode4", bytes)  # typedef opaque AssetCode4[4];
-AssetCode12 = NewType("AssetCode12", bytes)  # typedef opaque AssetCode12[12];
+@final
+class Thresholds(XdrBytes):
+    """XDR typedef ``Thresholds``.
+
+    ```xdr
+    typedef opaque Thresholds[4];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "Thresholds")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 4))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(4))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_fixed(value, "Thresholds", 4))
+
+
+@final
+class String32(XdrBytes):
+    """XDR typedef ``string32``.
+
+    ```xdr
+    typedef string string32<32>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes | str) -> Self:
+        return cls._checked(value, "String32")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.string(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_string(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_string(value, "String32", 32))
+
+
+@final
+class String64(XdrBytes):
+    """XDR typedef ``string64``.
+
+    ```xdr
+    typedef string string64<64>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes | str) -> Self:
+        return cls._checked(value, "String64")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.string(value, where, 64))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(64))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_string(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_string(value, "String64", 64))
+
+
+@final
+class DataValue(XdrBytes):
+    """XDR typedef ``DataValue``.
+
+    ```xdr
+    typedef opaque DataValue<64>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "DataValue")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, 64))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(64))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "DataValue", 64))
+
+
+@final
+class AssetCode4(XdrBytes):
+    """XDR typedef ``AssetCode4``.
+
+    ```xdr
+    typedef opaque AssetCode4[4];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "AssetCode4")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 4))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(4))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_asset_code4(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_asset_code4(value, "AssetCode4"))
+
+
+@final
+class AssetCode12(XdrBytes):
+    """XDR typedef ``AssetCode12``.
+
+    ```xdr
+    typedef opaque AssetCode12[12];
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "AssetCode12")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_fixed(value, where, 12))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_fixed(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_aligned(12))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_asset_code12(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_asset_code12(value, "AssetCode12"))
 
 
 class AssetCode(metaclass=UnionNamespace):
@@ -691,12 +898,12 @@ class AssetCode(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_CREDIT_ALPHANUM4
         )
 
-        def __init__(self, asset_code4: AssetCode4) -> None:
+        def __init__(self, asset_code4: bytes) -> None:
             set_field(
                 self,
                 "asset_code4",
-                check.opaque_fixed(
-                    asset_code4, "AssetCode.CreditAlphanum4.asset_code4", 4
+                AssetCode4._checked(
+                    asset_code4, "AssetCode.CreditAlphanum4.asset_code4"
                 ),
             )
 
@@ -715,7 +922,9 @@ class AssetCode(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "asset_code4", reader.opaque_aligned(4))
+            set_field(
+                obj, "asset_code4", new_bytes(AssetCode4, reader.opaque_aligned(4))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -732,12 +941,12 @@ class AssetCode(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_CREDIT_ALPHANUM12
         )
 
-        def __init__(self, asset_code12: AssetCode12) -> None:
+        def __init__(self, asset_code12: bytes) -> None:
             set_field(
                 self,
                 "asset_code12",
-                check.opaque_fixed(
-                    asset_code12, "AssetCode.CreditAlphanum12.asset_code12", 12
+                AssetCode12._checked(
+                    asset_code12, "AssetCode.CreditAlphanum12.asset_code12"
                 ),
             )
 
@@ -756,7 +965,9 @@ class AssetCode(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "asset_code12", reader.opaque_aligned(12))
+            set_field(
+                obj, "asset_code12", new_bytes(AssetCode12, reader.opaque_aligned(12))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -812,10 +1023,10 @@ class AssetCode(metaclass=UnionNamespace):
         code = xdr_json.read_asset_code(value, "AssetCode")
         if len(code) <= 4:
             short = new(AssetCode.CreditAlphanum4)
-            set_field(short, "asset_code4", code.ljust(4, b"\0"))
+            set_field(short, "asset_code4", new_bytes(AssetCode4, code.ljust(4, b"\0")))
             return short
         long = new(AssetCode.CreditAlphanum12)
-        set_field(long, "asset_code12", code.ljust(12, b"\0"))
+        set_field(long, "asset_code12", new_bytes(AssetCode12, code.ljust(12, b"\0")))
         return long
 
     @staticmethod
@@ -859,13 +1070,11 @@ class AlphaNum4(XdrStruct):
     __slots__ = ("asset_code", "issuer")
 
     asset_code: AssetCode4
-    issuer: AccountID
+    issuer: AccountID.Any
 
-    def __init__(self, asset_code: AssetCode4, issuer: AccountID) -> None:
+    def __init__(self, asset_code: bytes, issuer: AccountID.Any) -> None:
         set_field(
-            self,
-            "asset_code",
-            check.opaque_fixed(asset_code, "AlphaNum4.asset_code", 4),
+            self, "asset_code", AssetCode4._checked(asset_code, "AlphaNum4.asset_code")
         )
         set_field(
             self,
@@ -888,7 +1097,7 @@ class AlphaNum4(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "asset_code", reader.opaque_aligned(4))
+        set_field(obj, "asset_code", new_bytes(AssetCode4, reader.opaque_aligned(4)))
         set_field(obj, "issuer", PublicKey._decode(reader))
         return obj
 
@@ -905,7 +1114,10 @@ class AlphaNum4(XdrStruct):
         set_field(
             obj,
             "asset_code",
-            xdr_json.read_asset_code4(fields["asset_code"], "AlphaNum4.asset_code"),
+            new_bytes(
+                AssetCode4,
+                xdr_json.read_asset_code4(fields["asset_code"], "AlphaNum4.asset_code"),
+            ),
         )
         set_field(obj, "issuer", PublicKey._from_json(fields["issuer"], ctx))
         return obj
@@ -927,13 +1139,13 @@ class AlphaNum12(XdrStruct):
     __slots__ = ("asset_code", "issuer")
 
     asset_code: AssetCode12
-    issuer: AccountID
+    issuer: AccountID.Any
 
-    def __init__(self, asset_code: AssetCode12, issuer: AccountID) -> None:
+    def __init__(self, asset_code: bytes, issuer: AccountID.Any) -> None:
         set_field(
             self,
             "asset_code",
-            check.opaque_fixed(asset_code, "AlphaNum12.asset_code", 12),
+            AssetCode12._checked(asset_code, "AlphaNum12.asset_code"),
         )
         set_field(
             self,
@@ -956,7 +1168,7 @@ class AlphaNum12(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "asset_code", reader.opaque_aligned(12))
+        set_field(obj, "asset_code", new_bytes(AssetCode12, reader.opaque_aligned(12)))
         set_field(obj, "issuer", PublicKey._decode(reader))
         return obj
 
@@ -973,7 +1185,12 @@ class AlphaNum12(XdrStruct):
         set_field(
             obj,
             "asset_code",
-            xdr_json.read_asset_code12(fields["asset_code"], "AlphaNum12.asset_code"),
+            new_bytes(
+                AssetCode12,
+                xdr_json.read_asset_code12(
+                    fields["asset_code"], "AlphaNum12.asset_code"
+                ),
+            ),
         )
         set_field(obj, "issuer", PublicKey._from_json(fields["issuer"], ctx))
         return obj
@@ -1405,7 +1622,7 @@ class AccountEntryExtensionV3(XdrStruct):
     seq_time: TimePoint
 
     def __init__(
-        self, ext: ExtensionPoint.Any, seq_ledger: Uint32, seq_time: TimePoint
+        self, ext: ExtensionPoint.Any, seq_ledger: Uint32, seq_time: Uint64
     ) -> None:
         set_field(
             self,
@@ -1423,7 +1640,9 @@ class AccountEntryExtensionV3(XdrStruct):
             check.uint32(seq_ledger, "AccountEntryExtensionV3.seq_ledger"),
         )
         set_field(
-            self, "seq_time", check.uint64(seq_time, "AccountEntryExtensionV3.seq_time")
+            self,
+            "seq_time",
+            TimePoint._checked(seq_time, "AccountEntryExtensionV3.seq_time"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1448,7 +1667,7 @@ class AccountEntryExtensionV3(XdrStruct):
         obj = new(cls)
         set_field(obj, "ext", ExtensionPoint._decode(reader))
         set_field(obj, "seq_ledger", reader.uint32())
-        set_field(obj, "seq_time", reader.uint64())
+        set_field(obj, "seq_time", new_int(TimePoint, reader.uint64()))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1475,8 +1694,11 @@ class AccountEntryExtensionV3(XdrStruct):
         set_field(
             obj,
             "seq_time",
-            xdr_json.read_uint64(
-                fields["seq_time"], "AccountEntryExtensionV3.seq_time"
+            new_int(
+                TimePoint,
+                xdr_json.read_uint64(
+                    fields["seq_time"], "AccountEntryExtensionV3.seq_time"
+                ),
             ),
         )
         return obj
@@ -2314,11 +2536,11 @@ class AccountEntry(XdrStruct):
         "ext",
     )
 
-    account_id: AccountID
+    account_id: AccountID.Any
     balance: Int64
     seq_num: SequenceNumber
     num_sub_entries: Uint32
-    inflation_dest: AccountID | None
+    inflation_dest: AccountID.Any | None
     flags: Uint32
     home_domain: String32
     thresholds: Thresholds
@@ -2327,14 +2549,14 @@ class AccountEntry(XdrStruct):
 
     def __init__(
         self,
-        account_id: AccountID,
+        account_id: AccountID.Any,
         balance: Int64,
-        seq_num: SequenceNumber,
+        seq_num: Int64,
         num_sub_entries: Uint32,
-        inflation_dest: AccountID | None,
+        inflation_dest: AccountID.Any | None,
         flags: Uint32,
         home_domain: bytes | str,
-        thresholds: Thresholds,
+        thresholds: bytes,
         signers: Sequence[Signer],
         ext: AccountEntryExt.Any,
     ) -> None:
@@ -2346,7 +2568,9 @@ class AccountEntry(XdrStruct):
             ),
         )
         set_field(self, "balance", check.int64(balance, "AccountEntry.balance"))
-        set_field(self, "seq_num", check.int64(seq_num, "AccountEntry.seq_num"))
+        set_field(
+            self, "seq_num", SequenceNumber._checked(seq_num, "AccountEntry.seq_num")
+        )
         set_field(
             self,
             "num_sub_entries",
@@ -2367,12 +2591,12 @@ class AccountEntry(XdrStruct):
         set_field(
             self,
             "home_domain",
-            check.string(home_domain, "AccountEntry.home_domain", 32),
+            String32._checked(home_domain, "AccountEntry.home_domain"),
         )
         set_field(
             self,
             "thresholds",
-            check.opaque_fixed(thresholds, "AccountEntry.thresholds", 4),
+            Thresholds._checked(thresholds, "AccountEntry.thresholds"),
         )
         set_field(
             self,
@@ -2443,7 +2667,7 @@ class AccountEntry(XdrStruct):
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._decode(reader))
         set_field(obj, "balance", reader.int64())
-        set_field(obj, "seq_num", reader.int64())
+        set_field(obj, "seq_num", new_int(SequenceNumber, reader.int64()))
         set_field(obj, "num_sub_entries", reader.uint32())
         set_field(
             obj,
@@ -2451,8 +2675,8 @@ class AccountEntry(XdrStruct):
             (PublicKey._decode(reader) if reader.present() else None),
         )
         set_field(obj, "flags", reader.uint32())
-        set_field(obj, "home_domain", reader.opaque_var(32))
-        set_field(obj, "thresholds", reader.opaque_aligned(4))
+        set_field(obj, "home_domain", new_bytes(String32, reader.opaque_var(32)))
+        set_field(obj, "thresholds", new_bytes(Thresholds, reader.opaque_aligned(4)))
         set_field(
             obj,
             "signers",
@@ -2508,7 +2732,10 @@ class AccountEntry(XdrStruct):
         set_field(
             obj,
             "seq_num",
-            xdr_json.read_int64(fields["seq_num"], "AccountEntry.seq_num"),
+            new_int(
+                SequenceNumber,
+                xdr_json.read_int64(fields["seq_num"], "AccountEntry.seq_num"),
+            ),
         )
         set_field(
             obj,
@@ -2532,12 +2759,22 @@ class AccountEntry(XdrStruct):
         set_field(
             obj,
             "home_domain",
-            xdr_json.read_string(fields["home_domain"], "AccountEntry.home_domain", 32),
+            new_bytes(
+                String32,
+                xdr_json.read_string(
+                    fields["home_domain"], "AccountEntry.home_domain", 32
+                ),
+            ),
         )
         set_field(
             obj,
             "thresholds",
-            xdr_json.read_hex_fixed(fields["thresholds"], "AccountEntry.thresholds", 4),
+            new_bytes(
+                Thresholds,
+                xdr_json.read_hex_fixed(
+                    fields["thresholds"], "AccountEntry.thresholds", 4
+                ),
+            ),
         )
         set_field(
             obj,
@@ -2714,12 +2951,12 @@ class TrustLineAsset(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_POOL_SHARE
         )
 
-        def __init__(self, liquidity_pool_id: PoolID) -> None:
+        def __init__(self, liquidity_pool_id: bytes) -> None:
             set_field(
                 self,
                 "liquidity_pool_id",
-                check.opaque_fixed(
-                    liquidity_pool_id, "TrustLineAsset.PoolShare.liquidity_pool_id", 32
+                PoolID._checked(
+                    liquidity_pool_id, "TrustLineAsset.PoolShare.liquidity_pool_id"
                 ),
             )
 
@@ -2738,7 +2975,9 @@ class TrustLineAsset(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+            set_field(
+                obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2750,8 +2989,11 @@ class TrustLineAsset(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "liquidity_pool_id",
-                xdr_json.read_liquidity_pool(
-                    value, "TrustLineAsset.PoolShare.liquidity_pool_id"
+                new_bytes(
+                    PoolID,
+                    xdr_json.read_liquidity_pool(
+                        value, "TrustLineAsset.PoolShare.liquidity_pool_id"
+                    ),
                 ),
             )
             return obj
@@ -3551,7 +3793,7 @@ class TrustLineEntry(XdrStruct):
 
     __slots__ = ("account_id", "asset", "balance", "limit", "flags", "ext")
 
-    account_id: AccountID
+    account_id: AccountID.Any
     asset: TrustLineAsset.Any
     balance: Int64
     limit: Int64
@@ -3560,7 +3802,7 @@ class TrustLineEntry(XdrStruct):
 
     def __init__(
         self,
-        account_id: AccountID,
+        account_id: AccountID.Any,
         asset: TrustLineAsset.Any,
         balance: Int64,
         limit: Int64,
@@ -3846,7 +4088,7 @@ class OfferEntry(XdrStruct):
         "ext",
     )
 
-    seller_id: AccountID
+    seller_id: AccountID.Any
     offer_id: Int64
     selling: Asset.Any
     buying: Asset.Any
@@ -3857,7 +4099,7 @@ class OfferEntry(XdrStruct):
 
     def __init__(
         self,
-        seller_id: AccountID,
+        seller_id: AccountID.Any,
         offer_id: Int64,
         selling: Asset.Any,
         buying: Asset.Any,
@@ -4139,16 +4381,16 @@ class DataEntry(XdrStruct):
 
     __slots__ = ("account_id", "data_name", "data_value", "ext")
 
-    account_id: AccountID
+    account_id: AccountID.Any
     data_name: String64
     data_value: DataValue
     ext: DataEntryExt.Any
 
     def __init__(
         self,
-        account_id: AccountID,
+        account_id: AccountID.Any,
         data_name: bytes | str,
-        data_value: DataValue,
+        data_value: bytes,
         ext: DataEntryExt.Any,
     ) -> None:
         set_field(
@@ -4158,9 +4400,11 @@ class DataEntry(XdrStruct):
                 account_id, "DataEntry.account_id", _PUBLIC_KEY_CLASSES, "PublicKey"
             ),
         )
-        set_field(self, "data_name", check.string(data_name, "DataEntry.data_name", 64))
         set_field(
-            self, "data_value", check.opaque_var(data_value, "DataEntry.data_value", 64)
+            self, "data_name", String64._checked(data_name, "DataEntry.data_name")
+        )
+        set_field(
+            self, "data_value", DataValue._checked(data_value, "DataEntry.data_value")
         )
         set_field(
             self,
@@ -4193,8 +4437,8 @@ class DataEntry(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._decode(reader))
-        set_field(obj, "data_name", reader.opaque_var(64))
-        set_field(obj, "data_value", reader.opaque_var(64))
+        set_field(obj, "data_name", new_bytes(String64, reader.opaque_var(64)))
+        set_field(obj, "data_value", new_bytes(DataValue, reader.opaque_var(64)))
         set_field(obj, "ext", DataEntryExt._decode(reader))
         return obj
 
@@ -4216,12 +4460,18 @@ class DataEntry(XdrStruct):
         set_field(
             obj,
             "data_name",
-            xdr_json.read_string(fields["data_name"], "DataEntry.data_name", 64),
+            new_bytes(
+                String64,
+                xdr_json.read_string(fields["data_name"], "DataEntry.data_name", 64),
+            ),
         )
         set_field(
             obj,
             "data_value",
-            xdr_json.read_hex_var(fields["data_value"], "DataEntry.data_value", 64),
+            new_bytes(
+                DataValue,
+                xdr_json.read_hex_var(fields["data_value"], "DataEntry.data_value", 64),
+            ),
         )
         set_field(obj, "ext", DataEntryExt._from_json(fields["ext"], ctx))
         return obj
@@ -4735,10 +4985,12 @@ class ClaimantV0(XdrStruct):
 
     __slots__ = ("destination", "predicate")
 
-    destination: AccountID
+    destination: AccountID.Any
     predicate: ClaimPredicate.Any
 
-    def __init__(self, destination: AccountID, predicate: ClaimPredicate.Any) -> None:
+    def __init__(
+        self, destination: AccountID.Any, predicate: ClaimPredicate.Any
+    ) -> None:
         set_field(
             self,
             "destination",
@@ -5984,14 +6236,12 @@ class LiquidityPoolEntry(XdrStruct):
     body: LiquidityPoolEntryBody.Any
 
     def __init__(
-        self, liquidity_pool_id: PoolID, body: LiquidityPoolEntryBody.Any
+        self, liquidity_pool_id: bytes, body: LiquidityPoolEntryBody.Any
     ) -> None:
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "LiquidityPoolEntry.liquidity_pool_id", 32
-            ),
+            PoolID._checked(liquidity_pool_id, "LiquidityPoolEntry.liquidity_pool_id"),
         )
         set_field(
             self,
@@ -6022,7 +6272,9 @@ class LiquidityPoolEntry(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         set_field(obj, "body", LiquidityPoolEntryBody._decode(reader))
         return obj
 
@@ -6041,8 +6293,11 @@ class LiquidityPoolEntry(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "LiquidityPoolEntry.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"], "LiquidityPoolEntry.liquidity_pool_id"
+                ),
             ),
         )
         set_field(obj, "body", LiquidityPoolEntryBody._from_json(fields["body"], ctx))
@@ -6763,7 +7018,7 @@ class ContractCodeEntry(XdrStruct):
     hash: Hash
     code: bytes
 
-    def __init__(self, ext: ContractCodeEntryExt.Any, hash: Hash, code: bytes) -> None:
+    def __init__(self, ext: ContractCodeEntryExt.Any, hash: bytes, code: bytes) -> None:
         set_field(
             self,
             "ext",
@@ -6774,7 +7029,7 @@ class ContractCodeEntry(XdrStruct):
                 "ContractCodeEntryExt",
             ),
         )
-        set_field(self, "hash", check.opaque_fixed(hash, "ContractCodeEntry.hash", 32))
+        set_field(self, "hash", Hash._checked(hash, "ContractCodeEntry.hash"))
         set_field(self, "code", check.opaque_var(code, "ContractCodeEntry.code", None))
 
     def __eq__(self, other: object) -> bool:
@@ -6798,7 +7053,7 @@ class ContractCodeEntry(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "ext", ContractCodeEntryExt._decode(reader))
-        set_field(obj, "hash", reader.opaque_aligned(32))
+        set_field(obj, "hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "code", reader.opaque_var(None))
         return obj
 
@@ -6819,7 +7074,10 @@ class ContractCodeEntry(XdrStruct):
         set_field(
             obj,
             "hash",
-            xdr_json.read_hex_fixed(fields["hash"], "ContractCodeEntry.hash", 32),
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(fields["hash"], "ContractCodeEntry.hash", 32),
+            ),
         )
         set_field(
             obj,
@@ -6847,10 +7105,8 @@ class TTLEntry(XdrStruct):
     key_hash: Hash
     live_until_ledger_seq: Uint32
 
-    def __init__(self, key_hash: Hash, live_until_ledger_seq: Uint32) -> None:
-        set_field(
-            self, "key_hash", check.opaque_fixed(key_hash, "TTLEntry.key_hash", 32)
-        )
+    def __init__(self, key_hash: bytes, live_until_ledger_seq: Uint32) -> None:
+        set_field(self, "key_hash", Hash._checked(key_hash, "TTLEntry.key_hash"))
         set_field(
             self,
             "live_until_ledger_seq",
@@ -6875,7 +7131,7 @@ class TTLEntry(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "key_hash", reader.opaque_aligned(32))
+        set_field(obj, "key_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "live_until_ledger_seq", reader.uint32())
         return obj
 
@@ -6894,7 +7150,10 @@ class TTLEntry(XdrStruct):
         set_field(
             obj,
             "key_hash",
-            xdr_json.read_hex_fixed(fields["key_hash"], "TTLEntry.key_hash", 32),
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(fields["key_hash"], "TTLEntry.key_hash", 32),
+            ),
         )
         set_field(
             obj,
@@ -8066,9 +8325,9 @@ class LedgerKeyAccount(XdrStruct):
 
     __slots__ = ("account_id",)
 
-    account_id: AccountID
+    account_id: AccountID.Any
 
-    def __init__(self, account_id: AccountID) -> None:
+    def __init__(self, account_id: AccountID.Any) -> None:
         set_field(
             self,
             "account_id",
@@ -8123,10 +8382,10 @@ class LedgerKeyTrustLine(XdrStruct):
 
     __slots__ = ("account_id", "asset")
 
-    account_id: AccountID
+    account_id: AccountID.Any
     asset: TrustLineAsset.Any
 
-    def __init__(self, account_id: AccountID, asset: TrustLineAsset.Any) -> None:
+    def __init__(self, account_id: AccountID.Any, asset: TrustLineAsset.Any) -> None:
         set_field(
             self,
             "account_id",
@@ -8199,10 +8458,10 @@ class LedgerKeyOffer(XdrStruct):
 
     __slots__ = ("seller_id", "offer_id")
 
-    seller_id: AccountID
+    seller_id: AccountID.Any
     offer_id: Int64
 
-    def __init__(self, seller_id: AccountID, offer_id: Int64) -> None:
+    def __init__(self, seller_id: AccountID.Any, offer_id: Int64) -> None:
         set_field(
             self,
             "seller_id",
@@ -8267,10 +8526,10 @@ class LedgerKeyData(XdrStruct):
 
     __slots__ = ("account_id", "data_name")
 
-    account_id: AccountID
+    account_id: AccountID.Any
     data_name: String64
 
-    def __init__(self, account_id: AccountID, data_name: bytes | str) -> None:
+    def __init__(self, account_id: AccountID.Any, data_name: bytes | str) -> None:
         set_field(
             self,
             "account_id",
@@ -8279,7 +8538,7 @@ class LedgerKeyData(XdrStruct):
             ),
         )
         set_field(
-            self, "data_name", check.string(data_name, "LedgerKeyData.data_name", 64)
+            self, "data_name", String64._checked(data_name, "LedgerKeyData.data_name")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -8298,7 +8557,7 @@ class LedgerKeyData(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "account_id", PublicKey._decode(reader))
-        set_field(obj, "data_name", reader.opaque_var(64))
+        set_field(obj, "data_name", new_bytes(String64, reader.opaque_var(64)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -8317,7 +8576,12 @@ class LedgerKeyData(XdrStruct):
         set_field(
             obj,
             "data_name",
-            xdr_json.read_string(fields["data_name"], "LedgerKeyData.data_name", 64),
+            new_bytes(
+                String64,
+                xdr_json.read_string(
+                    fields["data_name"], "LedgerKeyData.data_name", 64
+                ),
+            ),
         )
         return obj
 
@@ -8398,12 +8662,12 @@ class LedgerKeyLiquidityPool(XdrStruct):
 
     liquidity_pool_id: PoolID
 
-    def __init__(self, liquidity_pool_id: PoolID) -> None:
+    def __init__(self, liquidity_pool_id: bytes) -> None:
         set_field(
             self,
             "liquidity_pool_id",
-            check.opaque_fixed(
-                liquidity_pool_id, "LedgerKeyLiquidityPool.liquidity_pool_id", 32
+            PoolID._checked(
+                liquidity_pool_id, "LedgerKeyLiquidityPool.liquidity_pool_id"
             ),
         )
 
@@ -8421,7 +8685,9 @@ class LedgerKeyLiquidityPool(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+        set_field(
+            obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+        )
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -8438,8 +8704,12 @@ class LedgerKeyLiquidityPool(XdrStruct):
         set_field(
             obj,
             "liquidity_pool_id",
-            xdr_json.read_liquidity_pool(
-                fields["liquidity_pool_id"], "LedgerKeyLiquidityPool.liquidity_pool_id"
+            new_bytes(
+                PoolID,
+                xdr_json.read_liquidity_pool(
+                    fields["liquidity_pool_id"],
+                    "LedgerKeyLiquidityPool.liquidity_pool_id",
+                ),
             ),
         )
         return obj
@@ -8558,10 +8828,8 @@ class LedgerKeyContractCode(XdrStruct):
 
     hash: Hash
 
-    def __init__(self, hash: Hash) -> None:
-        set_field(
-            self, "hash", check.opaque_fixed(hash, "LedgerKeyContractCode.hash", 32)
-        )
+    def __init__(self, hash: bytes) -> None:
+        set_field(self, "hash", Hash._checked(hash, "LedgerKeyContractCode.hash"))
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyContractCode:
@@ -8577,7 +8845,7 @@ class LedgerKeyContractCode(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "hash", reader.opaque_aligned(32))
+        set_field(obj, "hash", new_bytes(Hash, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -8590,7 +8858,12 @@ class LedgerKeyContractCode(XdrStruct):
         set_field(
             obj,
             "hash",
-            xdr_json.read_hex_fixed(fields["hash"], "LedgerKeyContractCode.hash", 32),
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["hash"], "LedgerKeyContractCode.hash", 32
+                ),
+            ),
         )
         return obj
 
@@ -8673,10 +8946,8 @@ class LedgerKeyTtl(XdrStruct):
 
     key_hash: Hash
 
-    def __init__(self, key_hash: Hash) -> None:
-        set_field(
-            self, "key_hash", check.opaque_fixed(key_hash, "LedgerKeyTtl.key_hash", 32)
-        )
+    def __init__(self, key_hash: bytes) -> None:
+        set_field(self, "key_hash", Hash._checked(key_hash, "LedgerKeyTtl.key_hash"))
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyTtl:
@@ -8692,7 +8963,7 @@ class LedgerKeyTtl(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "key_hash", reader.opaque_aligned(32))
+        set_field(obj, "key_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -8705,7 +8976,12 @@ class LedgerKeyTtl(XdrStruct):
         set_field(
             obj,
             "key_hash",
-            xdr_json.read_hex_fixed(fields["key_hash"], "LedgerKeyTtl.key_hash", 32),
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["key_hash"], "LedgerKeyTtl.key_hash", 32
+                ),
+            ),
         )
         return obj
 
@@ -10167,9 +10443,43 @@ _HOT_ARCHIVE_BUCKET_ENTRY_JSON_ARMS: Final[
 _HOT_ARCHIVE_BUCKET_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()
 
 
-SequenceNumber: TypeAlias = Int64  # typedef int64 SequenceNumber;
+@final
+class SequenceNumber(XdrInt):
+    """XDR typedef ``SequenceNumber``.
+
+    ```xdr
+    typedef int64 SequenceNumber;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Int64) -> Self:
+        return cls._checked(value, "SequenceNumber")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_int(cls, check.int64(value, where))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.int64(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_int(cls, reader.int64())
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return str(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_int(cls, xdr_json.read_int64(value, "SequenceNumber"))
+
+
 SponsorshipDescriptor: TypeAlias = (
-    AccountID | None
+    AccountID.Any | None
 )  # typedef AccountID* SponsorshipDescriptor;
 
 

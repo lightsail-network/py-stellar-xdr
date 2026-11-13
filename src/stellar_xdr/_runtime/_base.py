@@ -26,6 +26,7 @@ from typing import (
     Protocol,
     Self,
     TypeVar,
+    cast,
     dataclass_transform,
 )
 
@@ -99,76 +100,14 @@ class _Encodable:
         return encode_json(self._to_json, max_depth)
 
 
-# The classes the generated classes may derive from, once they exist.
-_BASES: set[type] = set()
-
-
-@dataclass_transform(frozen_default=True)
-class _XdrValue(_Encodable):
-    """Immutability, representation, pickling and copying of structs and union arms."""
-
-    __slots__ = ()
-
-    _fields: ClassVar[tuple[str, ...]] = ()
-
-    def __init_subclass__(cls, **kwargs: object) -> None:
-        super().__init_subclass__(**kwargs)
-        # The generated classes are final: a subclass would lose the fields of its
-        # parent in repr, replace and pickle, and wouldn't be accepted where its
-        # parent is. @final only tells type checkers, so this tells the runtime.
-        if _BASES and not all(base in _BASES for base in cls.__bases__):
-            msg = f"{cls.__qualname__}: the generated classes can't be subclassed"
-            raise TypeError(msg)
-        # Without its own __slots__, a class would inherit the empty tuple: every
-        # instance would compare equal and have an empty repr.
-        if "__slots__" not in cls.__dict__:
-            msg = f"{cls.__qualname__} must define __slots__"
-            raise TypeError(msg)
-        cls._fields = tuple(cls.__dict__["__slots__"])
-        # Not `cls.__match_args__ = ...`: mypy refuses to assign to that name on a class
-        # that `dataclass_transform` covers.
-        type.__setattr__(cls, "__match_args__", cls._fields)
-
-    def __repr__(self) -> str:
-        fields = ", ".join(f"{name}={getattr(self, name)!r}" for name in self._fields)
-        return f"{type(self).__qualname__}({fields})"
-
-    # Hidden from type checkers: an explicit __setattr__ would make mypy accept any
-    # assignment, while dataclass_transform already reports one as an error.
-    if not TYPE_CHECKING:
-
-        def __setattr__(self, name: str, value: object) -> NoReturn:
-            msg = f"can't assign to field {name!r}; use copy.replace or replace"
-            raise FrozenInstanceError(msg)
-
-        def __delattr__(self, name: str) -> NoReturn:
-            msg = f"can't delete field {name!r}"
-            raise FrozenInstanceError(msg)
-
-    def __reduce__(self) -> tuple[type[Self], tuple[object, ...]]:
-        return type(self), tuple(getattr(self, name) for name in self._fields)
-
-    # Values are immutable all the way down, so copies can share them.
-    def __copy__(self) -> Self:
-        return self
-
-    def __deepcopy__(self, memo: dict[int, object]) -> Self:
-        return self
-
-    def __replace__(self, /, **changes: Any) -> Self:  # noqa: ANN401 - any field
-        fields = {name: getattr(self, name) for name in self._fields}
-        fields.update(changes)
-        return type(self)(**fields)
-
-
-class XdrStruct(_XdrValue):
-    """Base class of the generated structs."""
+class _Decodes:
+    """The decoding methods of the types whose class says how to decode them."""
 
     __slots__ = ()
 
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
-        raise NotImplementedError  # pragma: no cover - every struct defines it
+        raise NotImplementedError  # pragma: no cover - every type defines it
 
     @classmethod
     def from_xdr_bytes(cls, data: bytes, *, max_depth: int = DEFAULT_MAX_DEPTH) -> Self:
@@ -205,7 +144,7 @@ class XdrStruct(_XdrValue):
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
-        raise NotImplementedError  # pragma: no cover - every struct defines it
+        raise NotImplementedError  # pragma: no cover - every type defines it
 
     @classmethod
     def from_json_value(
@@ -225,6 +164,90 @@ class XdrStruct(_XdrValue):
         return decode_json(cls._from_json, value, max_depth)
 
 
+def _plain(value: object) -> str:
+    """The repr of a value inside another one: a typedef's value without its name.
+
+    A field or an arm already says what the value is, so `Hash(b"...")` is shown as
+    `b"..."` there, which is also what the constructor takes.
+    """
+    if isinstance(value, XdrBytes):
+        return bytes.__repr__(value)
+    if isinstance(value, XdrInt):
+        return int.__repr__(value)
+    if isinstance(value, tuple):
+        items = [_plain(item) for item in cast("tuple[object, ...]", value)]
+        return f"({items[0]},)" if len(items) == 1 else f"({', '.join(items)})"
+    return repr(value)
+
+
+# The classes the generated classes may derive from, once they exist.
+_BASES: set[type] = set()
+
+
+@dataclass_transform(frozen_default=True)
+class _XdrValue(_Encodable):
+    """Immutability, representation, pickling and copying of structs and union arms."""
+
+    __slots__ = ()
+
+    _fields: ClassVar[tuple[str, ...]] = ()
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        super().__init_subclass__(**kwargs)
+        # The generated classes are final: a subclass would lose the fields of its
+        # parent in repr, replace and pickle, and wouldn't be accepted where its
+        # parent is. @final only tells type checkers, so this tells the runtime.
+        if _BASES and not all(base in _BASES for base in cls.__bases__):
+            msg = f"{cls.__qualname__}: the generated classes can't be subclassed"
+            raise TypeError(msg)
+        # Without its own __slots__, a class would inherit the empty tuple: every
+        # instance would compare equal and have an empty repr.
+        if "__slots__" not in cls.__dict__:
+            msg = f"{cls.__qualname__} must define __slots__"
+            raise TypeError(msg)
+        cls._fields = tuple(cls.__dict__["__slots__"])
+        # Not `cls.__match_args__ = ...`: mypy refuses to assign to that name on a class
+        # that `dataclass_transform` covers.
+        type.__setattr__(cls, "__match_args__", cls._fields)
+
+    def __repr__(self) -> str:
+        fields = [f"{name}={_plain(getattr(self, name))}" for name in self._fields]
+        return f"{type(self).__qualname__}({', '.join(fields)})"
+
+    # Hidden from type checkers: an explicit __setattr__ would make mypy accept any
+    # assignment, while dataclass_transform already reports one as an error.
+    if not TYPE_CHECKING:
+
+        def __setattr__(self, name: str, value: object) -> NoReturn:
+            msg = f"can't assign to field {name!r}; use copy.replace or replace"
+            raise FrozenInstanceError(msg)
+
+        def __delattr__(self, name: str) -> NoReturn:
+            msg = f"can't delete field {name!r}"
+            raise FrozenInstanceError(msg)
+
+    def __reduce__(self) -> tuple[type[Self], tuple[object, ...]]:
+        return type(self), tuple(getattr(self, name) for name in self._fields)
+
+    # Values are immutable all the way down, so copies can share them.
+    def __copy__(self) -> Self:
+        return self
+
+    def __deepcopy__(self, memo: dict[int, object]) -> Self:
+        return self
+
+    def __replace__(self, /, **changes: Any) -> Self:  # noqa: ANN401 - any field
+        fields = {name: getattr(self, name) for name in self._fields}
+        fields.update(changes)
+        return type(self)(**fields)
+
+
+class XdrStruct(_XdrValue, _Decodes):
+    """Base class of the generated structs."""
+
+    __slots__ = ()
+
+
 class XdrArm(_XdrValue):
     """Base class of the generated union arms.
 
@@ -237,7 +260,7 @@ class XdrArm(_XdrValue):
     # An arm holds one value at most, and its class already says which arm it is, so
     # it is shown the way it is written: `SCVal.U32(5)`, not `SCVal.U32(u32=5)`.
     def __repr__(self) -> str:
-        values = ", ".join([repr(getattr(self, name)) for name in self._fields])
+        values = ", ".join([_plain(getattr(self, name)) for name in self._fields])
         return f"{type(self).__qualname__}({values})"
 
 
@@ -312,7 +335,72 @@ class XdrEnum(_Encodable, IntEnum):
         return decode_json(cls._from_json, value, max_depth)
 
 
+# The classes the generated typedefs may derive from, once they exist.
+_TYPEDEF_BASES: set[type] = set()
+
+
+class _Typedef(_Encodable, _Decodes):
+    """What the typedefs share: they are final, and immutable like the type they extend.
+
+    A typedef such as `Hash` or `SCVec` is a class of its own, so that a value knows
+    what it is: it encodes itself, and converts to JSON the way its type is written.
+    The class extends `bytes`, `int` or `tuple`, so a value can be used as one, and the
+    constructors of the other types take the plain value and store the typedef's.
+    """
+
+    __slots__ = ()
+
+    def __init_subclass__(cls, **kwargs: object) -> None:
+        super().__init_subclass__(**kwargs)
+        if _TYPEDEF_BASES and not all(b in _TYPEDEF_BASES for b in cls.__bases__):
+            msg = f"{cls.__qualname__}: the generated classes can't be subclassed"
+            raise TypeError(msg)
+        # Without empty __slots__, a value would get a __dict__ and take attributes.
+        if "__slots__" not in cls.__dict__:
+            msg = f"{cls.__qualname__} must define __slots__"
+            raise TypeError(msg)
+
+    # Values are immutable all the way down, so copies can share them.
+    def __copy__(self) -> Self:
+        return self
+
+    def __deepcopy__(self, memo: dict[int, object]) -> Self:
+        return self
+
+
+class XdrBytes(_Typedef, bytes):
+    """Base class of the typedefs of opaque data and of strings."""
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__qualname__}({bytes.__repr__(self)})"
+
+
+class XdrInt(_Typedef, int):
+    """Base class of the typedefs of integers, other than `uint32` and its like."""
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__qualname__}({int.__repr__(self)})"
+
+    # int has no __str__ of its own: str() and format() would use the repr above.
+    def __str__(self) -> str:
+        return int.__repr__(self)
+
+
+class XdrArray(_Typedef, tuple[_T_co, ...]):
+    """Base class of the typedefs of arrays."""
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:
+        return f"{type(self).__qualname__}({_plain(tuple(self))})"
+
+
 _BASES.update({XdrStruct, XdrArm})
+_TYPEDEF_BASES.update({XdrBytes, XdrInt, XdrArray})
 
 
 class UnionNamespace(type):
@@ -375,7 +463,7 @@ def decode_stream(
     that put a length before each value, such as those in history archives, are not.
 
     Args:
-        type_: A struct, an enum, or a union such as `SCSpecEntry`.
+        type_: A struct, an enum, a typedef, or a union such as `SCSpecEntry`.
         data: The encoded values, back to back.
         max_depth: The deepest nesting of recursive types to accept, for each value.
 
@@ -391,7 +479,7 @@ def decode_stream(
     decode: Callable[[Reader], _T] | None = getattr(type_, "_decode", None)
     if decode is None:
         shown = type_.__qualname__ if isinstance(type_, type) else type(type_).__name__
-        msg = f"expected a struct, an enum or a union, got {shown}"
+        msg = f"expected a struct, an enum, a union or a typedef, got {shown}"
         raise TypeError(msg)
     if not isinstance(data, bytes):  # pyright: ignore[reportUnnecessaryIsInstance]
         msg = f"expected bytes, got {type(data).__name__}"
@@ -417,17 +505,14 @@ def encode_stream(
         max_depth: The deepest nesting of recursive types to encode, for each value.
 
     Raises:
-        TypeError: A value is not a struct, enum or union arm.
+        TypeError: A value is not of an XDR type. A plain `int` or `bytes` is not:
+            wrap it in its type, such as `Hash`, which says how it is encoded.
         XdrDepthError: A value is nested more deeply than `max_depth`.
     """
     writer = Writer(max_depth)
     for value in values:
         if not isinstance(value, _Encodable):  # pyright: ignore[reportUnnecessaryIsInstance]
-            # A typedef's value, such as an int for Uint32, has no codec of its own.
-            msg = (
-                f"expected a struct, enum or union arm, got {type(value).__name__}; "
-                "encode typedef values with their codec in stellar_xdr.typedefs"
-            )
+            msg = f"expected a value of an XDR type, got {type(value).__name__}"
             raise TypeError(msg)
         writer.depth = 0
         encode_to(value._encode, writer)  # noqa: SLF001
@@ -437,7 +522,10 @@ def encode_stream(
 __all__ = [
     "UnionNamespace",
     "XdrArm",
+    "XdrArray",
+    "XdrBytes",
     "XdrEnum",
+    "XdrInt",
     "XdrStruct",
     "decode_stream",
     "encode_stream",

@@ -55,17 +55,22 @@ RUNTIME_NAMES: Final = (
     "JsonReader",
     "JsonWriter",
     "Reader",
-    "Typedef",
     "UnionNamespace",
     "Writer",
     "XdrArm",
+    "XdrArray",
+    "XdrBytes",
     "XdrEnum",
+    "XdrInt",
     "XdrStruct",
     "check",
     "decode_base64",
     "decode_bytes",
     "decode_json",
     "new",
+    "new_bytes",
+    "new_int",
+    "new_tuple",
     "set_field",
     "xdr_json",
 )
@@ -74,7 +79,6 @@ TYPING_NAMES: Final = (
     "ClassVar",
     "Final",
     "Literal",
-    "NewType",
     "Self",
     "TypeAlias",
     "final",
@@ -120,6 +124,43 @@ _HAND_WRITTEN_MODULES: Final = frozenset({"_runtime"})
 
 class GenerationError(Exception):
     """The model can't be turned into valid, unambiguous Python."""
+
+
+# The function that makes a plain value a value of a typedef, by the typedef's base.
+_TYPEDEF_NEW: Final = {
+    "XdrBytes": "new_bytes",
+    "XdrInt": "new_int",
+    "XdrArray": "new_tuple",
+}
+
+
+def typedef_base(model: Model, d: Typedef) -> str | None:
+    """The base class of a typedef that is a class of its own, or None for an alias.
+
+    A typedef is a class that extends the Python type of its values: `bytes` for
+    opaque data and strings, `int` for integers, `tuple` for arrays. Three kinds of
+    typedef can't be one, and are other names for what they define:
+
+    - `uint32` and the other typedefs of a primitive: every integer field would hold
+      an object of its own instead of a plain `int`;
+    - a typedef of an optional value, since `None` can't be an instance of it;
+    - a typedef of a struct, an enum or a union, which is that type itself.
+    """
+    if isinstance(d.type, Primitive):
+        return None
+    t: TypeRef = d.type
+    while isinstance(t, Ref):
+        target = model.get(t.name)
+        if not isinstance(target, Typedef):
+            return None
+        t = target.type
+    if isinstance(t, Primitive):
+        return None if t.kind == "bool" else "XdrInt"
+    if isinstance(t, OpaqueFixed | OpaqueVar | String):
+        return "XdrBytes"
+    if isinstance(t, Array | VarArray):
+        return "XdrArray"
+    return None
 
 
 def _public_name(d: Definition) -> str:
@@ -196,18 +237,12 @@ class _Context:
     module_of: dict[str, str]
     counted: set[str]
     current: _Module | None = None
-    # In `typedefs.py` the codecs take the names of the typedefs, so other names are
-    # qualified by their module, such as `_contract.SCVec`.
-    qualify: bool = False
 
     def use(self, xdr_name: str, python_name: str | None = None) -> str:
         """Refer to a name of a definition, importing it when it's in another module."""
         python_name = python_name or names.type_name(xdr_name)
         module = self.module_of[xdr_name]
         assert self.current is not None  # noqa: S101
-        if self.qualify:
-            self.current.imports.setdefault(module, set())
-            return f"{module}.{python_name}"
         if module != self.current.name:
             self.current.imports.setdefault(module, set()).add(python_name)
         return python_name
@@ -238,6 +273,9 @@ class _TypeCode:
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             name = self.ctx.use(t.name)
+            # A typedef of a union is the union's namespace under another name.
+            if isinstance(d, Typedef) and isinstance(self.ctx.resolve(d.type), Union):
+                return f"{name}.Any"
             return f"{name}.Any" if isinstance(d, Union) else name
         if isinstance(t, OpaqueFixed | OpaqueVar | String):
             return "bytes"
@@ -245,11 +283,42 @@ class _TypeCode:
             return f"tuple[{self.annotation(t.element)}, ...]"
         return f"{self.annotation(t.element)} | None"
 
-    def parameter(self, t: TypeRef) -> str:
-        """The type a constructor accepts: any sequence for arrays, str for strings."""
+    def typedef_class(self, t: TypeRef) -> tuple[Typedef, str] | None:
+        """The typedef a reference names and its base, if the typedef is a class."""
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
-            if isinstance(d, Typedef) and self._needs_expansion(d.type):
+            if isinstance(d, Typedef):
+                base = typedef_base(self.ctx.model, d)
+                if base is not None:
+                    return d, base
+        return None
+
+    def plain(self, d: Typedef) -> TypeRef:
+        """What the values of a typedef that is a class are, apart from their class."""
+        resolved = self.ctx.resolve(d.type)
+        assert not isinstance(resolved, Struct | Enum | Union | Typedef | Const)  # noqa: S101
+        return resolved
+
+    def wrap(self, t: TypeRef, value: str) -> str:
+        """Make a plain value, already checked or decoded, a value of its typedef."""
+        found = self.typedef_class(t)
+        if found is None:
+            return value
+        d, base = found
+        return f"{_TYPEDEF_NEW[base]}({self.ctx.use(d.name)}, {value})"
+
+    def parameter(self, t: TypeRef) -> str:
+        """The type a constructor accepts.
+
+        It is the plain value of a typedef, any sequence for an array, and `str` too
+        for a string.
+        """
+        if isinstance(t, Ref):
+            d = self.ctx.model.get(t.name)
+            if isinstance(d, Typedef) and (
+                typedef_base(self.ctx.model, d) is not None
+                or self._needs_expansion(d.type)
+            ):
                 return self.parameter(d.type)
             return self.annotation(t)
         if isinstance(t, String):
@@ -279,6 +348,8 @@ class _TypeCode:
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
+                if typedef_base(self.ctx.model, d) is not None:
+                    return f"{self.ctx.use(t.name)}._checked", []
                 return self.check(d.type)
             name = self.ctx.use(t.name)
             if isinstance(d, Union):
@@ -307,13 +378,19 @@ class _TypeCode:
 
     # Decoding ----------------------------------------------------------------------
 
-    def decode(self, t: TypeRef) -> str:
-        """An expression that reads a value from `reader`."""
+    def decode(self, t: TypeRef, *, as_list: bool = False) -> str:
+        """An expression that reads a value from `reader`.
+
+        With `as_list`, an array is read as the list of its items, for a typedef to
+        make its own tuple of.
+        """
         if isinstance(t, Primitive):
             return f"reader.{_PRIMITIVE_NAME[t.kind]}()"
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
+                if typedef_base(self.ctx.model, d) is not None:
+                    return self.wrap(t, self.decode(self.plain(d), as_list=True))
                 return self.decode(d.type)
             return f"{self.ctx.use(t.name)}._decode(reader)"
         if isinstance(t, OpaqueFixed):
@@ -329,9 +406,11 @@ class _TypeCode:
                 msg = f"an array of {t.element} has elements that encode to no bytes"
                 raise GenerationError(msg)
             count = f"reader.count({t.max_count}, {size})"
-            return f"tuple([{self.decode(t.element)} for _ in range({count})])"
+            items = f"[{self.decode(t.element)} for _ in range({count})]"
+            return items if as_list else f"tuple({items})"
         if isinstance(t, Array):
-            return f"tuple([{self.decode(t.element)} for _ in range({t.count})])"
+            items = f"[{self.decode(t.element)} for _ in range({t.count})]"
+            return items if as_list else f"tuple({items})"
         # The condition is evaluated first, so the flag is read before the value.
         return f"({self.decode(t.element)} if reader.present() else None)"
 
@@ -387,7 +466,11 @@ class _TypeCode:
                 rule = self.ctx.rules.typedefs.get(d.name)
                 if rule is not None:
                     return f"xdr_json.{rule.write}({value})"
-                return self.to_json(d.type, value, depth)
+                converted = self.to_json(d.type, value, depth)
+                if converted == value and typedef_base(self.ctx.model, d) == "XdrInt":
+                    # Written as it is: as a plain int, not as the typedef's value.
+                    return f"int({value})"
+                return converted
             return f"{value}._to_json(ctx)"
         if isinstance(t, OpaqueFixed | OpaqueVar):
             return f"{value}.hex()"
@@ -408,10 +491,7 @@ class _TypeCode:
         if isinstance(t, Ref):
             d = self.ctx.model.get(t.name)
             if isinstance(d, Typedef):
-                rule = self.ctx.rules.typedefs.get(d.name)
-                if rule is not None:
-                    return f"xdr_json.{rule.read}({value}, {where!r})"
-                return self.from_json(d.type, value, where, depth)
+                return self.wrap(t, self.from_json_plain(d, value, where, depth))
             return f"{self.ctx.use(t.name)}._from_json({value}, ctx)"
         if isinstance(t, OpaqueFixed):
             return f"xdr_json.read_hex_fixed({value}, {where!r}, {t.size})"
@@ -431,6 +511,17 @@ class _TypeCode:
             return f"xdr_json.read_items({items}, {where!r}, {read})"
         inner = self.from_json(t.element, value, where, depth)
         return f"(None if {value} is None else {inner})"
+
+    def from_json_plain(self, d: Typedef, value: str, where: str, depth: int) -> str:
+        """An expression that reads the plain value of a typedef from JSON."""
+        rule = self.ctx.rules.typedefs.get(d.name)
+        if rule is not None:
+            return f"xdr_json.{rule.read}({value}, {where!r})"
+        found = self.typedef_class(d.type)
+        if found is not None:
+            # A typedef of a typedef: the value becomes one of the outer type only.
+            return self.from_json_plain(found[0], value, where, depth)
+        return self.from_json(d.type, value, where, depth)
 
     # Sizes -------------------------------------------------------------------------
 
@@ -635,7 +726,6 @@ class _Emitter:
             "builtins",
             "cast",
             "strkey",
-            "typedefs",
         }
         seen: dict[str, str] = {}
         for d in self.model.definitions:
@@ -840,10 +930,14 @@ class _Emitter:
                     )
                     raise GenerationError(msg)
             args = ", ".join(f"self.{n}" for n in ordered)
+            types = dict(fields)
             build = [
                 f"parts = xdr_json.{rule.read}(value, {qualname!r})",
                 "obj = new(cls)",
-                *(f"set_field(obj, {n!r}, parts[{i}])" for i, n in enumerate(ordered)),
+                *(
+                    f"set_field(obj, {n!r}, {code.wrap(types[n], f'parts[{i}]')})"
+                    for i, n in enumerate(ordered)
+                ),
             ]
             return (
                 _Conversion([], f"xdr_json.{rule.write}({args})"),
@@ -1052,12 +1146,13 @@ class _Emitter:
                 built: list[str] = []
                 part = self._build(rule.payload, built, counter)
                 arm_var = f"arm{next(counter)}"
-                arm_name, field_name = self._arm_names(d, rule.case)
+                arm_name, field_name, held = self._arm_of(d, rule.case)
+                held_value = self.code.wrap(held, part)
                 lines += [
                     f"if isinstance(key, strkey.{rule.strkey}):",
                     *_indent(built),
                     f"    {arm_var} = new({name}.{arm_name})",
-                    f"    set_field({arm_var}, {field_name!r}, {part})",
+                    f"    set_field({arm_var}, {field_name!r}, {held_value})",
                     f"    return {arm_var}",
                 ]
             return [*lines, f"xdr_json.wrong_strkey({name!r}, key)"]
@@ -1073,28 +1168,32 @@ class _Emitter:
             ]
         return [*read, "return arm._from_json_payload(payload, ctx)"]
 
-    def _arm_names(self, d: Union, case: str) -> tuple[str, str]:
-        """The class of the arm of a case, and the field that holds its value."""
+    def _arm_of(self, d: Union, case: str) -> tuple[str, str, TypeRef]:
+        """The class of the arm of a case, the field that holds its value, its type."""
         arm, c = self._case(d, case)
         assert arm.name is not None  # noqa: S101 - _check_cases found a value
+        assert arm.type is not None  # noqa: S101 - as above
         return (
             names.arm_class_name(self.model, d, c.value, c.name),
             names.field_name(arm.name),
+            arm.type,
         )
 
     def _length_union_from_json(self, d: Union, name: str) -> list[str]:
         """Read a union whose arms are told apart by the length of their string."""
         (short_case, short), (long_case, long) = self.rules.length_unions[d.name]
-        short_arm, short_field = self._arm_names(d, short_case)
-        long_arm, long_field = self._arm_names(d, long_case)
+        short_arm, short_field, short_type = self._arm_of(d, short_case)
+        long_arm, long_field, long_type = self._arm_of(d, long_case)
+        short_code = self.code.wrap(short_type, f'code.ljust({short}, b"\\0")')
+        long_code = self.code.wrap(long_type, f'code.ljust({long}, b"\\0")')
         return [
             f"code = xdr_json.read_asset_code(value, {name!r})",
             f"if len(code) <= {short}:",
             f"    short = new({name}.{short_arm})",
-            f'    set_field(short, "{short_field}", code.ljust({short}, b"\\0"))',
+            f'    set_field(short, "{short_field}", {short_code})',
             "    return short",
             f"long = new({name}.{long_arm})",
-            f'set_field(long, "{long_field}", code.ljust({long}, b"\\0"))',
+            f'set_field(long, "{long_field}", {long_code})',
             "return long",
         ]
 
@@ -1104,15 +1203,23 @@ class _Emitter:
         """Build the payload of a strkey's arm; return the expression that holds it."""
         if isinstance(payload, str):
             return f"key.{payload}"
+        # Each field: its Python name, the type it holds and what it is built from.
+        fields: list[tuple[str, TypeRef, sep51.Payload]]
         if isinstance(payload, sep51.BuiltStruct):
-            target = self.ctx.use(payload.struct)
-            fields = {names.field_name(f): p for f, p in payload.fields.items()}
+            struct = self._defined(payload.struct, Struct)
+            target = self.ctx.use(struct.name)
+            types = {f.name: f.type for f in struct.fields}
+            fields = [
+                (names.field_name(f), types[f], p) for f, p in payload.fields.items()
+            ]
         else:
             union = self._defined(payload.union, Union)
-            arm_name, field_name = self._arm_names(union, payload.case)
+            arm_name, field_name, held = self._arm_of(union, payload.case)
             target = f"{self.ctx.use(union.name)}.{arm_name}"
-            fields = {field_name: payload.payload}
-        values = {f: self._build(p, lines, counter) for f, p in fields.items()}
+            fields = [(field_name, held, payload.payload)]
+        values = {
+            f: self.code.wrap(t, self._build(p, lines, counter)) for f, t, p in fields
+        }
         var = f"part{next(counter)}"
         lines.append(f"{var} = new({target})")
         lines += [f"set_field({var}, {f!r}, {v})" for f, v in values.items()]
@@ -1231,15 +1338,54 @@ class _Emitter:
         ]
 
     def typedef(self, d: Typedef) -> list[str]:
-        """A typedef: a NewType for fixed-length opaque data, an alias otherwise."""
+        """A typedef: a class that extends the type of its values, or another name."""
         name = names.type_name(d.name)
         comment = f"  # {' '.join(d.source.split())}"
-        # Every fixed-length opaque typedef is its own NewType, also when it names
-        # another one: ContractID and PoolID are both typedefs of Hash, but SEP-51
-        # writes them as different strkeys, so type checkers should tell them apart.
-        if isinstance(self.ctx.resolve(d.type), OpaqueFixed):
-            return [f'{name} = NewType("{name}", bytes){comment}']
-        return [f"{name}: TypeAlias = {self.code.annotation(d.type)}{comment}"]
+        kind = typedef_base(self.model, d)
+        if kind is None:
+            target = self.ctx.resolve(d.type)
+            if isinstance(target, Struct | Enum | Union):
+                # The type itself: a union's namespace, with its arms and its `Any`.
+                return [f"{name} = {self.ctx.use(target.name)}{comment}"]
+            return [f"{name}: TypeAlias = {self.code.annotation(d.type)}{comment}"]
+        code = self.code
+        plain = code.plain(d)
+        this = Ref(d.name)
+        fn, args = code.check(plain)
+        checked = f"{fn}({', '.join(['value', 'where', *args])})"
+        base = kind
+        if isinstance(plain, Array | VarArray):
+            base = f"XdrArray[{code.annotation(plain.element)}]"
+        new = _TYPEDEF_NEW[kind]
+        body = [
+            *_docstring([f"XDR typedef ``{d.name}``.", *_source_block(d.source)]),
+            "",
+            "__slots__ = ()",
+            "",
+            f"def __new__(cls, value: {code.parameter(this)}) -> Self:",
+            f"    return cls._checked(value, {name!r})",
+            "",
+            "@classmethod",
+            "def _checked(cls, value: object, where: str) -> Self:",
+            "    if isinstance(value, cls):",
+            "        return value",
+            f"    return {new}(cls, {checked})",
+            "",
+            "def _encode(self, writer: Writer) -> None:",
+            *_indent(code.encode(plain, "self", "item")),
+            "",
+            "@classmethod",
+            "def _decode(cls, reader: Reader) -> Self:",
+            f"    return {new}(cls, {code.decode(plain, as_list=True)})",
+            "",
+            "def _to_json(self, ctx: JsonWriter) -> Any:",
+            f"    return {code.to_json(this, 'self')}",
+            "",
+            "@classmethod",
+            "def _from_json(cls, value: object, ctx: JsonReader) -> Self:",
+            f"    return {new}(cls, {code.from_json_plain(d, 'value', name, 0)})",
+        ]
+        return ["@final", f"class {name}({base}):", *_indent(body)]
 
     def const(self, d: Const) -> list[str]:
         """A constant."""
@@ -1330,6 +1476,23 @@ class Generator(_Emitter):
             visit(d)
         return list(done.values())
 
+    def _typedef_blocks(self, typedefs: list[Typedef]) -> list[list[str]]:
+        """The typedefs in order: a class by itself, aliases on consecutive lines."""
+        blocks: list[list[str]] = []
+        aliases: list[str] = []
+        for d in typedefs:
+            lines = self.typedef(d)
+            if len(lines) == 1:
+                aliases += lines
+                continue
+            if aliases:
+                blocks.append(aliases)
+                aliases = []
+            blocks.append(lines)
+        if aliases:
+            blocks.append(aliases)
+        return blocks
+
     def module(self, module: _Module) -> str:
         """The source of one module."""
         self.ctx.current = module
@@ -1345,12 +1508,10 @@ class Generator(_Emitter):
         if consts:
             blocks.append([line for d in consts for line in self.const(d)])
         blocks += [self.enum(d) for d in enums]
-        if simple:
-            blocks.append([line for d in simple for line in self.typedef(d)])
+        blocks += self._typedef_blocks(simple)
         for d in classes:
             blocks.append(self.struct(d) if isinstance(d, Struct) else self.union(d))
-        if composite:
-            blocks.append([line for d in composite for line in self.typedef(d)])
+        blocks += self._typedef_blocks(composite)
         body = "\n\n\n".join("\n".join(b) for b in blocks)
         public = sorted(_public_name(d) for d in module.definitions)
         exports = "\n".join(f"    {n!r}," for n in public)
@@ -1380,9 +1541,7 @@ class Generator(_Emitter):
             ]
         )
 
-    def _imports(
-        self, module: _Module, body: str, typing_names: tuple[str, ...] = TYPING_NAMES
-    ) -> list[str]:
+    def _imports(self, module: _Module, body: str) -> list[str]:
         used = _names_used(body)
         lines: list[str] = []
         if "builtins" in used:
@@ -1391,16 +1550,13 @@ class Generator(_Emitter):
             lines.append("import stellar_strkey as strkey")
         if "Sequence" in used:
             lines.append("from collections.abc import Sequence")
-        used_typing = sorted(used.intersection(typing_names))
+        used_typing = sorted(used.intersection(TYPING_NAMES))
         if used_typing:
             lines.append(f"from typing import {', '.join(used_typing)}")
         lines.append("")
         runtime = sorted(used.intersection(RUNTIME_NAMES))
         lines.append(f"from ._runtime import {', '.join(runtime)}")
         for other in sorted(module.imports):
-            if self.ctx.qualify:
-                lines.append(f"from . import {other}")
-                continue
             imported = ", ".join(sorted(module.imports[other]))
             lines.append(f"from .{other} import {imported}")
         return lines
@@ -1412,8 +1568,7 @@ class Generator(_Emitter):
             '"""Strict, fully typed encoding and decoding of Stellar XDR.',
             "",
             "Every type is importable from here, and this is the only place to import",
-            "one from: the modules that define them are private. The codecs of the",
-            "typedefs are in `stellar_xdr.typedefs`.",
+            "one from: the modules that define them are private.",
             '"""',
             "",
             "from typing import Final",
@@ -1422,8 +1577,7 @@ class Generator(_Emitter):
             *(f"    {n}," for n in sorted(PUBLIC_RUNTIME_NAMES)),
             ")",
         ]
-        lines.append("from . import typedefs")
-        exported = [*PUBLIC_RUNTIME_NAMES, "typedefs", "PROTOCOL_VERSION"]
+        exported = [*PUBLIC_RUNTIME_NAMES, "PROTOCOL_VERSION"]
         for module in self.modules.values():
             public = sorted(_public_name(d) for d in module.definitions)
             exported += public
@@ -1447,94 +1601,6 @@ class Generator(_Emitter):
             "",
         ]
         return "\n".join(lines)
-
-    def typedefs_module(self) -> str:
-        """The source of `typedefs.py`: a codec for every typedef.
-
-        A typedef is a type alias, so its codec can't be a method; it is an object of
-        the same name in this module.
-        """
-        module = _Module("typedefs", "")
-        self.ctx.current = module
-        self.ctx.qualify = True
-        blocks: list[str] = []
-        exported: list[str] = []
-        for d in self.model.definitions:
-            if not isinstance(d, Typedef):
-                continue
-            name = names.type_name(d.name)
-            snake = names.snake(d.name)
-            value = self.code.annotation(Ref(d.name))
-            given = self.code.parameter(Ref(d.name))
-            fn, args = self.code.check(d.type)
-            check = f"{fn}({', '.join(['value', 'where', *args])})"
-            encode = self.code.encode(d.type, "value", "item")
-            read = self.code.from_json(Ref(d.name), "value", name)
-            lines = [
-                f"def _check_{snake}(value: object, where: str) -> {value}:",
-                f'    return cast("{value}", {check})',
-                "",
-                "",
-                f"def _encode_{snake}(writer: Writer, value: {value}) -> None:",
-                *_indent(encode),
-                "",
-                "",
-                f"def _decode_{snake}(reader: Reader) -> {value}:",
-                f'    return cast("{value}", {self.code.decode(d.type)})',
-                "",
-                "",
-                f"def _to_json_{snake}(value: {value}, ctx: JsonWriter) -> Any:",
-                f"    return {self.code.to_json(Ref(d.name), 'value')}",
-                "",
-                "",
-                f"def _from_json_{snake}(value: object, ctx: JsonReader) -> {value}:",
-                f'    return cast("{value}", {read})',
-                "",
-                "",
-                f"{name}: Final[Typedef[{value}, {given}]] = Typedef(",
-                f"    {d.name!r},",
-                f"    check=_check_{snake},",
-                f"    encode=_encode_{snake},",
-                f"    decode=_decode_{snake},",
-                f"    to_json=_to_json_{snake},",
-                f"    from_json=_from_json_{snake},",
-                ")",
-                f'"""The codec of ``{" ".join(d.source.split())}``."""',
-            ]
-            blocks.append("\n".join(lines))
-            exported.append(name)
-        body = "\n\n\n".join(blocks)
-        imports = self._imports(module, body, (*TYPING_NAMES, "cast"))
-        self.ctx.qualify = False
-        exports = "\n".join(f"    {n!r}," for n in sorted(exported))
-        return "\n".join(
-            [
-                HEADER.rstrip(),
-                '"""The codecs of the typedefs.',
-                "",
-                "A typedef such as ``LedgerEntryChanges`` is a type alias, so it has",
-                "no methods; its codec of the same name here encodes and decodes it:",
-                "",
-                "    changes = typedefs.LedgerEntryChanges.from_xdr_base64(fee_meta)",
-                '"""',
-                "",
-                "# The casts give type checkers the typedef's type; for some typedefs",
-                "# they are redundant.",
-                "# mypy: disable-error-code=redundant-cast",
-                "# pyright: reportPrivateUsage=false, reportUnnecessaryCast=false",
-                "",
-                "from __future__ import annotations",
-                "",
-                *imports,
-                "",
-                "",
-                body,
-                "",
-                "",
-                f"__all__ = [\n{exports}\n]",
-                "",
-            ]
-        )
 
     def arm_names(self) -> str:
         """`generator/arm_names.txt`: the arm classes of every union, one line each.
@@ -1560,7 +1626,6 @@ class Generator(_Emitter):
     def sources(self) -> dict[str, str]:
         """Every generated file of the package, by path relative to the package."""
         result = {f"{m.name}.py": self.module(m) for m in self.modules.values()}
-        result["typedefs.py"] = self.typedefs_module()
         result["__init__.py"] = self.package_init()
         return result
 
@@ -1623,7 +1688,7 @@ class StrategyGenerator:
         """The source of the strategies module."""
         lines = [
             HEADER.rstrip(),
-            '"""A Hypothesis strategy for every type, keyed by its XDR name."""',
+            '"""A Hypothesis strategy for every type, keyed by its Python name."""',
             "",
             "from typing import Any",
             "",
@@ -1632,16 +1697,13 @@ class StrategyGenerator:
             "import stellar_xdr as xdr",
             "",
             "STRATEGIES: dict[str, st.SearchStrategy[Any]] = {}",
-            '"""Every struct, enum and union."""',
+            '"""Every struct, enum, union and typedef that is a class."""',
             "",
             "ARMS: dict[str, tuple[str, st.SearchStrategy[Any]]] = {}",
             '"""Every arm of every union, such as "SCVal.U32", with its union."""',
             "",
             "DISCRIMINANTS: dict[str, frozenset[int]] = {}",
             '"""The discriminants that select an arm, for every union."""',
-            "",
-            "TYPEDEFS: dict[str, st.SearchStrategy[Any]] = {}",
-            '"""Every typedef, keyed by its Python name."""',
             "",
             "",
             "def ref(name: str) -> st.SearchStrategy[Any]:",
@@ -1662,7 +1724,12 @@ class StrategyGenerator:
             elif isinstance(d, Enum):
                 lines.append(f"STRATEGIES[{d.name!r}] = st.sampled_from(xdr.{name})")
             elif isinstance(d, Typedef):
-                lines.append(f"TYPEDEFS[{name!r}] = {self._strategy(d.type)}")
+                # An alias has no class of its own to test: its type has.
+                if typedef_base(self.model, d) is not None:
+                    plain = self._strategy(d.type)
+                    lines.append(
+                        f"STRATEGIES[{name!r}] = st.builds(xdr.{name}, {plain})"
+                    )
             elif isinstance(d, Union):
                 arms: list[str] = []
                 for arm in d.arms:

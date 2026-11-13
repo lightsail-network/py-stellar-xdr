@@ -5,9 +5,10 @@ from. The pages below group the types by the `.x` file that defines them, to mak
 easier to find: the file is not part of a type's import path, and a definition can move
 to another file between releases.
 
-Every struct, enum and union arm has `to_xdr_bytes`, `to_xdr_base64` and
-`to_json_value`; every struct, enum and union has `from_xdr_bytes`, `from_xdr_base64`
-and `from_json_value`. They are documented once, [below](#methods-of-every-type).
+Every struct, enum, typedef and union arm has `to_xdr_bytes`, `to_xdr_base64` and
+`to_json_value`; every struct, enum, typedef and union has `from_xdr_bytes`,
+`from_xdr_base64` and `from_json_value`. They are documented once,
+[below](#methods-of-every-type).
 
 ## Types
 
@@ -24,7 +25,6 @@ and `from_json_value`. They are documented once, [below](#methods-of-every-type)
 - [`Stellar-overlay.x`](overlay.md)
 - [`Stellar-transaction.x`](transaction.md)
 - [`Stellar-types.x`](types.md)
-- [`stellar_xdr.typedefs`](typedefs.md): the codecs of the typedefs
 
 ## Methods of every type
 

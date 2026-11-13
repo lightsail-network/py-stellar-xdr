@@ -22,7 +22,6 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "src"))
 
-import stellar_xdr  # noqa: E402
 from generator.names import upper_camel  # noqa: E402
 from tests.strategies import STRATEGIES  # noqa: E402
 
@@ -86,10 +85,7 @@ def main() -> None:
     cli = sys.argv[1]
     by_type: dict[str, list[str]] = {}
     for v in json.loads(gzip.decompress(NETWORK.read_bytes())):
-        if hasattr(stellar_xdr, v["type"]) and not hasattr(
-            stellar_xdr.typedefs, v["type"]
-        ):
-            by_type.setdefault(v["type"], []).append(v["xdr"])
+        by_type.setdefault(v["type"], []).append(v["xdr"])
     for name, strategy in STRATEGIES.items():
         examples = {strategy.example().to_xdr_base64() for _ in range(RANDOM_VALUES)}
         by_type.setdefault(name, []).extend(sorted(examples))

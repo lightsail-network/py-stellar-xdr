@@ -12,7 +12,6 @@ from typing import Any
 import pytest
 
 import stellar_xdr as xdr
-from stellar_xdr import typedefs
 
 VECTORS = json.loads(
     gzip.decompress(
@@ -22,12 +21,9 @@ VECTORS = json.loads(
 
 
 def round_trip(name: str, text: str) -> str:
-    """Decode and encode again, with the class, union or typedef codec of a type."""
-    codec: Any = getattr(typedefs, name, None)
-    if codec is not None:
-        encoded: str = codec.to_xdr_base64(codec.from_xdr_base64(text))
-    else:
-        encoded = getattr(xdr, name).from_xdr_base64(text).to_xdr_base64()
+    """Decode and encode again, with the class or the union of a type."""
+    decoder: Any = getattr(xdr, name)
+    encoded: str = decoder.from_xdr_base64(text).to_xdr_base64()
     return encoded
 
 

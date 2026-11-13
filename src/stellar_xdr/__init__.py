@@ -2,13 +2,11 @@
 """Strict, fully typed encoding and decoding of Stellar XDR.
 
 Every type is importable from here, and this is the only place to import
-one from: the modules that define them are private. The codecs of the
-typedefs are in `stellar_xdr.typedefs`.
+one from: the modules that define them are private.
 """
 
 from typing import Final
 
-from . import typedefs
 from ._contract import (
     SCSYMBOL_LIMIT,
     ContractExecutable,
@@ -1051,5 +1049,4 @@ __all__ = [
     "decode_stream",
     "encode_stream",
     "replace",
-    "typedefs",
 ]

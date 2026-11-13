@@ -22,6 +22,7 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrBytes,
     XdrEnum,
     XdrStruct,
     check,
@@ -29,6 +30,7 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
     set_field,
     xdr_json,
 )
@@ -83,7 +85,39 @@ _SCP_STATEMENT_TYPE_JSON_MEMBERS: Final = xdr_json.inverse(
 )
 
 
-Value: TypeAlias = bytes  # typedef opaque Value<>;
+@final
+class Value(XdrBytes):
+    """XDR typedef ``Value``.
+
+    ```xdr
+    typedef opaque Value<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "Value")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, None))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(None))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "Value", None))
 
 
 @final
@@ -104,9 +138,9 @@ class SCPBallot(XdrStruct):
     counter: Uint32
     value: Value
 
-    def __init__(self, counter: Uint32, value: Value) -> None:
+    def __init__(self, counter: Uint32, value: bytes) -> None:
         set_field(self, "counter", check.uint32(counter, "SCPBallot.counter"))
-        set_field(self, "value", check.opaque_var(value, "SCPBallot.value", None))
+        set_field(self, "value", Value._checked(value, "SCPBallot.value"))
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPBallot:
@@ -124,7 +158,7 @@ class SCPBallot(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "counter", reader.uint32())
-        set_field(obj, "value", reader.opaque_var(None))
+        set_field(obj, "value", new_bytes(Value, reader.opaque_var(None)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -140,7 +174,9 @@ class SCPBallot(XdrStruct):
         set_field(
             obj,
             "value",
-            xdr_json.read_hex_var(fields["value"], "SCPBallot.value", None),
+            new_bytes(
+                Value, xdr_json.read_hex_var(fields["value"], "SCPBallot.value", None)
+            ),
         )
         return obj
 
@@ -166,24 +202,22 @@ class SCPNomination(XdrStruct):
     accepted: tuple[Value, ...]
 
     def __init__(
-        self, quorum_set_hash: Hash, votes: Sequence[Value], accepted: Sequence[Value]
+        self, quorum_set_hash: bytes, votes: Sequence[bytes], accepted: Sequence[bytes]
     ) -> None:
         set_field(
             self,
             "quorum_set_hash",
-            check.opaque_fixed(quorum_set_hash, "SCPNomination.quorum_set_hash", 32),
+            Hash._checked(quorum_set_hash, "SCPNomination.quorum_set_hash"),
         )
         set_field(
             self,
             "votes",
-            check.array(votes, "SCPNomination.votes", None, check.opaque_var, None),
+            check.array(votes, "SCPNomination.votes", None, Value._checked),
         )
         set_field(
             self,
             "accepted",
-            check.array(
-                accepted, "SCPNomination.accepted", None, check.opaque_var, None
-            ),
+            check.array(accepted, "SCPNomination.accepted", None, Value._checked),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -210,16 +244,26 @@ class SCPNomination(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "quorum_set_hash", reader.opaque_aligned(32))
+        set_field(obj, "quorum_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(
             obj,
             "votes",
-            tuple([reader.opaque_var(None) for _ in range(reader.count(None, 4))]),
+            tuple(
+                [
+                    new_bytes(Value, reader.opaque_var(None))
+                    for _ in range(reader.count(None, 4))
+                ]
+            ),
         )
         set_field(
             obj,
             "accepted",
-            tuple([reader.opaque_var(None) for _ in range(reader.count(None, 4))]),
+            tuple(
+                [
+                    new_bytes(Value, reader.opaque_var(None))
+                    for _ in range(reader.count(None, 4))
+                ]
+            ),
         )
         return obj
 
@@ -239,8 +283,11 @@ class SCPNomination(XdrStruct):
         set_field(
             obj,
             "quorum_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["quorum_set_hash"], "SCPNomination.quorum_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["quorum_set_hash"], "SCPNomination.quorum_set_hash", 32
+                ),
             ),
         )
         set_field(
@@ -249,7 +296,9 @@ class SCPNomination(XdrStruct):
             xdr_json.read_items(
                 xdr_json.read_array(fields["votes"], "SCPNomination.votes", None),
                 "SCPNomination.votes",
-                lambda item0: xdr_json.read_hex_var(item0, "SCPNomination.votes", None),
+                lambda item0: new_bytes(
+                    Value, xdr_json.read_hex_var(item0, "SCPNomination.votes", None)
+                ),
             ),
         )
         set_field(
@@ -258,8 +307,8 @@ class SCPNomination(XdrStruct):
             xdr_json.read_items(
                 xdr_json.read_array(fields["accepted"], "SCPNomination.accepted", None),
                 "SCPNomination.accepted",
-                lambda item0: xdr_json.read_hex_var(
-                    item0, "SCPNomination.accepted", None
+                lambda item0: new_bytes(
+                    Value, xdr_json.read_hex_var(item0, "SCPNomination.accepted", None)
                 ),
             ),
         )
@@ -301,7 +350,7 @@ class SCPStatementPrepare(XdrStruct):
 
     def __init__(
         self,
-        quorum_set_hash: Hash,
+        quorum_set_hash: bytes,
         ballot: SCPBallot,
         prepared: SCPBallot | None,
         prepared_prime: SCPBallot | None,
@@ -311,9 +360,7 @@ class SCPStatementPrepare(XdrStruct):
         set_field(
             self,
             "quorum_set_hash",
-            check.opaque_fixed(
-                quorum_set_hash, "SCPStatementPrepare.quorum_set_hash", 32
-            ),
+            Hash._checked(quorum_set_hash, "SCPStatementPrepare.quorum_set_hash"),
         )
         set_field(
             self,
@@ -384,7 +431,7 @@ class SCPStatementPrepare(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(obj, "quorum_set_hash", reader.opaque_aligned(32))
+        set_field(obj, "quorum_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         set_field(obj, "ballot", SCPBallot._decode(reader))
         set_field(
             obj, "prepared", (SCPBallot._decode(reader) if reader.present() else None)
@@ -426,8 +473,11 @@ class SCPStatementPrepare(XdrStruct):
         set_field(
             obj,
             "quorum_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["quorum_set_hash"], "SCPStatementPrepare.quorum_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["quorum_set_hash"], "SCPStatementPrepare.quorum_set_hash", 32
+                ),
             ),
         )
         set_field(obj, "ballot", SCPBallot._from_json(fields["ballot"], ctx))
@@ -488,7 +538,7 @@ class SCPStatementConfirm(XdrStruct):
         n_prepared: Uint32,
         n_commit: Uint32,
         n_h: Uint32,
-        quorum_set_hash: Hash,
+        quorum_set_hash: bytes,
     ) -> None:
         set_field(
             self,
@@ -507,9 +557,7 @@ class SCPStatementConfirm(XdrStruct):
         set_field(
             self,
             "quorum_set_hash",
-            check.opaque_fixed(
-                quorum_set_hash, "SCPStatementConfirm.quorum_set_hash", 32
-            ),
+            Hash._checked(quorum_set_hash, "SCPStatementConfirm.quorum_set_hash"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -549,7 +597,7 @@ class SCPStatementConfirm(XdrStruct):
         set_field(obj, "n_prepared", reader.uint32())
         set_field(obj, "n_commit", reader.uint32())
         set_field(obj, "n_h", reader.uint32())
-        set_field(obj, "quorum_set_hash", reader.opaque_aligned(32))
+        set_field(obj, "quorum_set_hash", new_bytes(Hash, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -588,8 +636,11 @@ class SCPStatementConfirm(XdrStruct):
         set_field(
             obj,
             "quorum_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["quorum_set_hash"], "SCPStatementConfirm.quorum_set_hash", 32
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["quorum_set_hash"], "SCPStatementConfirm.quorum_set_hash", 32
+                ),
             ),
         )
         return obj
@@ -616,7 +667,7 @@ class SCPStatementExternalize(XdrStruct):
     commit_quorum_set_hash: Hash
 
     def __init__(
-        self, commit: SCPBallot, n_h: Uint32, commit_quorum_set_hash: Hash
+        self, commit: SCPBallot, n_h: Uint32, commit_quorum_set_hash: bytes
     ) -> None:
         set_field(
             self,
@@ -627,10 +678,8 @@ class SCPStatementExternalize(XdrStruct):
         set_field(
             self,
             "commit_quorum_set_hash",
-            check.opaque_fixed(
-                commit_quorum_set_hash,
-                "SCPStatementExternalize.commit_quorum_set_hash",
-                32,
+            Hash._checked(
+                commit_quorum_set_hash, "SCPStatementExternalize.commit_quorum_set_hash"
             ),
         )
 
@@ -663,7 +712,9 @@ class SCPStatementExternalize(XdrStruct):
         obj = new(cls)
         set_field(obj, "commit", SCPBallot._decode(reader))
         set_field(obj, "n_h", reader.uint32())
-        set_field(obj, "commit_quorum_set_hash", reader.opaque_aligned(32))
+        set_field(
+            obj, "commit_quorum_set_hash", new_bytes(Hash, reader.opaque_aligned(32))
+        )
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -690,10 +741,13 @@ class SCPStatementExternalize(XdrStruct):
         set_field(
             obj,
             "commit_quorum_set_hash",
-            xdr_json.read_hex_fixed(
-                fields["commit_quorum_set_hash"],
-                "SCPStatementExternalize.commit_quorum_set_hash",
-                32,
+            new_bytes(
+                Hash,
+                xdr_json.read_hex_fixed(
+                    fields["commit_quorum_set_hash"],
+                    "SCPStatementExternalize.commit_quorum_set_hash",
+                    32,
+                ),
             ),
         )
         return obj
@@ -1066,12 +1120,12 @@ class SCPStatement(XdrStruct):
 
     __slots__ = ("node_id", "slot_index", "pledges")
 
-    node_id: NodeID
+    node_id: NodeID.Any
     slot_index: Uint64
     pledges: SCPStatementPledges.Any
 
     def __init__(
-        self, node_id: NodeID, slot_index: Uint64, pledges: SCPStatementPledges.Any
+        self, node_id: NodeID.Any, slot_index: Uint64, pledges: SCPStatementPledges.Any
     ) -> None:
         set_field(
             self,
@@ -1162,14 +1216,14 @@ class SCPEnvelope(XdrStruct):
     statement: SCPStatement
     signature: Signature
 
-    def __init__(self, statement: SCPStatement, signature: Signature) -> None:
+    def __init__(self, statement: SCPStatement, signature: bytes) -> None:
         set_field(
             self,
             "statement",
             check.instance(statement, "SCPEnvelope.statement", SCPStatement),
         )
         set_field(
-            self, "signature", check.opaque_var(signature, "SCPEnvelope.signature", 64)
+            self, "signature", Signature._checked(signature, "SCPEnvelope.signature")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1188,7 +1242,7 @@ class SCPEnvelope(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "statement", SCPStatement._decode(reader))
-        set_field(obj, "signature", reader.opaque_var(64))
+        set_field(obj, "signature", new_bytes(Signature, reader.opaque_var(64)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1205,7 +1259,10 @@ class SCPEnvelope(XdrStruct):
         set_field(
             obj,
             "signature",
-            xdr_json.read_hex_var(fields["signature"], "SCPEnvelope.signature", 64),
+            new_bytes(
+                Signature,
+                xdr_json.read_hex_var(fields["signature"], "SCPEnvelope.signature", 64),
+            ),
         )
         return obj
 
@@ -1227,13 +1284,13 @@ class SCPQuorumSet(XdrStruct):
     __slots__ = ("threshold", "validators", "inner_sets")
 
     threshold: Uint32
-    validators: tuple[NodeID, ...]
+    validators: tuple[NodeID.Any, ...]
     inner_sets: tuple[SCPQuorumSet, ...]
 
     def __init__(
         self,
         threshold: Uint32,
-        validators: Sequence[NodeID],
+        validators: Sequence[NodeID.Any],
         inner_sets: Sequence[SCPQuorumSet],
     ) -> None:
         set_field(self, "threshold", check.uint32(threshold, "SCPQuorumSet.threshold"))

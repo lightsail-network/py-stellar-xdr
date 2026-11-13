@@ -30,6 +30,7 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
     set_field,
     xdr_json,
 )
@@ -3272,7 +3273,7 @@ class SCSpecFunctionV0(XdrStruct):
         outputs: Sequence[SCSpecTypeDef.Any],
     ) -> None:
         set_field(self, "doc", check.string(doc, "SCSpecFunctionV0.doc", 1024))
-        set_field(self, "name", check.string(name, "SCSpecFunctionV0.name", 32))
+        set_field(self, "name", SCSymbol._checked(name, "SCSpecFunctionV0.name"))
         set_field(
             self,
             "inputs",
@@ -3324,7 +3325,7 @@ class SCSpecFunctionV0(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "doc", reader.opaque_var(1024))
-        set_field(obj, "name", reader.opaque_var(32))
+        set_field(obj, "name", new_bytes(SCSymbol, reader.opaque_var(32)))
         set_field(
             obj,
             "inputs",
@@ -3364,7 +3365,10 @@ class SCSpecFunctionV0(XdrStruct):
         set_field(
             obj,
             "name",
-            xdr_json.read_string(fields["name"], "SCSpecFunctionV0.name", 32),
+            new_bytes(
+                SCSymbol,
+                xdr_json.read_string(fields["name"], "SCSpecFunctionV0.name", 32),
+            ),
         )
         set_field(
             obj,
@@ -3539,7 +3543,7 @@ class SCSpecEventV0(XdrStruct):
             self,
             "prefix_topics",
             check.array(
-                prefix_topics, "SCSpecEventV0.prefix_topics", 2, check.string, 32
+                prefix_topics, "SCSpecEventV0.prefix_topics", 2, SCSymbol._checked
             ),
         )
         set_field(
@@ -3603,7 +3607,12 @@ class SCSpecEventV0(XdrStruct):
         set_field(
             obj,
             "prefix_topics",
-            tuple([reader.opaque_var(32) for _ in range(reader.count(2, 4))]),
+            tuple(
+                [
+                    new_bytes(SCSymbol, reader.opaque_var(32))
+                    for _ in range(reader.count(2, 4))
+                ]
+            ),
         )
         set_field(
             obj,
@@ -3657,8 +3666,9 @@ class SCSpecEventV0(XdrStruct):
                     fields["prefix_topics"], "SCSpecEventV0.prefix_topics", 2
                 ),
                 "SCSpecEventV0.prefix_topics",
-                lambda item0: xdr_json.read_string(
-                    item0, "SCSpecEventV0.prefix_topics", 32
+                lambda item0: new_bytes(
+                    SCSymbol,
+                    xdr_json.read_string(item0, "SCSpecEventV0.prefix_topics", 32),
                 ),
             ),
         )

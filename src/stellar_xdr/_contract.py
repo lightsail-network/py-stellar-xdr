@@ -25,6 +25,8 @@ from ._runtime import (
     UnionNamespace,
     Writer,
     XdrArm,
+    XdrArray,
+    XdrBytes,
     XdrEnum,
     XdrStruct,
     check,
@@ -32,6 +34,9 @@ from ._runtime import (
     decode_bytes,
     decode_json,
     new,
+    new_bytes,
+    new_int,
+    new_tuple,
     set_field,
     xdr_json,
 )
@@ -366,9 +371,109 @@ _SC_ADDRESS_TYPE_JSON_NAMES: Final[dict[SCAddressType, str]] = {
 _SC_ADDRESS_TYPE_JSON_MEMBERS: Final = xdr_json.inverse(_SC_ADDRESS_TYPE_JSON_NAMES)
 
 
-SCBytes: TypeAlias = bytes  # typedef opaque SCBytes<>;
-SCString: TypeAlias = bytes  # typedef string SCString<>;
-SCSymbol: TypeAlias = bytes  # typedef string SCSymbol<SCSYMBOL_LIMIT>;
+@final
+class SCBytes(XdrBytes):
+    """XDR typedef ``SCBytes``.
+
+    ```xdr
+    typedef opaque SCBytes<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes) -> Self:
+        return cls._checked(value, "SCBytes")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.opaque_var(value, where, None))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(None))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return self.hex()
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_hex_var(value, "SCBytes", None))
+
+
+@final
+class SCString(XdrBytes):
+    """XDR typedef ``SCString``.
+
+    ```xdr
+    typedef string SCString<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes | str) -> Self:
+        return cls._checked(value, "SCString")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.string(value, where, None))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(None))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_string(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_string(value, "SCString", None))
+
+
+@final
+class SCSymbol(XdrBytes):
+    """XDR typedef ``SCSymbol``.
+
+    ```xdr
+    typedef string SCSymbol<SCSYMBOL_LIMIT>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: bytes | str) -> Self:
+        return cls._checked(value, "SCSymbol")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_bytes(cls, check.string(value, where, 32))
+
+    def _encode(self, writer: Writer) -> None:
+        writer.opaque_var(self)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_bytes(cls, reader.opaque_var(32))
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return xdr_json.write_string(self)
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_bytes(cls, xdr_json.read_string(value, "SCSymbol", 32))
 
 
 class SCError(metaclass=UnionNamespace):
@@ -1182,12 +1287,10 @@ class MuxedEd25519Account(XdrStruct):
     id: Uint64
     ed25519: Uint256
 
-    def __init__(self, id: Uint64, ed25519: Uint256) -> None:
+    def __init__(self, id: Uint64, ed25519: bytes) -> None:
         set_field(self, "id", check.uint64(id, "MuxedEd25519Account.id"))
         set_field(
-            self,
-            "ed25519",
-            check.opaque_fixed(ed25519, "MuxedEd25519Account.ed25519", 32),
+            self, "ed25519", Uint256._checked(ed25519, "MuxedEd25519Account.ed25519")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1206,7 +1309,7 @@ class MuxedEd25519Account(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "id", reader.uint64())
-        set_field(obj, "ed25519", reader.opaque_aligned(32))
+        set_field(obj, "ed25519", new_bytes(Uint256, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1216,7 +1319,7 @@ class MuxedEd25519Account(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         parts = xdr_json.read_muxed_account(value, "MuxedEd25519Account")
         obj = new(cls)
-        set_field(obj, "ed25519", parts[0])
+        set_field(obj, "ed25519", new_bytes(Uint256, parts[0]))
         set_field(obj, "id", parts[1])
         return obj
 
@@ -1239,12 +1342,12 @@ class MuxedContract(XdrStruct):
     id: Uint64
     contract_id: ContractID
 
-    def __init__(self, id: Uint64, contract_id: ContractID) -> None:
+    def __init__(self, id: Uint64, contract_id: bytes) -> None:
         set_field(self, "id", check.uint64(id, "MuxedContract.id"))
         set_field(
             self,
             "contract_id",
-            check.opaque_fixed(contract_id, "MuxedContract.contract_id", 32),
+            ContractID._checked(contract_id, "MuxedContract.contract_id"),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1263,7 +1366,7 @@ class MuxedContract(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "id", reader.uint64())
-        set_field(obj, "contract_id", reader.opaque_aligned(32))
+        set_field(obj, "contract_id", new_bytes(ContractID, reader.opaque_aligned(32)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1273,7 +1376,7 @@ class MuxedContract(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         parts = xdr_json.read_muxed_contract(value, "MuxedContract")
         obj = new(cls)
-        set_field(obj, "contract_id", parts[0])
+        set_field(obj, "contract_id", new_bytes(ContractID, parts[0]))
         set_field(obj, "id", parts[1])
         return obj
 
@@ -1306,12 +1409,12 @@ class SCAddress(metaclass=UnionNamespace):
 
         __slots__ = ("account_id",)
 
-        account_id: AccountID
+        account_id: AccountID.Any
         type: ClassVar[Literal[SCAddressType.SC_ADDRESS_TYPE_ACCOUNT]] = (
             SCAddressType.SC_ADDRESS_TYPE_ACCOUNT
         )
 
-        def __init__(self, account_id: AccountID) -> None:
+        def __init__(self, account_id: AccountID.Any) -> None:
             set_field(
                 self,
                 "account_id",
@@ -1355,11 +1458,11 @@ class SCAddress(metaclass=UnionNamespace):
             SCAddressType.SC_ADDRESS_TYPE_CONTRACT
         )
 
-        def __init__(self, contract_id: ContractID) -> None:
+        def __init__(self, contract_id: bytes) -> None:
             set_field(
                 self,
                 "contract_id",
-                check.opaque_fixed(contract_id, "SCAddress.Contract.contract_id", 32),
+                ContractID._checked(contract_id, "SCAddress.Contract.contract_id"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -1377,7 +1480,9 @@ class SCAddress(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "contract_id", reader.opaque_aligned(32))
+            set_field(
+                obj, "contract_id", new_bytes(ContractID, reader.opaque_aligned(32))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1481,12 +1586,12 @@ class SCAddress(metaclass=UnionNamespace):
             SCAddressType.SC_ADDRESS_TYPE_LIQUIDITY_POOL
         )
 
-        def __init__(self, liquidity_pool_id: PoolID) -> None:
+        def __init__(self, liquidity_pool_id: bytes) -> None:
             set_field(
                 self,
                 "liquidity_pool_id",
-                check.opaque_fixed(
-                    liquidity_pool_id, "SCAddress.LiquidityPool.liquidity_pool_id", 32
+                PoolID._checked(
+                    liquidity_pool_id, "SCAddress.LiquidityPool.liquidity_pool_id"
                 ),
             )
 
@@ -1505,7 +1610,9 @@ class SCAddress(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "liquidity_pool_id", reader.opaque_aligned(32))
+            set_field(
+                obj, "liquidity_pool_id", new_bytes(PoolID, reader.opaque_aligned(32))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1611,35 +1718,35 @@ class SCAddress(metaclass=UnionNamespace):
         key = xdr_json.read_strkey(value, "SCAddress")
         if isinstance(key, strkey.Ed25519PublicKey):
             part0 = new(PublicKey.Ed25519)
-            set_field(part0, "ed25519", key.key)
+            set_field(part0, "ed25519", new_bytes(Uint256, key.key))
             arm1 = new(SCAddress.Account)
             set_field(arm1, "account_id", part0)
             return arm1
         if isinstance(key, strkey.Contract):
             arm2 = new(SCAddress.Contract)
-            set_field(arm2, "contract_id", key.hash)
+            set_field(arm2, "contract_id", new_bytes(ContractID, key.hash))
             return arm2
         if isinstance(key, strkey.MuxedEd25519Account):
             part3 = new(MuxedEd25519Account)
             set_field(part3, "id", key.id)
-            set_field(part3, "ed25519", key.key)
+            set_field(part3, "ed25519", new_bytes(Uint256, key.key))
             arm4 = new(SCAddress.MuxedAccount)
             set_field(arm4, "muxed_account", part3)
             return arm4
         if isinstance(key, strkey.ClaimableBalance):
             part5 = new(ClaimableBalanceID.V0)
-            set_field(part5, "v0", key.hash)
+            set_field(part5, "v0", new_bytes(Hash, key.hash))
             arm6 = new(SCAddress.ClaimableBalance)
             set_field(arm6, "claimable_balance_id", part5)
             return arm6
         if isinstance(key, strkey.LiquidityPool):
             arm7 = new(SCAddress.LiquidityPool)
-            set_field(arm7, "liquidity_pool_id", key.hash)
+            set_field(arm7, "liquidity_pool_id", new_bytes(PoolID, key.hash))
             return arm7
         if isinstance(key, strkey.MuxedContract):
             part8 = new(MuxedContract)
             set_field(part8, "id", key.id)
-            set_field(part8, "contract_id", key.hash)
+            set_field(part8, "contract_id", new_bytes(ContractID, key.hash))
             arm9 = new(SCAddress.MuxedContract)
             set_field(arm9, "muxed_contract", part8)
             return arm9
@@ -1703,7 +1810,7 @@ class ContractExecutableExternalRef(XdrStruct):
             ),
         )
         set_field(
-            self, "tag", check.string(tag, "ContractExecutableExternalRef.tag", None)
+            self, "tag", SCString._checked(tag, "ContractExecutableExternalRef.tag")
         )
 
     def __eq__(self, other: object) -> bool:
@@ -1722,7 +1829,7 @@ class ContractExecutableExternalRef(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "executable_owner", SCAddress._decode(reader))
-        set_field(obj, "tag", reader.opaque_var(None))
+        set_field(obj, "tag", new_bytes(SCString, reader.opaque_var(None)))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1745,8 +1852,11 @@ class ContractExecutableExternalRef(XdrStruct):
         set_field(
             obj,
             "tag",
-            xdr_json.read_string(
-                fields["tag"], "ContractExecutableExternalRef.tag", None
+            new_bytes(
+                SCString,
+                xdr_json.read_string(
+                    fields["tag"], "ContractExecutableExternalRef.tag", None
+                ),
             ),
         )
         return obj
@@ -1779,11 +1889,11 @@ class ContractExecutable(metaclass=UnionNamespace):
             ContractExecutableType.CONTRACT_EXECUTABLE_WASM
         )
 
-        def __init__(self, wasm_hash: Hash) -> None:
+        def __init__(self, wasm_hash: bytes) -> None:
             set_field(
                 self,
                 "wasm_hash",
-                check.opaque_fixed(wasm_hash, "ContractExecutable.Wasm.wasm_hash", 32),
+                Hash._checked(wasm_hash, "ContractExecutable.Wasm.wasm_hash"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -1801,7 +1911,7 @@ class ContractExecutable(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "wasm_hash", reader.opaque_aligned(32))
+            set_field(obj, "wasm_hash", new_bytes(Hash, reader.opaque_aligned(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -1813,7 +1923,12 @@ class ContractExecutable(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "wasm_hash",
-                xdr_json.read_hex_fixed(value, "ContractExecutable.Wasm.wasm_hash", 32),
+                new_bytes(
+                    Hash,
+                    xdr_json.read_hex_fixed(
+                        value, "ContractExecutable.Wasm.wasm_hash", 32
+                    ),
+                ),
             )
             return obj
 
@@ -2072,14 +2187,7 @@ class SCContractInstance(XdrStruct):
         set_field(
             self,
             "storage",
-            check.optional(
-                storage,
-                "SCContractInstance.storage",
-                check.array,
-                None,
-                check.instance,
-                SCMapEntry,
-            ),
+            check.optional(storage, "SCContractInstance.storage", SCMap._checked),
         )
 
     def __eq__(self, other: object) -> bool:
@@ -2108,8 +2216,9 @@ class SCContractInstance(XdrStruct):
             obj,
             "storage",
             (
-                tuple(
-                    [SCMapEntry._decode(reader) for _ in range(reader.count(None, 8))]
+                new_tuple(
+                    SCMap,
+                    [SCMapEntry._decode(reader) for _ in range(reader.count(None, 8))],
                 )
                 if reader.present()
                 else None
@@ -2145,12 +2254,15 @@ class SCContractInstance(XdrStruct):
             (
                 None
                 if fields.get("storage") is None
-                else xdr_json.read_items(
-                    xdr_json.read_array(
-                        fields.get("storage"), "SCContractInstance.storage", None
+                else new_tuple(
+                    SCMap,
+                    xdr_json.read_items(
+                        xdr_json.read_array(
+                            fields.get("storage"), "SCContractInstance.storage", None
+                        ),
+                        "SCContractInstance.storage",
+                        lambda item0: SCMapEntry._from_json(item0, ctx),
                     ),
-                    "SCContractInstance.storage",
-                    lambda item0: SCMapEntry._from_json(item0, ctx),
                 )
             ),
         )
@@ -2539,9 +2651,11 @@ class SCVal(metaclass=UnionNamespace):
         timepoint: TimePoint
         type: ClassVar[Literal[SCValType.SCV_TIMEPOINT]] = SCValType.SCV_TIMEPOINT
 
-        def __init__(self, timepoint: TimePoint) -> None:
+        def __init__(self, timepoint: Uint64) -> None:
             set_field(
-                self, "timepoint", check.uint64(timepoint, "SCVal.Timepoint.timepoint")
+                self,
+                "timepoint",
+                TimePoint._checked(timepoint, "SCVal.Timepoint.timepoint"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -2561,7 +2675,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "timepoint", reader.uint64())
+            set_field(obj, "timepoint", new_int(TimePoint, reader.uint64()))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2576,7 +2690,9 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "timepoint",
-                xdr_json.read_uint64(value, "SCVal.Timepoint.timepoint"),
+                new_int(
+                    TimePoint, xdr_json.read_uint64(value, "SCVal.Timepoint.timepoint")
+                ),
             )
             return obj
 
@@ -2589,9 +2705,9 @@ class SCVal(metaclass=UnionNamespace):
         duration: Duration
         type: ClassVar[Literal[SCValType.SCV_DURATION]] = SCValType.SCV_DURATION
 
-        def __init__(self, duration: Duration) -> None:
+        def __init__(self, duration: Uint64) -> None:
             set_field(
-                self, "duration", check.uint64(duration, "SCVal.Duration.duration")
+                self, "duration", Duration._checked(duration, "SCVal.Duration.duration")
             )
 
         def __eq__(self, other: object) -> bool:
@@ -2611,7 +2727,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "duration", reader.uint64())
+            set_field(obj, "duration", new_int(Duration, reader.uint64()))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2624,7 +2740,11 @@ class SCVal(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "duration", xdr_json.read_uint64(value, "SCVal.Duration.duration")
+                obj,
+                "duration",
+                new_int(
+                    Duration, xdr_json.read_uint64(value, "SCVal.Duration.duration")
+                ),
             )
             return obj
 
@@ -2821,8 +2941,8 @@ class SCVal(metaclass=UnionNamespace):
         bytes: SCBytes
         type: ClassVar[Literal[SCValType.SCV_BYTES]] = SCValType.SCV_BYTES
 
-        def __init__(self, bytes: SCBytes) -> None:
-            set_field(self, "bytes", check.opaque_var(bytes, "SCVal.Bytes.bytes", None))
+        def __init__(self, bytes: builtins.bytes) -> None:
+            set_field(self, "bytes", SCBytes._checked(bytes, "SCVal.Bytes.bytes"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Bytes:
@@ -2841,7 +2961,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "bytes", reader.opaque_var(None))
+            set_field(obj, "bytes", new_bytes(SCBytes, reader.opaque_var(None)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2854,7 +2974,11 @@ class SCVal(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "bytes", xdr_json.read_hex_var(value, "SCVal.Bytes.bytes", None)
+                obj,
+                "bytes",
+                new_bytes(
+                    SCBytes, xdr_json.read_hex_var(value, "SCVal.Bytes.bytes", None)
+                ),
             )
             return obj
 
@@ -2868,7 +2992,7 @@ class SCVal(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCValType.SCV_STRING]] = SCValType.SCV_STRING
 
         def __init__(self, str: bytes | builtins.str) -> None:
-            set_field(self, "str", check.string(str, "SCVal.String.str", None))
+            set_field(self, "str", SCString._checked(str, "SCVal.String.str"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.String:
@@ -2887,7 +3011,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "str", reader.opaque_var(None))
+            set_field(obj, "str", new_bytes(SCString, reader.opaque_var(None)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2899,7 +3023,13 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "str", xdr_json.read_string(value, "SCVal.String.str", None))
+            set_field(
+                obj,
+                "str",
+                new_bytes(
+                    SCString, xdr_json.read_string(value, "SCVal.String.str", None)
+                ),
+            )
             return obj
 
     @final
@@ -2912,7 +3042,7 @@ class SCVal(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCValType.SCV_SYMBOL]] = SCValType.SCV_SYMBOL
 
         def __init__(self, sym: bytes | str) -> None:
-            set_field(self, "sym", check.string(sym, "SCVal.Symbol.sym", 32))
+            set_field(self, "sym", SCSymbol._checked(sym, "SCVal.Symbol.sym"))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Symbol:
@@ -2931,7 +3061,7 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "sym", reader.opaque_var(32))
+            set_field(obj, "sym", new_bytes(SCSymbol, reader.opaque_var(32)))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -2943,7 +3073,13 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "sym", xdr_json.read_string(value, "SCVal.Symbol.sym", 32))
+            set_field(
+                obj,
+                "sym",
+                new_bytes(
+                    SCSymbol, xdr_json.read_string(value, "SCVal.Symbol.sym", 32)
+                ),
+            )
             return obj
 
     @final
@@ -2956,19 +3092,7 @@ class SCVal(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCValType.SCV_VEC]] = SCValType.SCV_VEC
 
         def __init__(self, vec: Sequence[SCVal.Any] | None) -> None:
-            set_field(
-                self,
-                "vec",
-                check.optional(
-                    vec,
-                    "SCVal.Vec.vec",
-                    check.array,
-                    None,
-                    check.union,
-                    _SC_VAL_CLASSES,
-                    "SCVal",
-                ),
-            )
+            set_field(self, "vec", check.optional(vec, "SCVal.Vec.vec", SCVec._checked))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Vec:
@@ -2997,7 +3121,10 @@ class SCVal(metaclass=UnionNamespace):
                 obj,
                 "vec",
                 (
-                    tuple([SCVal._decode(reader) for _ in range(reader.count(None, 4))])
+                    new_tuple(
+                        SCVec,
+                        [SCVal._decode(reader) for _ in range(reader.count(None, 4))],
+                    )
                     if reader.present()
                     else None
                 ),
@@ -3025,10 +3152,13 @@ class SCVal(metaclass=UnionNamespace):
                 (
                     None
                     if value is None
-                    else xdr_json.read_items(
-                        xdr_json.read_array(value, "SCVal.Vec.vec", None),
-                        "SCVal.Vec.vec",
-                        lambda item0: SCVal._from_json(item0, ctx),
+                    else new_tuple(
+                        SCVec,
+                        xdr_json.read_items(
+                            xdr_json.read_array(value, "SCVal.Vec.vec", None),
+                            "SCVal.Vec.vec",
+                            lambda item0: SCVal._from_json(item0, ctx),
+                        ),
                     )
                 ),
             )
@@ -3044,13 +3174,7 @@ class SCVal(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCValType.SCV_MAP]] = SCValType.SCV_MAP
 
         def __init__(self, map: Sequence[SCMapEntry] | None) -> None:
-            set_field(
-                self,
-                "map",
-                check.optional(
-                    map, "SCVal.Map.map", check.array, None, check.instance, SCMapEntry
-                ),
-            )
+            set_field(self, "map", check.optional(map, "SCVal.Map.map", SCMap._checked))
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Map:
@@ -3079,11 +3203,12 @@ class SCVal(metaclass=UnionNamespace):
                 obj,
                 "map",
                 (
-                    tuple(
+                    new_tuple(
+                        SCMap,
                         [
                             SCMapEntry._decode(reader)
                             for _ in range(reader.count(None, 8))
-                        ]
+                        ],
                     )
                     if reader.present()
                     else None
@@ -3112,10 +3237,13 @@ class SCVal(metaclass=UnionNamespace):
                 (
                     None
                     if value is None
-                    else xdr_json.read_items(
-                        xdr_json.read_array(value, "SCVal.Map.map", None),
-                        "SCVal.Map.map",
-                        lambda item0: SCMapEntry._from_json(item0, ctx),
+                    else new_tuple(
+                        SCMap,
+                        xdr_json.read_items(
+                            xdr_json.read_array(value, "SCVal.Map.map", None),
+                            "SCVal.Map.map",
+                            lambda item0: SCMapEntry._from_json(item0, ctx),
+                        ),
                     )
                 ),
             )
@@ -3325,9 +3453,7 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 self,
                 "executable_tag",
-                check.string(
-                    executable_tag, "SCVal.ExecutableTag.executable_tag", None
-                ),
+                SCString._checked(executable_tag, "SCVal.ExecutableTag.executable_tag"),
             )
 
         def __eq__(self, other: object) -> bool:
@@ -3347,7 +3473,9 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "executable_tag", reader.opaque_var(None))
+            set_field(
+                obj, "executable_tag", new_bytes(SCString, reader.opaque_var(None))
+            )
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -3362,7 +3490,12 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 obj,
                 "executable_tag",
-                xdr_json.read_string(value, "SCVal.ExecutableTag.executable_tag", None),
+                new_bytes(
+                    SCString,
+                    xdr_json.read_string(
+                        value, "SCVal.ExecutableTag.executable_tag", None
+                    ),
+                ),
             )
             return obj
 
@@ -3577,8 +3710,100 @@ class SCMapEntry(XdrStruct):
         return obj
 
 
-SCVec: TypeAlias = tuple[SCVal.Any, ...]  # typedef SCVal SCVec<>;
-SCMap: TypeAlias = tuple[SCMapEntry, ...]  # typedef SCMapEntry SCMap<>;
+@final
+class SCVec(XdrArray[SCVal.Any]):
+    """XDR typedef ``SCVec``.
+
+    ```xdr
+    typedef SCVal SCVec<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[SCVal.Any]) -> Self:
+        return cls._checked(value, "SCVec")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls, check.array(value, where, None, check.union, _SC_VAL_CLASSES, "SCVal")
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls, [SCVal._decode(reader) for _ in range(reader.count(None, 4))]
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "SCVec", None),
+                "SCVec",
+                lambda item0: SCVal._from_json(item0, ctx),
+            ),
+        )
+
+
+@final
+class SCMap(XdrArray[SCMapEntry]):
+    """XDR typedef ``SCMap``.
+
+    ```xdr
+    typedef SCMapEntry SCMap<>;
+    ```
+    """
+
+    __slots__ = ()
+
+    def __new__(cls, value: Sequence[SCMapEntry]) -> Self:
+        return cls._checked(value, "SCMap")
+
+    @classmethod
+    def _checked(cls, value: object, where: str) -> Self:
+        if isinstance(value, cls):
+            return value
+        return new_tuple(
+            cls, check.array(value, where, None, check.instance, SCMapEntry)
+        )
+
+    def _encode(self, writer: Writer) -> None:
+        writer.uint32(len(self))
+        for item0 in self:
+            item0._encode(writer)
+
+    @classmethod
+    def _decode(cls, reader: Reader) -> Self:
+        return new_tuple(
+            cls, [SCMapEntry._decode(reader) for _ in range(reader.count(None, 8))]
+        )
+
+    def _to_json(self, ctx: JsonWriter) -> Any:
+        return [item0._to_json(ctx) for item0 in self]
+
+    @classmethod
+    def _from_json(cls, value: object, ctx: JsonReader) -> Self:
+        return new_tuple(
+            cls,
+            xdr_json.read_items(
+                xdr_json.read_array(value, "SCMap", None),
+                "SCMap",
+                lambda item0: SCMapEntry._from_json(item0, ctx),
+            ),
+        )
 
 
 __all__ = [
