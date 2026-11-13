@@ -31,7 +31,7 @@ RANDOM_VALUES = 8
 # Values longer than this, in base64, are passed one at a time on stdin.
 LARGE = 2000
 
-# The reference writes inline fixed-length opaque fields (PeerAddressIp.ipv4/ipv6,
+# The reference writes inline fixed-length opaque fields (PeerAddressIP.ipv4/ipv6,
 # Curve25519Public.key, Curve25519Secret.key, HmacSha256Key.key, HmacSha256Mac.mac and
 # ShortHashSeed.seed) as arrays of integers; SEP-51 writes all opaque data as hex.
 _INLINE_OPAQUE_KEYS = frozenset({"i_pv4", "i_pv6", "key", "mac", "seed"})

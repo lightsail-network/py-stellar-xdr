@@ -9,7 +9,8 @@ Two kinds of types get a name that the `.x` files don't spell out:
 
 - A struct or union defined inside another type is named after that type and its own
   field: the `ext` of an `AccountEntry` is an `AccountEntryExt`, and the `result` of a
-  `TransactionResult` is a `TransactionResultResult`.
+  `TransactionResult` is a `TransactionResultResult`. An acronym in the field's name is
+  written as in every other type name: the `ttl` of a `LedgerKey` is a `LedgerKeyTTL`.
 - A typedef that starts with a lower-case letter is capitalized: `uint32` is `Uint32`.
 
 The package's version follows semantic versioning of its API. The protocol version of
@@ -190,9 +191,16 @@ assert xdr.TransactionExt.V0().v == 0
 ```
 
 Arms are named after their case in the discriminant's enum, without the prefix its
-members share: `SCV_U32` is `SCVal.U32` and `ASSET_TYPE_CREDIT_ALPHANUM4` is
-`Asset.CreditAlphanum4`. Unions that switch on an integer, such as the `ext` unions,
+members share: `SCV_U32` is `SCVal.U32` and `SCV_LEDGER_KEY_NONCE` is
+`SCVal.LedgerKeyNonce`. Unions that switch on an integer, such as the `ext` unions,
 name their arms after the value: `TransactionExt.V0`.
+
+A case is written in capitals, so it doesn't say how its words are spelled. An arm's name
+has each word with one capital, except for the words that the type names spell with
+more: `ID`, `SCP`, `TTL` and `UDT`, and `AlphaNum4`, `AlphaNum12`, `QuorumSet`,
+`TimePoint` and `TrustLine`. So `LedgerEntryData.TTL` holds a `TTLEntry`,
+`Asset.CreditAlphaNum4` an `AlphaNum4`, and `StellarMessage.SCPQuorumSet` an
+`SCPQuorumSet`.
 
 ## Enums
 

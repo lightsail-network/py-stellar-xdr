@@ -84,7 +84,7 @@ def test_invalid_hex(text: str) -> None:
 def test_inline_fixed_opaque_is_hex() -> None:
     # SEP-51 writes all opaque data as hex, including inline fixed-length fields.
     assert xdr.Curve25519Public(KEY).to_json_value() == {"key": KEY.hex()}
-    assert xdr.PeerAddressIp.IPv4(b"\1\2\3\4").to_json_value() == {"i_pv4": "01020304"}
+    assert xdr.PeerAddressIP.IPv4(b"\1\2\3\4").to_json_value() == {"i_pv4": "01020304"}
 
 
 def test_strings_are_escaped_ascii() -> None:
@@ -110,7 +110,7 @@ def test_string_length_is_checked_in_bytes() -> None:
 
 def test_asset_codes() -> None:
     issuer = xdr.PublicKey.Ed25519(xdr.Uint256(KEY))
-    four = xdr.Asset.CreditAlphanum4(xdr.AlphaNum4(xdr.AssetCode4(b"AB\0\0"), issuer))
+    four = xdr.Asset.CreditAlphaNum4(xdr.AlphaNum4(xdr.AssetCode4(b"AB\0\0"), issuer))
     assert four.to_json_value() == {
         "credit_alphanum4": {"asset_code": "AB", "issuer": G}
     }
@@ -124,9 +124,9 @@ def test_asset_codes() -> None:
 
 
 def test_asset_code_union_is_told_apart_by_length() -> None:
-    four = xdr.AssetCode.CreditAlphanum4(xdr.AssetCode4(b"AB\0\0"))
-    twelve = xdr.AssetCode.CreditAlphanum12(xdr.AssetCode12(b"ABCDE" + bytes(7)))
-    empty = xdr.AssetCode.CreditAlphanum4(xdr.AssetCode4(bytes(4)))
+    four = xdr.AssetCode.CreditAlphaNum4(xdr.AssetCode4(b"AB\0\0"))
+    twelve = xdr.AssetCode.CreditAlphaNum12(xdr.AssetCode12(b"ABCDE" + bytes(7)))
+    empty = xdr.AssetCode.CreditAlphaNum4(xdr.AssetCode4(bytes(4)))
     for value, text in [(four, "AB"), (twelve, "ABCDE"), (empty, "")]:
         assert value.to_json_value() == text
         assert xdr.AssetCode.from_json_value(text) == value

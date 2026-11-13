@@ -3984,7 +3984,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class CreditAlphanum4(XdrArm):
+    class CreditAlphaNum4(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM4`` of ``ChangeTrustAsset``, holding ``alphaNum4``."""
 
         __slots__ = ("alpha_num4",)
@@ -3999,17 +3999,17 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
                 self,
                 "alpha_num4",
                 check.instance(
-                    alpha_num4, "ChangeTrustAsset.CreditAlphanum4.alpha_num4", AlphaNum4
+                    alpha_num4, "ChangeTrustAsset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not ChangeTrustAsset.CreditAlphanum4:
+            if type(other) is not ChangeTrustAsset.CreditAlphaNum4:
                 return NotImplemented
             return self.alpha_num4 == other.alpha_num4
 
         def __hash__(self) -> int:
-            return hash((ChangeTrustAsset.CreditAlphanum4, self.alpha_num4))
+            return hash((ChangeTrustAsset.CreditAlphaNum4, self.alpha_num4))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -4031,7 +4031,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
             return obj
 
     @final
-    class CreditAlphanum12(XdrArm):
+    class CreditAlphaNum12(XdrArm):
         """Arm ``ASSET_TYPE_CREDIT_ALPHANUM12`` of ``ChangeTrustAsset``, holding ``alphaNum12``."""
 
         __slots__ = ("alpha_num12",)
@@ -4047,18 +4047,18 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
                 "alpha_num12",
                 check.instance(
                     alpha_num12,
-                    "ChangeTrustAsset.CreditAlphanum12.alpha_num12",
+                    "ChangeTrustAsset.CreditAlphaNum12.alpha_num12",
                     AlphaNum12,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not ChangeTrustAsset.CreditAlphanum12:
+            if type(other) is not ChangeTrustAsset.CreditAlphaNum12:
                 return NotImplemented
             return self.alpha_num12 == other.alpha_num12
 
         def __hash__(self) -> int:
-            return hash((ChangeTrustAsset.CreditAlphanum12, self.alpha_num12))
+            return hash((ChangeTrustAsset.CreditAlphaNum12, self.alpha_num12))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -4131,7 +4131,7 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
             )
             return obj
 
-    Any: TypeAlias = Native | CreditAlphanum4 | CreditAlphanum12 | PoolShare
+    Any: TypeAlias = Native | CreditAlphaNum4 | CreditAlphaNum12 | PoolShare
 
     @staticmethod
     def _decode(reader: Reader) -> ChangeTrustAsset.Any:
@@ -4206,15 +4206,15 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
 
 _CHANGE_TRUST_ASSET_ARMS: Final[dict[int, type[ChangeTrustAsset.Any]]] = {
     0: ChangeTrustAsset.Native,
-    1: ChangeTrustAsset.CreditAlphanum4,
-    2: ChangeTrustAsset.CreditAlphanum12,
+    1: ChangeTrustAsset.CreditAlphaNum4,
+    2: ChangeTrustAsset.CreditAlphaNum12,
     3: ChangeTrustAsset.PoolShare,
 }
 _CHANGE_TRUST_ASSET_CLASSES: Final = frozenset(_CHANGE_TRUST_ASSET_ARMS.values())
 _CHANGE_TRUST_ASSET_JSON_ARMS: Final[dict[str, type[ChangeTrustAsset.Any]]] = {
     "native": ChangeTrustAsset.Native,
-    "credit_alphanum4": ChangeTrustAsset.CreditAlphanum4,
-    "credit_alphanum12": ChangeTrustAsset.CreditAlphanum12,
+    "credit_alphanum4": ChangeTrustAsset.CreditAlphaNum4,
+    "credit_alphanum12": ChangeTrustAsset.CreditAlphaNum12,
     "pool_share": ChangeTrustAsset.PoolShare,
 }
 _CHANGE_TRUST_ASSET_JSON_VOID: Final[frozenset[str]] = frozenset({"native"})
@@ -9377,7 +9377,7 @@ class OperationBody(metaclass=UnionNamespace):
             return obj
 
     @final
-    class ExtendFootprintTtl(XdrArm):
+    class ExtendFootprintTTL(XdrArm):
         """Arm ``EXTEND_FOOTPRINT_TTL`` of ``OperationBody``, holding ``extendFootprintTTLOp``."""
 
         __slots__ = ("extend_footprint_ttl_op",)
@@ -9393,19 +9393,19 @@ class OperationBody(metaclass=UnionNamespace):
                 "extend_footprint_ttl_op",
                 check.instance(
                     extend_footprint_ttl_op,
-                    "OperationBody.ExtendFootprintTtl.extend_footprint_ttl_op",
+                    "OperationBody.ExtendFootprintTTL.extend_footprint_ttl_op",
                     ExtendFootprintTTLOp,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not OperationBody.ExtendFootprintTtl:
+            if type(other) is not OperationBody.ExtendFootprintTTL:
                 return NotImplemented
             return self.extend_footprint_ttl_op == other.extend_footprint_ttl_op
 
         def __hash__(self) -> int:
             return hash(
-                (OperationBody.ExtendFootprintTtl, self.extend_footprint_ttl_op)
+                (OperationBody.ExtendFootprintTTL, self.extend_footprint_ttl_op)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -9510,7 +9510,7 @@ class OperationBody(metaclass=UnionNamespace):
         | LiquidityPoolDeposit
         | LiquidityPoolWithdraw
         | InvokeHostFunction
-        | ExtendFootprintTtl
+        | ExtendFootprintTTL
         | RestoreFootprint
     )
 
@@ -9608,7 +9608,7 @@ _OPERATION_BODY_ARMS: Final[dict[int, type[OperationBody.Any]]] = {
     22: OperationBody.LiquidityPoolDeposit,
     23: OperationBody.LiquidityPoolWithdraw,
     24: OperationBody.InvokeHostFunction,
-    25: OperationBody.ExtendFootprintTtl,
+    25: OperationBody.ExtendFootprintTTL,
     26: OperationBody.RestoreFootprint,
 }
 _OPERATION_BODY_CLASSES: Final = frozenset(_OPERATION_BODY_ARMS.values())
@@ -9638,7 +9638,7 @@ _OPERATION_BODY_JSON_ARMS: Final[dict[str, type[OperationBody.Any]]] = {
     "liquidity_pool_deposit": OperationBody.LiquidityPoolDeposit,
     "liquidity_pool_withdraw": OperationBody.LiquidityPoolWithdraw,
     "invoke_host_function": OperationBody.InvokeHostFunction,
-    "extend_footprint_ttl": OperationBody.ExtendFootprintTtl,
+    "extend_footprint_ttl": OperationBody.ExtendFootprintTTL,
     "restore_footprint": OperationBody.RestoreFootprint,
 }
 _OPERATION_BODY_JSON_VOID: Final[frozenset[str]] = frozenset(
@@ -9807,8 +9807,8 @@ class Operation(XdrStruct):
 
 
 @final
-class HashIDPreimageOperationId(XdrStruct):
-    """XDR struct ``HashIDPreimageOperationId``.
+class HashIDPreimageOperationID(XdrStruct):
+    """XDR struct ``HashIDPreimageOperationID``.
 
     ```xdr
     struct
@@ -9834,7 +9834,7 @@ class HashIDPreimageOperationId(XdrStruct):
             "source_account",
             check.union(
                 source_account,
-                "HashIDPreimageOperationId.source_account",
+                "HashIDPreimageOperationID.source_account",
                 _PUBLIC_KEY_CLASSES,
                 "PublicKey",
             ),
@@ -9842,14 +9842,14 @@ class HashIDPreimageOperationId(XdrStruct):
         set_field(
             self,
             "seq_num",
-            SequenceNumber._checked(seq_num, "HashIDPreimageOperationId.seq_num"),
+            SequenceNumber._checked(seq_num, "HashIDPreimageOperationID.seq_num"),
         )
         set_field(
-            self, "op_num", check.uint32(op_num, "HashIDPreimageOperationId.op_num")
+            self, "op_num", check.uint32(op_num, "HashIDPreimageOperationID.op_num")
         )
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not HashIDPreimageOperationId:
+        if type(other) is not HashIDPreimageOperationID:
             return NotImplemented
         return (
             self.source_account == other.source_account
@@ -9859,7 +9859,7 @@ class HashIDPreimageOperationId(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (HashIDPreimageOperationId, self.source_account, self.seq_num, self.op_num)
+            (HashIDPreimageOperationID, self.source_account, self.seq_num, self.op_num)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -9885,7 +9885,7 @@ class HashIDPreimageOperationId(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.read_fields(
-            value, "HashIDPreimageOperationId", ("source_account", "seq_num", "op_num")
+            value, "HashIDPreimageOperationID", ("source_account", "seq_num", "op_num")
         )
         obj = new(cls)
         set_field(
@@ -9897,21 +9897,21 @@ class HashIDPreimageOperationId(XdrStruct):
             new_int(
                 SequenceNumber,
                 xdr_json.read_int64(
-                    fields["seq_num"], "HashIDPreimageOperationId.seq_num"
+                    fields["seq_num"], "HashIDPreimageOperationID.seq_num"
                 ),
             ),
         )
         set_field(
             obj,
             "op_num",
-            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageOperationId.op_num"),
+            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageOperationID.op_num"),
         )
         return obj
 
 
 @final
-class HashIDPreimageRevokeId(XdrStruct):
-    """XDR struct ``HashIDPreimageRevokeId``.
+class HashIDPreimageRevokeID(XdrStruct):
+    """XDR struct ``HashIDPreimageRevokeID``.
 
     ```xdr
     struct
@@ -9946,7 +9946,7 @@ class HashIDPreimageRevokeId(XdrStruct):
             "source_account",
             check.union(
                 source_account,
-                "HashIDPreimageRevokeId.source_account",
+                "HashIDPreimageRevokeID.source_account",
                 _PUBLIC_KEY_CLASSES,
                 "PublicKey",
             ),
@@ -9954,24 +9954,24 @@ class HashIDPreimageRevokeId(XdrStruct):
         set_field(
             self,
             "seq_num",
-            SequenceNumber._checked(seq_num, "HashIDPreimageRevokeId.seq_num"),
+            SequenceNumber._checked(seq_num, "HashIDPreimageRevokeID.seq_num"),
         )
-        set_field(self, "op_num", check.uint32(op_num, "HashIDPreimageRevokeId.op_num"))
+        set_field(self, "op_num", check.uint32(op_num, "HashIDPreimageRevokeID.op_num"))
         set_field(
             self,
             "liquidity_pool_id",
             PoolID._checked(
-                liquidity_pool_id, "HashIDPreimageRevokeId.liquidity_pool_id"
+                liquidity_pool_id, "HashIDPreimageRevokeID.liquidity_pool_id"
             ),
         )
         set_field(
             self,
             "asset",
-            check.union(asset, "HashIDPreimageRevokeId.asset", _ASSET_CLASSES, "Asset"),
+            check.union(asset, "HashIDPreimageRevokeID.asset", _ASSET_CLASSES, "Asset"),
         )
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not HashIDPreimageRevokeId:
+        if type(other) is not HashIDPreimageRevokeID:
             return NotImplemented
         return (
             self.source_account == other.source_account
@@ -9984,7 +9984,7 @@ class HashIDPreimageRevokeId(XdrStruct):
     def __hash__(self) -> int:
         return hash(
             (
-                HashIDPreimageRevokeId,
+                HashIDPreimageRevokeID,
                 self.source_account,
                 self.seq_num,
                 self.op_num,
@@ -10025,7 +10025,7 @@ class HashIDPreimageRevokeId(XdrStruct):
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.read_fields(
             value,
-            "HashIDPreimageRevokeId",
+            "HashIDPreimageRevokeID",
             ("source_account", "seq_num", "op_num", "liquidity_pool_id", "asset"),
         )
         obj = new(cls)
@@ -10038,14 +10038,14 @@ class HashIDPreimageRevokeId(XdrStruct):
             new_int(
                 SequenceNumber,
                 xdr_json.read_int64(
-                    fields["seq_num"], "HashIDPreimageRevokeId.seq_num"
+                    fields["seq_num"], "HashIDPreimageRevokeID.seq_num"
                 ),
             ),
         )
         set_field(
             obj,
             "op_num",
-            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageRevokeId.op_num"),
+            xdr_json.read_uint32(fields["op_num"], "HashIDPreimageRevokeID.op_num"),
         )
         set_field(
             obj,
@@ -10054,7 +10054,7 @@ class HashIDPreimageRevokeId(XdrStruct):
                 PoolID,
                 xdr_json.read_liquidity_pool(
                     fields["liquidity_pool_id"],
-                    "HashIDPreimageRevokeId.liquidity_pool_id",
+                    "HashIDPreimageRevokeID.liquidity_pool_id",
                 ),
             ),
         )
@@ -10063,8 +10063,8 @@ class HashIDPreimageRevokeId(XdrStruct):
 
 
 @final
-class HashIDPreimageContractId(XdrStruct):
-    """XDR struct ``HashIDPreimageContractId``.
+class HashIDPreimageContractID(XdrStruct):
+    """XDR struct ``HashIDPreimageContractID``.
 
     ```xdr
     struct
@@ -10086,21 +10086,21 @@ class HashIDPreimageContractId(XdrStruct):
         set_field(
             self,
             "network_id",
-            Hash._checked(network_id, "HashIDPreimageContractId.network_id"),
+            Hash._checked(network_id, "HashIDPreimageContractID.network_id"),
         )
         set_field(
             self,
             "contract_id_preimage",
             check.union(
                 contract_id_preimage,
-                "HashIDPreimageContractId.contract_id_preimage",
+                "HashIDPreimageContractID.contract_id_preimage",
                 _CONTRACT_ID_PREIMAGE_CLASSES,
                 "ContractIDPreimage",
             ),
         )
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not HashIDPreimageContractId:
+        if type(other) is not HashIDPreimageContractID:
             return NotImplemented
         return (
             self.network_id == other.network_id
@@ -10109,7 +10109,7 @@ class HashIDPreimageContractId(XdrStruct):
 
     def __hash__(self) -> int:
         return hash(
-            (HashIDPreimageContractId, self.network_id, self.contract_id_preimage)
+            (HashIDPreimageContractID, self.network_id, self.contract_id_preimage)
         )
 
     def _encode(self, writer: Writer) -> None:
@@ -10132,7 +10132,7 @@ class HashIDPreimageContractId(XdrStruct):
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.read_fields(
-            value, "HashIDPreimageContractId", ("network_id", "contract_id_preimage")
+            value, "HashIDPreimageContractID", ("network_id", "contract_id_preimage")
         )
         obj = new(cls)
         set_field(
@@ -10141,7 +10141,7 @@ class HashIDPreimageContractId(XdrStruct):
             new_bytes(
                 Hash,
                 xdr_json.read_hex_fixed(
-                    fields["network_id"], "HashIDPreimageContractId.network_id", 32
+                    fields["network_id"], "HashIDPreimageContractID.network_id", 32
                 ),
             ),
         )
@@ -10524,34 +10524,34 @@ class HashIDPreimage(metaclass=UnionNamespace):
     """
 
     @final
-    class OpId(XdrArm):
+    class OpID(XdrArm):
         """Arm ``ENVELOPE_TYPE_OP_ID`` of ``HashIDPreimage``, holding ``operationID``."""
 
         __slots__ = ("operation_id",)
 
-        operation_id: HashIDPreimageOperationId
+        operation_id: HashIDPreimageOperationID
         type: ClassVar[Literal[EnvelopeType.ENVELOPE_TYPE_OP_ID]] = (
             EnvelopeType.ENVELOPE_TYPE_OP_ID
         )
 
-        def __init__(self, operation_id: HashIDPreimageOperationId) -> None:
+        def __init__(self, operation_id: HashIDPreimageOperationID) -> None:
             set_field(
                 self,
                 "operation_id",
                 check.instance(
                     operation_id,
-                    "HashIDPreimage.OpId.operation_id",
-                    HashIDPreimageOperationId,
+                    "HashIDPreimage.OpID.operation_id",
+                    HashIDPreimageOperationID,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not HashIDPreimage.OpId:
+            if type(other) is not HashIDPreimage.OpID:
                 return NotImplemented
             return self.operation_id == other.operation_id
 
         def __hash__(self) -> int:
-            return hash((HashIDPreimage.OpId, self.operation_id))
+            return hash((HashIDPreimage.OpID, self.operation_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(6)
@@ -10560,7 +10560,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "operation_id", HashIDPreimageOperationId._decode(reader))
+            set_field(obj, "operation_id", HashIDPreimageOperationID._decode(reader))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -10570,39 +10570,39 @@ class HashIDPreimage(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "operation_id", HashIDPreimageOperationId._from_json(value, ctx)
+                obj, "operation_id", HashIDPreimageOperationID._from_json(value, ctx)
             )
             return obj
 
     @final
-    class PoolRevokeOpId(XdrArm):
+    class PoolRevokeOpID(XdrArm):
         """Arm ``ENVELOPE_TYPE_POOL_REVOKE_OP_ID`` of ``HashIDPreimage``, holding ``revokeID``."""
 
         __slots__ = ("revoke_id",)
 
-        revoke_id: HashIDPreimageRevokeId
+        revoke_id: HashIDPreimageRevokeID
         type: ClassVar[Literal[EnvelopeType.ENVELOPE_TYPE_POOL_REVOKE_OP_ID]] = (
             EnvelopeType.ENVELOPE_TYPE_POOL_REVOKE_OP_ID
         )
 
-        def __init__(self, revoke_id: HashIDPreimageRevokeId) -> None:
+        def __init__(self, revoke_id: HashIDPreimageRevokeID) -> None:
             set_field(
                 self,
                 "revoke_id",
                 check.instance(
                     revoke_id,
-                    "HashIDPreimage.PoolRevokeOpId.revoke_id",
-                    HashIDPreimageRevokeId,
+                    "HashIDPreimage.PoolRevokeOpID.revoke_id",
+                    HashIDPreimageRevokeID,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not HashIDPreimage.PoolRevokeOpId:
+            if type(other) is not HashIDPreimage.PoolRevokeOpID:
                 return NotImplemented
             return self.revoke_id == other.revoke_id
 
         def __hash__(self) -> int:
-            return hash((HashIDPreimage.PoolRevokeOpId, self.revoke_id))
+            return hash((HashIDPreimage.PoolRevokeOpID, self.revoke_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(7)
@@ -10611,7 +10611,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "revoke_id", HashIDPreimageRevokeId._decode(reader))
+            set_field(obj, "revoke_id", HashIDPreimageRevokeID._decode(reader))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -10620,38 +10620,38 @@ class HashIDPreimage(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "revoke_id", HashIDPreimageRevokeId._from_json(value, ctx))
+            set_field(obj, "revoke_id", HashIDPreimageRevokeID._from_json(value, ctx))
             return obj
 
     @final
-    class ContractId(XdrArm):
+    class ContractID(XdrArm):
         """Arm ``ENVELOPE_TYPE_CONTRACT_ID`` of ``HashIDPreimage``, holding ``contractID``."""
 
         __slots__ = ("contract_id",)
 
-        contract_id: HashIDPreimageContractId
+        contract_id: HashIDPreimageContractID
         type: ClassVar[Literal[EnvelopeType.ENVELOPE_TYPE_CONTRACT_ID]] = (
             EnvelopeType.ENVELOPE_TYPE_CONTRACT_ID
         )
 
-        def __init__(self, contract_id: HashIDPreimageContractId) -> None:
+        def __init__(self, contract_id: HashIDPreimageContractID) -> None:
             set_field(
                 self,
                 "contract_id",
                 check.instance(
                     contract_id,
-                    "HashIDPreimage.ContractId.contract_id",
-                    HashIDPreimageContractId,
+                    "HashIDPreimage.ContractID.contract_id",
+                    HashIDPreimageContractID,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not HashIDPreimage.ContractId:
+            if type(other) is not HashIDPreimage.ContractID:
                 return NotImplemented
             return self.contract_id == other.contract_id
 
         def __hash__(self) -> int:
-            return hash((HashIDPreimage.ContractId, self.contract_id))
+            return hash((HashIDPreimage.ContractID, self.contract_id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(8)
@@ -10660,7 +10660,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(obj, "contract_id", HashIDPreimageContractId._decode(reader))
+            set_field(obj, "contract_id", HashIDPreimageContractID._decode(reader))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
@@ -10670,7 +10670,7 @@ class HashIDPreimage(metaclass=UnionNamespace):
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
             set_field(
-                obj, "contract_id", HashIDPreimageContractId._from_json(value, ctx)
+                obj, "contract_id", HashIDPreimageContractID._from_json(value, ctx)
             )
             return obj
 
@@ -10810,9 +10810,9 @@ class HashIDPreimage(metaclass=UnionNamespace):
             return obj
 
     Any: TypeAlias = (
-        OpId
-        | PoolRevokeOpId
-        | ContractId
+        OpID
+        | PoolRevokeOpID
+        | ContractID
         | SorobanAuthorization
         | SorobanAuthorizationWithAddress
     )
@@ -10889,17 +10889,17 @@ class HashIDPreimage(metaclass=UnionNamespace):
 
 
 _HASH_ID_PREIMAGE_ARMS: Final[dict[int, type[HashIDPreimage.Any]]] = {
-    6: HashIDPreimage.OpId,
-    7: HashIDPreimage.PoolRevokeOpId,
-    8: HashIDPreimage.ContractId,
+    6: HashIDPreimage.OpID,
+    7: HashIDPreimage.PoolRevokeOpID,
+    8: HashIDPreimage.ContractID,
     9: HashIDPreimage.SorobanAuthorization,
     10: HashIDPreimage.SorobanAuthorizationWithAddress,
 }
 _HASH_ID_PREIMAGE_CLASSES: Final = frozenset(_HASH_ID_PREIMAGE_ARMS.values())
 _HASH_ID_PREIMAGE_JSON_ARMS: Final[dict[str, type[HashIDPreimage.Any]]] = {
-    "op_id": HashIDPreimage.OpId,
-    "pool_revoke_op_id": HashIDPreimage.PoolRevokeOpId,
-    "contract_id": HashIDPreimage.ContractId,
+    "op_id": HashIDPreimage.OpID,
+    "pool_revoke_op_id": HashIDPreimage.PoolRevokeOpID,
+    "contract_id": HashIDPreimage.ContractID,
     "soroban_authorization": HashIDPreimage.SorobanAuthorization,
     "soroban_authorization_with_address": HashIDPreimage.SorobanAuthorizationWithAddress,
 }
@@ -10996,7 +10996,7 @@ class Memo(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Id(XdrArm):
+    class ID(XdrArm):
         """Arm ``MEMO_ID`` of ``Memo``, holding ``id``."""
 
         __slots__ = ("id",)
@@ -11005,15 +11005,15 @@ class Memo(metaclass=UnionNamespace):
         type: ClassVar[Literal[MemoType.MEMO_ID]] = MemoType.MEMO_ID
 
         def __init__(self, id: Uint64) -> None:
-            set_field(self, "id", check.uint64(id, "Memo.Id.id"))
+            set_field(self, "id", check.uint64(id, "Memo.ID.id"))
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not Memo.Id:
+            if type(other) is not Memo.ID:
                 return NotImplemented
             return self.id == other.id
 
         def __hash__(self) -> int:
-            return hash((Memo.Id, self.id))
+            return hash((Memo.ID, self.id))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -11031,7 +11031,7 @@ class Memo(metaclass=UnionNamespace):
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(obj, "id", xdr_json.read_uint64(value, "Memo.Id.id"))
+            set_field(obj, "id", xdr_json.read_uint64(value, "Memo.ID.id"))
             return obj
 
     @final
@@ -11122,7 +11122,7 @@ class Memo(metaclass=UnionNamespace):
             )
             return obj
 
-    Any: TypeAlias = None_ | Text | Id | Hash | Return
+    Any: TypeAlias = None_ | Text | ID | Hash | Return
 
     @staticmethod
     def _decode(reader: Reader) -> Memo.Any:
@@ -11193,7 +11193,7 @@ class Memo(metaclass=UnionNamespace):
 _MEMO_ARMS: Final[dict[int, type[Memo.Any]]] = {
     0: Memo.None_,
     1: Memo.Text,
-    2: Memo.Id,
+    2: Memo.ID,
     3: Memo.Hash,
     4: Memo.Return,
 }
@@ -11201,7 +11201,7 @@ _MEMO_CLASSES: Final = frozenset(_MEMO_ARMS.values())
 _MEMO_JSON_ARMS: Final[dict[str, type[Memo.Any]]] = {
     "none": Memo.None_,
     "text": Memo.Text,
-    "id": Memo.Id,
+    "id": Memo.ID,
     "hash": Memo.Hash,
     "return": Memo.Return,
 }
@@ -22052,7 +22052,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class TrustlineFrozen(XdrArm):
+    class TrustLineFrozen(XdrArm):
         """Arm ``CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN`` of ``ClaimClaimableBalanceResult``."""
 
         __slots__ = ()
@@ -22064,12 +22064,12 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not ClaimClaimableBalanceResult.TrustlineFrozen:
+            if type(other) is not ClaimClaimableBalanceResult.TrustLineFrozen:
                 return NotImplemented
             return True
 
         def __hash__(self) -> int:
-            return hash((ClaimClaimableBalanceResult.TrustlineFrozen,))
+            return hash((ClaimClaimableBalanceResult.TrustLineFrozen,))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(-6)
@@ -22092,7 +22092,7 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
         | LineFull
         | NoTrust
         | NotAuthorized
-        | TrustlineFrozen
+        | TrustLineFrozen
     )
 
     @staticmethod
@@ -22177,7 +22177,7 @@ _CLAIM_CLAIMABLE_BALANCE_RESULT_ARMS: Final[
     -3: ClaimClaimableBalanceResult.LineFull,
     -4: ClaimClaimableBalanceResult.NoTrust,
     -5: ClaimClaimableBalanceResult.NotAuthorized,
-    -6: ClaimClaimableBalanceResult.TrustlineFrozen,
+    -6: ClaimClaimableBalanceResult.TrustLineFrozen,
 }
 _CLAIM_CLAIMABLE_BALANCE_RESULT_CLASSES: Final = frozenset(
     _CLAIM_CLAIMABLE_BALANCE_RESULT_ARMS.values()
@@ -22191,7 +22191,7 @@ _CLAIM_CLAIMABLE_BALANCE_RESULT_JSON_ARMS: Final[
     "line_full": ClaimClaimableBalanceResult.LineFull,
     "no_trust": ClaimClaimableBalanceResult.NoTrust,
     "not_authorized": ClaimClaimableBalanceResult.NotAuthorized,
-    "trustline_frozen": ClaimClaimableBalanceResult.TrustlineFrozen,
+    "trustline_frozen": ClaimClaimableBalanceResult.TrustLineFrozen,
 }
 _CLAIM_CLAIMABLE_BALANCE_RESULT_JSON_VOID: Final[frozenset[str]] = frozenset(
     {
@@ -24092,7 +24092,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class TrustlineFrozen(XdrArm):
+    class TrustLineFrozen(XdrArm):
         """Arm ``LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN`` of ``LiquidityPoolDepositResult``."""
 
         __slots__ = ()
@@ -24104,12 +24104,12 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LiquidityPoolDepositResult.TrustlineFrozen:
+            if type(other) is not LiquidityPoolDepositResult.TrustLineFrozen:
                 return NotImplemented
             return True
 
         def __hash__(self) -> int:
-            return hash((LiquidityPoolDepositResult.TrustlineFrozen,))
+            return hash((LiquidityPoolDepositResult.TrustLineFrozen,))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(-8)
@@ -24134,7 +24134,7 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         | LineFull
         | BadPrice
         | PoolFull
-        | TrustlineFrozen
+        | TrustLineFrozen
     )
 
     @staticmethod
@@ -24221,7 +24221,7 @@ _LIQUIDITY_POOL_DEPOSIT_RESULT_ARMS: Final[
     -5: LiquidityPoolDepositResult.LineFull,
     -6: LiquidityPoolDepositResult.BadPrice,
     -7: LiquidityPoolDepositResult.PoolFull,
-    -8: LiquidityPoolDepositResult.TrustlineFrozen,
+    -8: LiquidityPoolDepositResult.TrustLineFrozen,
 }
 _LIQUIDITY_POOL_DEPOSIT_RESULT_CLASSES: Final = frozenset(
     _LIQUIDITY_POOL_DEPOSIT_RESULT_ARMS.values()
@@ -24237,7 +24237,7 @@ _LIQUIDITY_POOL_DEPOSIT_RESULT_JSON_ARMS: Final[
     "line_full": LiquidityPoolDepositResult.LineFull,
     "bad_price": LiquidityPoolDepositResult.BadPrice,
     "pool_full": LiquidityPoolDepositResult.PoolFull,
-    "trustline_frozen": LiquidityPoolDepositResult.TrustlineFrozen,
+    "trustline_frozen": LiquidityPoolDepositResult.TrustLineFrozen,
 }
 _LIQUIDITY_POOL_DEPOSIT_RESULT_JSON_VOID: Final[frozenset[str]] = frozenset(
     {
@@ -24468,7 +24468,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class TrustlineFrozen(XdrArm):
+    class TrustLineFrozen(XdrArm):
         """Arm ``LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN`` of ``LiquidityPoolWithdrawResult``."""
 
         __slots__ = ()
@@ -24480,12 +24480,12 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not LiquidityPoolWithdrawResult.TrustlineFrozen:
+            if type(other) is not LiquidityPoolWithdrawResult.TrustLineFrozen:
                 return NotImplemented
             return True
 
         def __hash__(self) -> int:
-            return hash((LiquidityPoolWithdrawResult.TrustlineFrozen,))
+            return hash((LiquidityPoolWithdrawResult.TrustLineFrozen,))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(-6)
@@ -24508,7 +24508,7 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
         | Underfunded
         | LineFull
         | UnderMinimum
-        | TrustlineFrozen
+        | TrustLineFrozen
     )
 
     @staticmethod
@@ -24593,7 +24593,7 @@ _LIQUIDITY_POOL_WITHDRAW_RESULT_ARMS: Final[
     -3: LiquidityPoolWithdrawResult.Underfunded,
     -4: LiquidityPoolWithdrawResult.LineFull,
     -5: LiquidityPoolWithdrawResult.UnderMinimum,
-    -6: LiquidityPoolWithdrawResult.TrustlineFrozen,
+    -6: LiquidityPoolWithdrawResult.TrustLineFrozen,
 }
 _LIQUIDITY_POOL_WITHDRAW_RESULT_CLASSES: Final = frozenset(
     _LIQUIDITY_POOL_WITHDRAW_RESULT_ARMS.values()
@@ -24607,7 +24607,7 @@ _LIQUIDITY_POOL_WITHDRAW_RESULT_JSON_ARMS: Final[
     "underfunded": LiquidityPoolWithdrawResult.Underfunded,
     "line_full": LiquidityPoolWithdrawResult.LineFull,
     "under_minimum": LiquidityPoolWithdrawResult.UnderMinimum,
-    "trustline_frozen": LiquidityPoolWithdrawResult.TrustlineFrozen,
+    "trustline_frozen": LiquidityPoolWithdrawResult.TrustLineFrozen,
 }
 _LIQUIDITY_POOL_WITHDRAW_RESULT_JSON_VOID: Final[frozenset[str]] = frozenset(
     {
@@ -27061,7 +27061,7 @@ class OperationResultTr(metaclass=UnionNamespace):
             return obj
 
     @final
-    class ExtendFootprintTtl(XdrArm):
+    class ExtendFootprintTTL(XdrArm):
         """Arm ``EXTEND_FOOTPRINT_TTL`` of ``OperationResultTr``, holding ``extendFootprintTTLResult``."""
 
         __slots__ = ("extend_footprint_ttl_result",)
@@ -27079,20 +27079,20 @@ class OperationResultTr(metaclass=UnionNamespace):
                 "extend_footprint_ttl_result",
                 check.union(
                     extend_footprint_ttl_result,
-                    "OperationResultTr.ExtendFootprintTtl.extend_footprint_ttl_result",
+                    "OperationResultTr.ExtendFootprintTTL.extend_footprint_ttl_result",
                     _EXTEND_FOOTPRINT_TTL_RESULT_CLASSES,
                     "ExtendFootprintTTLResult",
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not OperationResultTr.ExtendFootprintTtl:
+            if type(other) is not OperationResultTr.ExtendFootprintTTL:
                 return NotImplemented
             return self.extend_footprint_ttl_result == other.extend_footprint_ttl_result
 
         def __hash__(self) -> int:
             return hash(
-                (OperationResultTr.ExtendFootprintTtl, self.extend_footprint_ttl_result)
+                (OperationResultTr.ExtendFootprintTTL, self.extend_footprint_ttl_result)
             )
 
         def _encode(self, writer: Writer) -> None:
@@ -27210,7 +27210,7 @@ class OperationResultTr(metaclass=UnionNamespace):
         | LiquidityPoolDeposit
         | LiquidityPoolWithdraw
         | InvokeHostFunction
-        | ExtendFootprintTtl
+        | ExtendFootprintTTL
         | RestoreFootprint
     )
 
@@ -27311,7 +27311,7 @@ _OPERATION_RESULT_TR_ARMS: Final[dict[int, type[OperationResultTr.Any]]] = {
     22: OperationResultTr.LiquidityPoolDeposit,
     23: OperationResultTr.LiquidityPoolWithdraw,
     24: OperationResultTr.InvokeHostFunction,
-    25: OperationResultTr.ExtendFootprintTtl,
+    25: OperationResultTr.ExtendFootprintTTL,
     26: OperationResultTr.RestoreFootprint,
 }
 _OPERATION_RESULT_TR_CLASSES: Final = frozenset(_OPERATION_RESULT_TR_ARMS.values())
@@ -27341,7 +27341,7 @@ _OPERATION_RESULT_TR_JSON_ARMS: Final[dict[str, type[OperationResultTr.Any]]] = 
     "liquidity_pool_deposit": OperationResultTr.LiquidityPoolDeposit,
     "liquidity_pool_withdraw": OperationResultTr.LiquidityPoolWithdraw,
     "invoke_host_function": OperationResultTr.InvokeHostFunction,
-    "extend_footprint_ttl": OperationResultTr.ExtendFootprintTtl,
+    "extend_footprint_ttl": OperationResultTr.ExtendFootprintTTL,
     "restore_footprint": OperationResultTr.RestoreFootprint,
 }
 _OPERATION_RESULT_TR_JSON_VOID: Final[frozenset[str]] = frozenset()
@@ -30330,9 +30330,9 @@ __all__ = [
     "FeeBumpTransactionExt",
     "FeeBumpTransactionInnerTx",
     "HashIDPreimage",
-    "HashIDPreimageContractId",
-    "HashIDPreimageOperationId",
-    "HashIDPreimageRevokeId",
+    "HashIDPreimageContractID",
+    "HashIDPreimageOperationID",
+    "HashIDPreimageRevokeID",
     "HashIDPreimageSorobanAuthorization",
     "HashIDPreimageSorobanAuthorizationWithAddress",
     "HostFunction",

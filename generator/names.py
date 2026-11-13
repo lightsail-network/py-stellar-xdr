@@ -7,6 +7,7 @@ the XDR names alone, so that a Python override can never change a JSON name.
 
 import keyword
 import re
+from collections.abc import Iterable
 from typing import Final
 
 from .model import Enum, Model, Union
@@ -42,9 +43,13 @@ def words(name: str) -> list[str]:
     return result
 
 
+def _capitalized(name: str) -> list[str]:
+    return [w[:1].upper() + w[1:].lower() for w in words(name)]
+
+
 def upper_camel(name: str) -> str:
     """`SCV_LEDGER_KEY_NONCE` -> `LedgerKeyNonce`-style capitalization of every word."""
-    return "".join(w[:1].upper() + w[1:].lower() for w in words(name))
+    return "".join(_capitalized(name))
 
 
 def snake(name: str) -> str:
@@ -68,13 +73,41 @@ def _escape(name: str) -> str:
     return f"{name}_" if keyword.iskeyword(name) else name
 
 
+# Words that the type names of the `.x` files spell with capitals of their own: five
+# acronyms, and four words that they write as two (`AlphaNum4`, `SCPQuorumSet`,
+# `TimePoint`, `TrustLineEntry`). A name made from an enum member or from a field
+# doesn't say how its words are spelled, since the member is all capitals and the field
+# starts in lower case. These words are spelled here, so that a class name has them as
+# the type names do: the arm that holds a `TTLEntry` is `TTL`, not `Ttl`.
+SPELLINGS: Final[dict[str, str]] = {
+    "Id": "ID",
+    "Ip": "IP",
+    "Scp": "SCP",
+    "Ttl": "TTL",
+    "Udt": "UDT",
+    "Alphanum4": "AlphaNum4",
+    "Alphanum12": "AlphaNum12",
+    "Quorumset": "QuorumSet",
+    "Timepoint": "TimePoint",
+    "Trustline": "TrustLine",
+}
+
+
+def _spell(capitalized: Iterable[str]) -> str:
+    return "".join(SPELLINGS.get(w, w) for w in capitalized)
+
+
 def type_name(xdr_name: str) -> str:
     """The Python name of a definition: as in the `.x` files, capitalized.
 
     Only the built-in typedefs (`uint32`, `int64`, `string32`, ...) start with a lower
     case letter; they become `Uint32`, `Int64` and `String32`.
+
+    A struct or union declared inside another type has no name in the `.x` files.
+    `xdr.json` names it after that type and the field, as in `LedgerKeyTtl` for the
+    field `ttl`; its words are spelled as in `SPELLINGS`, which makes it `LedgerKeyTTL`.
     """
-    return xdr_name[:1].upper() + xdr_name[1:]
+    return _spell(words(xdr_name[:1].upper() + xdr_name[1:]))
 
 
 def field_name(xdr_name: str) -> str:
@@ -139,7 +172,7 @@ def arm_class_name(model: Model, union: Union, value: int, case: str | None) -> 
     enum = model.switch(union)
     assert isinstance(enum, Enum)  # noqa: S101 - checked by the loader
     # MEMO_NONE and PRECOND_NONE become None_.
-    return _escape(upper_camel(_strip(case, enum)))
+    return _escape(_spell(_capitalized(_strip(case, enum))))
 
 
 # --- JSON names (SEP-51) ------------------------------------------------------------

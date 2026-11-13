@@ -1096,7 +1096,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return new(cls)
 
     @final
-    class Timepoint(XdrArm):
+    class TimePoint(XdrArm):
         """Arm ``SC_SPEC_TYPE_TIMEPOINT`` of ``SCSpecTypeDef``."""
 
         __slots__ = ()
@@ -1106,12 +1106,12 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecTypeDef.Timepoint:
+            if type(other) is not SCSpecTypeDef.TimePoint:
                 return NotImplemented
             return True
 
         def __hash__(self) -> int:
-            return hash((SCSpecTypeDef.Timepoint,))
+            return hash((SCSpecTypeDef.TimePoint,))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1801,7 +1801,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             return obj
 
     @final
-    class Udt(XdrArm):
+    class UDT(XdrArm):
         """Arm ``SC_SPEC_TYPE_UDT`` of ``SCSpecTypeDef``, holding ``udt``."""
 
         __slots__ = ("udt",)
@@ -1813,16 +1813,16 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
 
         def __init__(self, udt: SCSpecTypeUDT) -> None:
             set_field(
-                self, "udt", check.instance(udt, "SCSpecTypeDef.Udt.udt", SCSpecTypeUDT)
+                self, "udt", check.instance(udt, "SCSpecTypeDef.UDT.udt", SCSpecTypeUDT)
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecTypeDef.Udt:
+            if type(other) is not SCSpecTypeDef.UDT:
                 return NotImplemented
             return self.udt == other.udt
 
         def __hash__(self) -> int:
-            return hash((SCSpecTypeDef.Udt, self.udt))
+            return hash((SCSpecTypeDef.UDT, self.udt))
 
         def _encode(self, writer: Writer) -> None:
             writer.enter()
@@ -1857,7 +1857,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         | I32
         | U64
         | I64
-        | Timepoint
+        | TimePoint
         | Duration
         | U128
         | I128
@@ -1874,7 +1874,7 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         | Map
         | Tuple
         | BytesN
-        | Udt
+        | UDT
     )
 
     @staticmethod
@@ -1963,7 +1963,7 @@ _SC_SPEC_TYPE_DEF_ARMS: Final[dict[int, type[SCSpecTypeDef.Any]]] = {
     5: SCSpecTypeDef.I32,
     6: SCSpecTypeDef.U64,
     7: SCSpecTypeDef.I64,
-    8: SCSpecTypeDef.Timepoint,
+    8: SCSpecTypeDef.TimePoint,
     9: SCSpecTypeDef.Duration,
     10: SCSpecTypeDef.U128,
     11: SCSpecTypeDef.I128,
@@ -1980,7 +1980,7 @@ _SC_SPEC_TYPE_DEF_ARMS: Final[dict[int, type[SCSpecTypeDef.Any]]] = {
     1004: SCSpecTypeDef.Map,
     1005: SCSpecTypeDef.Tuple,
     1006: SCSpecTypeDef.BytesN,
-    2000: SCSpecTypeDef.Udt,
+    2000: SCSpecTypeDef.UDT,
 }
 _SC_SPEC_TYPE_DEF_CLASSES: Final = frozenset(_SC_SPEC_TYPE_DEF_ARMS.values())
 _SC_SPEC_TYPE_DEF_JSON_ARMS: Final[dict[str, type[SCSpecTypeDef.Any]]] = {
@@ -1992,7 +1992,7 @@ _SC_SPEC_TYPE_DEF_JSON_ARMS: Final[dict[str, type[SCSpecTypeDef.Any]]] = {
     "i32": SCSpecTypeDef.I32,
     "u64": SCSpecTypeDef.U64,
     "i64": SCSpecTypeDef.I64,
-    "timepoint": SCSpecTypeDef.Timepoint,
+    "timepoint": SCSpecTypeDef.TimePoint,
     "duration": SCSpecTypeDef.Duration,
     "u128": SCSpecTypeDef.U128,
     "i128": SCSpecTypeDef.I128,
@@ -2009,7 +2009,7 @@ _SC_SPEC_TYPE_DEF_JSON_ARMS: Final[dict[str, type[SCSpecTypeDef.Any]]] = {
     "map": SCSpecTypeDef.Map,
     "tuple": SCSpecTypeDef.Tuple,
     "bytes_n": SCSpecTypeDef.BytesN,
-    "udt": SCSpecTypeDef.Udt,
+    "udt": SCSpecTypeDef.UDT,
 }
 _SC_SPEC_TYPE_DEF_JSON_VOID: Final[frozenset[str]] = frozenset(
     {
@@ -3759,7 +3759,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return obj
 
     @final
-    class UdtStructV0(XdrArm):
+    class UDTStructV0(XdrArm):
         """Arm ``SC_SPEC_ENTRY_UDT_STRUCT_V0`` of ``SCSpecEntry``, holding ``udtStructV0``."""
 
         __slots__ = ("udt_struct_v0",)
@@ -3775,18 +3775,18 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 "udt_struct_v0",
                 check.instance(
                     udt_struct_v0,
-                    "SCSpecEntry.UdtStructV0.udt_struct_v0",
+                    "SCSpecEntry.UDTStructV0.udt_struct_v0",
                     SCSpecUDTStructV0,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecEntry.UdtStructV0:
+            if type(other) is not SCSpecEntry.UDTStructV0:
                 return NotImplemented
             return self.udt_struct_v0 == other.udt_struct_v0
 
         def __hash__(self) -> int:
-            return hash((SCSpecEntry.UdtStructV0, self.udt_struct_v0))
+            return hash((SCSpecEntry.UDTStructV0, self.udt_struct_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(1)
@@ -3808,7 +3808,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return obj
 
     @final
-    class UdtUnionV0(XdrArm):
+    class UDTUnionV0(XdrArm):
         """Arm ``SC_SPEC_ENTRY_UDT_UNION_V0`` of ``SCSpecEntry``, holding ``udtUnionV0``."""
 
         __slots__ = ("udt_union_v0",)
@@ -3824,18 +3824,18 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 "udt_union_v0",
                 check.instance(
                     udt_union_v0,
-                    "SCSpecEntry.UdtUnionV0.udt_union_v0",
+                    "SCSpecEntry.UDTUnionV0.udt_union_v0",
                     SCSpecUDTUnionV0,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecEntry.UdtUnionV0:
+            if type(other) is not SCSpecEntry.UDTUnionV0:
                 return NotImplemented
             return self.udt_union_v0 == other.udt_union_v0
 
         def __hash__(self) -> int:
-            return hash((SCSpecEntry.UdtUnionV0, self.udt_union_v0))
+            return hash((SCSpecEntry.UDTUnionV0, self.udt_union_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(2)
@@ -3857,7 +3857,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return obj
 
     @final
-    class UdtEnumV0(XdrArm):
+    class UDTEnumV0(XdrArm):
         """Arm ``SC_SPEC_ENTRY_UDT_ENUM_V0`` of ``SCSpecEntry``, holding ``udtEnumV0``."""
 
         __slots__ = ("udt_enum_v0",)
@@ -3872,17 +3872,17 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 self,
                 "udt_enum_v0",
                 check.instance(
-                    udt_enum_v0, "SCSpecEntry.UdtEnumV0.udt_enum_v0", SCSpecUDTEnumV0
+                    udt_enum_v0, "SCSpecEntry.UDTEnumV0.udt_enum_v0", SCSpecUDTEnumV0
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecEntry.UdtEnumV0:
+            if type(other) is not SCSpecEntry.UDTEnumV0:
                 return NotImplemented
             return self.udt_enum_v0 == other.udt_enum_v0
 
         def __hash__(self) -> int:
-            return hash((SCSpecEntry.UdtEnumV0, self.udt_enum_v0))
+            return hash((SCSpecEntry.UDTEnumV0, self.udt_enum_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(3)
@@ -3904,7 +3904,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return obj
 
     @final
-    class UdtErrorEnumV0(XdrArm):
+    class UDTErrorEnumV0(XdrArm):
         """Arm ``SC_SPEC_ENTRY_UDT_ERROR_ENUM_V0`` of ``SCSpecEntry``, holding ``udtErrorEnumV0``."""
 
         __slots__ = ("udt_error_enum_v0",)
@@ -3920,18 +3920,18 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 "udt_error_enum_v0",
                 check.instance(
                     udt_error_enum_v0,
-                    "SCSpecEntry.UdtErrorEnumV0.udt_error_enum_v0",
+                    "SCSpecEntry.UDTErrorEnumV0.udt_error_enum_v0",
                     SCSpecUDTErrorEnumV0,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not SCSpecEntry.UdtErrorEnumV0:
+            if type(other) is not SCSpecEntry.UDTErrorEnumV0:
                 return NotImplemented
             return self.udt_error_enum_v0 == other.udt_error_enum_v0
 
         def __hash__(self) -> int:
-            return hash((SCSpecEntry.UdtErrorEnumV0, self.udt_error_enum_v0))
+            return hash((SCSpecEntry.UDTErrorEnumV0, self.udt_error_enum_v0))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(4)
@@ -4000,7 +4000,7 @@ class SCSpecEntry(metaclass=UnionNamespace):
             return obj
 
     Any: TypeAlias = (
-        FunctionV0 | UdtStructV0 | UdtUnionV0 | UdtEnumV0 | UdtErrorEnumV0 | EventV0
+        FunctionV0 | UDTStructV0 | UDTUnionV0 | UDTEnumV0 | UDTErrorEnumV0 | EventV0
     )
 
     @staticmethod
@@ -4073,19 +4073,19 @@ class SCSpecEntry(metaclass=UnionNamespace):
 
 _SC_SPEC_ENTRY_ARMS: Final[dict[int, type[SCSpecEntry.Any]]] = {
     0: SCSpecEntry.FunctionV0,
-    1: SCSpecEntry.UdtStructV0,
-    2: SCSpecEntry.UdtUnionV0,
-    3: SCSpecEntry.UdtEnumV0,
-    4: SCSpecEntry.UdtErrorEnumV0,
+    1: SCSpecEntry.UDTStructV0,
+    2: SCSpecEntry.UDTUnionV0,
+    3: SCSpecEntry.UDTEnumV0,
+    4: SCSpecEntry.UDTErrorEnumV0,
     5: SCSpecEntry.EventV0,
 }
 _SC_SPEC_ENTRY_CLASSES: Final = frozenset(_SC_SPEC_ENTRY_ARMS.values())
 _SC_SPEC_ENTRY_JSON_ARMS: Final[dict[str, type[SCSpecEntry.Any]]] = {
     "function_v0": SCSpecEntry.FunctionV0,
-    "udt_struct_v0": SCSpecEntry.UdtStructV0,
-    "udt_union_v0": SCSpecEntry.UdtUnionV0,
-    "udt_enum_v0": SCSpecEntry.UdtEnumV0,
-    "udt_error_enum_v0": SCSpecEntry.UdtErrorEnumV0,
+    "udt_struct_v0": SCSpecEntry.UDTStructV0,
+    "udt_union_v0": SCSpecEntry.UDTUnionV0,
+    "udt_enum_v0": SCSpecEntry.UDTEnumV0,
+    "udt_error_enum_v0": SCSpecEntry.UDTErrorEnumV0,
     "event_v0": SCSpecEntry.EventV0,
 }
 _SC_SPEC_ENTRY_JSON_VOID: Final[frozenset[str]] = frozenset()

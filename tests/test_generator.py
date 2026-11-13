@@ -16,7 +16,7 @@ import pytest
 import stellar_xdr
 from generator import names, sep51
 from generator.emit import GenerationError, Generator, counted_types
-from generator.model import Enum, InputError, Model, Struct, Union, load
+from generator.model import Enum, InputError, Model, Struct, Typedef, Union, load
 
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")
@@ -125,6 +125,86 @@ def test_arm_names() -> None:
     assert isinstance(union, Union)
     assert names.arm_class_name(MODEL, union, 0, None) == "V0"
     assert names.arm_class_name(MODEL, union, -1, None) == "VMinus1"
+
+
+def test_arm_names_spell_acronyms_as_type_names_do() -> None:
+    # The arm that holds a TTLEntry, an SCPEnvelope or an SCSpecUDTStructV0.
+    assert arm("LedgerEntryData", "TTL") == "TTL"
+    assert arm("OperationBody", "EXTEND_FOOTPRINT_TTL") == "ExtendFootprintTTL"
+    assert arm("StellarMessage", "SCP_MESSAGE") == "SCPMessage"
+    assert arm("StellarMessage", "GET_SCP_STATE") == "GetSCPState"
+    assert arm("SCSpecEntry", "SC_SPEC_ENTRY_UDT_STRUCT_V0") == "UDTStructV0"
+    assert arm("HashIDPreimage", "ENVELOPE_TYPE_OP_ID") == "OpID"
+    assert arm("Memo", "MEMO_ID") == "ID"
+
+
+def test_arm_names_spell_compound_words_as_type_names_do() -> None:
+    # The arm that holds an AlphaNum4, a TimePoint, an SCPQuorumSet or a TrustLineEntry.
+    assert arm("Asset", "ASSET_TYPE_CREDIT_ALPHANUM4") == "CreditAlphaNum4"
+    assert arm("AssetCode", "ASSET_TYPE_CREDIT_ALPHANUM12") == "CreditAlphaNum12"
+    assert arm("SCVal", "SCV_TIMEPOINT") == "TimePoint"
+    assert arm("SCSpecTypeDef", "SC_SPEC_TYPE_TIMEPOINT") == "TimePoint"
+    assert arm("StellarMessage", "SCP_QUORUMSET") == "SCPQuorumSet"
+    assert arm("StellarMessage", "GET_SCP_QUORUMSET") == "GetSCPQuorumSet"
+    assert arm("LedgerEntryData", "TRUSTLINE") == "TrustLine"
+    assert arm("LedgerKey", "TRUSTLINE") == "TrustLine"
+    # CHANGE_TRUST_TRUST_LINE_MISSING is TrustLineMissing by the plain rule.
+    assert arm(
+        "ClaimClaimableBalanceResult", "CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN"
+    ) == ("TrustLineFrozen")
+    assert arm("ChangeTrustResult", "CHANGE_TRUST_TRUST_LINE_MISSING") == (
+        "TrustLineMissing"
+    )
+
+
+def test_json_names_keep_the_plain_rule() -> None:
+    # SEP-51 names are not Python names: no spelling of ours reaches them.
+    enum = MODEL.get("LedgerEntryType")
+    assert isinstance(enum, Enum)
+    assert names.json_member_name("TTL", enum) == "ttl"
+    enum = MODEL.get("MessageType")
+    assert isinstance(enum, Enum)
+    assert names.json_member_name("GET_SCP_STATE", enum) == "get_scp_state"
+
+
+def test_every_class_name_spells_the_words_one_way() -> None:
+    class_names = [
+        names.type_name(d.name)
+        for d in MODEL.definitions
+        if isinstance(d, Enum | Struct | Union | Typedef)
+    ]
+    for d in MODEL.definitions:
+        if isinstance(d, Union):
+            class_names += [
+                arm(d.name, c.name) for a in d.arms for c in a.cases if c.name
+            ]
+    assert not [
+        name
+        for name in class_names
+        if any(word in names.SPELLINGS for word in names.words(name))
+    ]
+
+
+def test_only_types_the_x_files_dont_name_are_renamed() -> None:
+    renamed = {
+        d.name: names.type_name(d.name)
+        for d in MODEL.definitions
+        if isinstance(d, Enum | Struct | Union | Typedef)
+        and names.type_name(d.name) != d.name[:1].upper() + d.name[1:]
+    }
+    assert renamed == {
+        "LedgerKeyTtl": "LedgerKeyTTL",
+        "PeerAddressIp": "PeerAddressIP",
+        "HashIDPreimageOperationId": "HashIDPreimageOperationID",
+        "HashIDPreimageRevokeId": "HashIDPreimageRevokeID",
+        "HashIDPreimageContractId": "HashIDPreimageContractID",
+    }
+    # Each is declared inside another type, and named by `xdr.json`: a name written in
+    # the `.x` files is never changed.
+    for name in renamed:
+        definition = MODEL.get(name)
+        assert isinstance(definition, Struct | Union)
+        assert name not in definition.source
 
 
 def test_a_leading_digit_keeps_the_prefix_initial() -> None:

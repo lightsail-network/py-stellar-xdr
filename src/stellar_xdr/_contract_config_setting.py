@@ -3999,7 +3999,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
             return obj
 
     @final
-    class ScpTiming(XdrArm):
+    class SCPTiming(XdrArm):
         """Arm ``CONFIG_SETTING_SCP_TIMING`` of ``ConfigSettingEntry``, holding ``contractSCPTiming``."""
 
         __slots__ = ("contract_scp_timing",)
@@ -4015,18 +4015,18 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 "contract_scp_timing",
                 check.instance(
                     contract_scp_timing,
-                    "ConfigSettingEntry.ScpTiming.contract_scp_timing",
+                    "ConfigSettingEntry.SCPTiming.contract_scp_timing",
                     ConfigSettingSCPTiming,
                 ),
             )
 
         def __eq__(self, other: object) -> bool:
-            if type(other) is not ConfigSettingEntry.ScpTiming:
+            if type(other) is not ConfigSettingEntry.SCPTiming:
                 return NotImplemented
             return self.contract_scp_timing == other.contract_scp_timing
 
         def __hash__(self) -> int:
-            return hash((ConfigSettingEntry.ScpTiming, self.contract_scp_timing))
+            return hash((ConfigSettingEntry.SCPTiming, self.contract_scp_timing))
 
         def _encode(self, writer: Writer) -> None:
             writer.int32(16)
@@ -4291,7 +4291,7 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
         | EvictionIterator
         | ContractParallelComputeV0
         | ContractLedgerCostExtV0
-        | ScpTiming
+        | SCPTiming
         | FrozenLedgerKeys
         | FrozenLedgerKeysDelta
         | FreezeBypassTxs
@@ -4386,7 +4386,7 @@ _CONFIG_SETTING_ENTRY_ARMS: Final[dict[int, type[ConfigSettingEntry.Any]]] = {
     13: ConfigSettingEntry.EvictionIterator,
     14: ConfigSettingEntry.ContractParallelComputeV0,
     15: ConfigSettingEntry.ContractLedgerCostExtV0,
-    16: ConfigSettingEntry.ScpTiming,
+    16: ConfigSettingEntry.SCPTiming,
     17: ConfigSettingEntry.FrozenLedgerKeys,
     18: ConfigSettingEntry.FrozenLedgerKeysDelta,
     19: ConfigSettingEntry.FreezeBypassTxs,
@@ -4410,7 +4410,7 @@ _CONFIG_SETTING_ENTRY_JSON_ARMS: Final[dict[str, type[ConfigSettingEntry.Any]]] 
     "eviction_iterator": ConfigSettingEntry.EvictionIterator,
     "contract_parallel_compute_v0": ConfigSettingEntry.ContractParallelComputeV0,
     "contract_ledger_cost_ext_v0": ConfigSettingEntry.ContractLedgerCostExtV0,
-    "scp_timing": ConfigSettingEntry.ScpTiming,
+    "scp_timing": ConfigSettingEntry.SCPTiming,
     "frozen_ledger_keys": ConfigSettingEntry.FrozenLedgerKeys,
     "frozen_ledger_keys_delta": ConfigSettingEntry.FrozenLedgerKeysDelta,
     "freeze_bypass_txs": ConfigSettingEntry.FreezeBypassTxs,
