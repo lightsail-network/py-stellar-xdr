@@ -10478,9 +10478,13 @@ class SequenceNumber(XdrInt):
         return new_int(cls, xdr_json.read_int64(value, "SequenceNumber"))
 
 
-SponsorshipDescriptor: TypeAlias = (
-    AccountID.Any | None
-)  # typedef AccountID* SponsorshipDescriptor;
+SponsorshipDescriptor: TypeAlias = AccountID.Any | None
+"""XDR typedef ``SponsorshipDescriptor``: ``AccountID.Any | None``.
+
+```xdr
+typedef AccountID* SponsorshipDescriptor;
+```
+"""
 
 
 __all__ = [

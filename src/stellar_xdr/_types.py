@@ -282,10 +282,52 @@ class Uint256(XdrBytes):
         return new_bytes(cls, xdr_json.read_hex_fixed(value, "Uint256", 32))
 
 
-Uint32 = TypeAliasType("Uint32", int)  # typedef unsigned int uint32;
-Int32 = TypeAliasType("Int32", int)  # typedef int int32;
-Uint64 = TypeAliasType("Uint64", int)  # typedef unsigned hyper uint64;
-Int64 = TypeAliasType("Int64", int)  # typedef hyper int64;
+Uint32 = TypeAliasType("Uint32", int)
+"""XDR typedef ``uint32``: a type alias of ``int``.
+
+It can't be called or used with ``isinstance``. A field of this type
+holds a plain ``int``, checked against the XDR type.
+
+```xdr
+typedef unsigned int uint32;
+```
+"""
+
+
+Int32 = TypeAliasType("Int32", int)
+"""XDR typedef ``int32``: a type alias of ``int``.
+
+It can't be called or used with ``isinstance``. A field of this type
+holds a plain ``int``, checked against the XDR type.
+
+```xdr
+typedef int int32;
+```
+"""
+
+
+Uint64 = TypeAliasType("Uint64", int)
+"""XDR typedef ``uint64``: a type alias of ``int``.
+
+It can't be called or used with ``isinstance``. A field of this type
+holds a plain ``int``, checked against the XDR type.
+
+```xdr
+typedef unsigned hyper uint64;
+```
+"""
+
+
+Int64 = TypeAliasType("Int64", int)
+"""XDR typedef ``int64``: a type alias of ``int``.
+
+It can't be called or used with ``isinstance``. A field of this type
+holds a plain ``int``, checked against the XDR type.
+
+```xdr
+typedef hyper int64;
+```
+"""
 
 
 @final
@@ -1702,8 +1744,22 @@ class TimePointMs(XdrInt):
         return new_int(cls, xdr_json.read_uint64(value, "TimePointMs"))
 
 
-NodeID = PublicKey  # typedef PublicKey NodeID;
-AccountID = PublicKey  # typedef PublicKey AccountID;
+NodeID = PublicKey
+"""XDR typedef ``NodeID``: the union ``PublicKey`` itself.
+
+```xdr
+typedef PublicKey NodeID;
+```
+"""
+
+
+AccountID = PublicKey
+"""XDR typedef ``AccountID``: the union ``PublicKey`` itself.
+
+```xdr
+typedef PublicKey AccountID;
+```
+"""
 
 
 @final
