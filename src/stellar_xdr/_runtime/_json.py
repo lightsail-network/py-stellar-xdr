@@ -26,7 +26,9 @@ _UINT64_MASK: Final = UINT64[1]
 
 # Canonical base 10: no sign but a minus, no leading zeros, no "-0".
 _DECIMAL: Final = re.compile(r"-?[1-9][0-9]*|0")
-_HEX: Final = re.compile(r"(?:[0-9a-fA-F]{2})*")
+# One character class, not a group of two repeated: matching a repeated group keeps
+# state for every repetition, which took over 100 MB for a string of 2 MB.
+_HEX_DIGITS: Final = re.compile(r"[0-9a-fA-F]*")
 _SCHEMA: Final = "$schema"
 
 # What a message quotes of the input, other than an integer.
@@ -248,29 +250,40 @@ def write_int256(hi_hi: int, hi_lo: int, lo_hi: int, lo_lo: int) -> str:
 # --- Opaque data and strings ----------------------------------------------------
 
 
-def _hex(value: object, where: str) -> bytes:
-    # bytes.fromhex alone would accept spaces between bytes.
+def _hex_text(value: object, where: str) -> str:
+    """The text of hex data: a string with two characters for every byte.
+
+    The length is checked by the caller before the characters are, so that input much
+    longer than its type allows is rejected without being read.
+    """
     if not isinstance(value, str):
         _expected(where, "a hex string", value)
-    if _HEX.fullmatch(value) is None:
+    if len(value) % 2:
         _fail(where, f"{show(value)} is not hex with two digits per byte")
-    return bytes.fromhex(value)
+    return value
+
+
+def _from_hex(text: str, where: str) -> bytes:
+    # bytes.fromhex alone would accept spaces between bytes.
+    if _HEX_DIGITS.fullmatch(text) is None:
+        _fail(where, f"{show(text)} is not hex with two digits per byte")
+    return bytes.fromhex(text)
 
 
 def read_hex_fixed(value: object, where: str, size: int) -> bytes:
     """Read fixed-length opaque data from hex."""
-    data = _hex(value, where)
-    if len(data) != size:
-        _fail(where, f"expected {size} bytes, got {len(data)}")
-    return data
+    text = _hex_text(value, where)
+    if len(text) != 2 * size:
+        _fail(where, f"expected {size} bytes, got {len(text) // 2}")
+    return _from_hex(text, where)
 
 
 def read_hex_var(value: object, where: str, max_size: int | None) -> bytes:
     """Read variable-length opaque data from hex."""
-    data = _hex(value, where)
-    if max_size is not None and len(data) > max_size:
-        _fail(where, f"expected at most {max_size} bytes, got {len(data)}")
-    return data
+    text = _hex_text(value, where)
+    if max_size is not None and len(text) > 2 * max_size:
+        _fail(where, f"expected at most {max_size} bytes, got {len(text) // 2}")
+    return _from_hex(text, where)
 
 
 _ESCAPES: Final = {0: "\\0", 9: "\\t", 10: "\\n", 13: "\\r", 92: "\\\\"}
