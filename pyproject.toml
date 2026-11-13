@@ -123,8 +123,6 @@ ignore = [
 "generator/**" = [
     "C901",    # dispatch over the kinds of XDR types
     "PLR0911", # as above
-    "PLR0913", # emitters take the parts of the code they assemble
-    "PLR0917", # as above
 ]
 "scripts/**" = [
     "INP001", # standalone scripts, not a package

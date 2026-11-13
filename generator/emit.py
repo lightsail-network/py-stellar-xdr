@@ -16,9 +16,7 @@ from typing import Final, TypeVar
 
 from . import names, sep51
 from .model import (
-    Arm,
     Array,
-    Case,
     Const,
     Definition,
     Enum,
@@ -695,6 +693,34 @@ def _has_cycle(graph: dict[str, set[str]]) -> bool:
 _D = TypeVar("_D", Struct, Union, Typedef)
 
 
+@dataclass(frozen=True)
+class _UnionHead:
+    """What the arms of a union share.
+
+    `discriminant` is the class attribute that holds the discriminant, and `write` the
+    method of the writer that writes it.
+    """
+
+    d: Union
+    name: str
+    discriminant: str
+    switch: Enum | Primitive
+    write: str
+    counted: bool
+
+
+@dataclass(frozen=True)
+class _ArmParts:
+    """What the class of an arm has that the class of a struct doesn't.
+
+    `class_var` is the discriminant as a class attribute, and `write` the statement
+    that writes it before the arm's value.
+    """
+
+    class_var: str
+    write: str
+
+
 class _Emitter:
     def __init__(self, model: Model, rules: sep51.Rules) -> None:
         self.model = model
@@ -750,12 +776,11 @@ class _Emitter:
             raise GenerationError(msg)
         return d
 
-    def _case(self, union: Union, case: str) -> tuple[Arm, Case]:
-        """The arm and the case that a SEP-51 rule names by the case's XDR name."""
-        for arm in union.arms:
-            for c in arm.cases:
-                if c.name == case:
-                    return arm, c
+    def _case(self, union: Union, case: str) -> names.UnionCase:
+        """The case that a SEP-51 rule names by its XDR name."""
+        for c in names.union_cases(self.model, union):
+            if c.xdr_name == case:
+                return c
         msg = f"SEP-51 rule for {union.name}: it has no case {case}"
         raise GenerationError(msg)
 
@@ -813,24 +838,31 @@ class _Emitter:
 
     # Structs and arms --------------------------------------------------------------
 
-    def _value_class(
+    def _value_class(  # noqa: PLR0913 - the parts of a class, each given once
         self,
         qualname: str,
-        python_name: str,
-        base: str,
         doc: list[str],
         fields: list[tuple[str, TypeRef]],
-        class_vars: list[str],
-        encode_prefix: list[str],
-        decode_name: str,
         to_json: _Conversion,
-        from_json_name: str,
         from_json: _Conversion | None,
         *,
-        count_encode: bool,
-        count_decode: bool,
+        counted: bool,
+        arm: _ArmParts | None = None,
     ) -> list[str]:
+        """The class of a struct, or of an arm when `arm` is given.
+
+        `from_json` is None when the class isn't read from JSON by itself.
+        """
         code = self.code
+        python_name = qualname.rpartition(".")[2]
+        base = "XdrStruct" if arm is None else "XdrArm"
+        class_vars = [] if arm is None else [arm.class_var]
+        # A union finds the arm and then has it read the value it holds.
+        reads = "" if arm is None else "_payload"
+        # The depth of a counted type is counted once: when reading by the union's
+        # _decode and _from_json, when writing by each arm's _encode and _to_json.
+        count_encode = counted
+        count_decode = counted and arm is None
         slots = [n for n, _ in fields]
         # A field named like a builtin (SCVal.String.str, SCVal.Bytes.bytes) hides it
         # from the annotations in the class, so those refer to the builtin by module.
@@ -874,7 +906,7 @@ class _Emitter:
             "def __hash__(self) -> int:",
             f"    return hash({hashed})",
         ]
-        encode = list(encode_prefix)
+        encode = [] if arm is None else [arm.write]
         for n, t in fields:
             encode += code.encode(t, f"self.{n}", f"{n.rstrip('_')}_item")
         if count_encode:
@@ -895,7 +927,7 @@ class _Emitter:
         body += [
             "",
             "@classmethod",
-            f"def {decode_name}(cls, reader: Reader) -> Self:",
+            f"def _decode{reads}(cls, reader: Reader) -> Self:",
             *_indent(decode),
         ]
         body += [
@@ -907,7 +939,7 @@ class _Emitter:
             body += [
                 "",
                 "@classmethod",
-                f"def {from_json_name}(cls, value: object, ctx: JsonReader) -> Self:",
+                f"def _from_json{reads}(cls, value: object, ctx: JsonReader) -> Self:",
                 *_indent(from_json.lines(counted=count_decode)),
             ]
         return ["@final", f"class {python_name}({base}):", *_indent(body)]
@@ -977,21 +1009,7 @@ class _Emitter:
         doc = [f"XDR struct ``{name}``.", *_source_block(d.source)]
         counted = d.name in self.ctx.counted
         to_json, from_json = self._struct_json(d, name, fields)
-        return self._value_class(
-            name,
-            name,
-            "XdrStruct",
-            doc,
-            fields,
-            [],
-            [],
-            "_decode",
-            to_json,
-            "_from_json",
-            from_json,
-            count_encode=counted,
-            count_decode=counted,
-        )
+        return self._value_class(name, doc, fields, to_json, from_json, counted=counted)
 
     def _check_fields(self, owner: str, fields: list[str]) -> None:
         if len(set(fields)) != len(fields):
@@ -1016,33 +1034,12 @@ class _Emitter:
         write = "uint32" if switch == Primitive("unsigned_int") else "int32"
         counted = d.name in self.ctx.counted
         body = [*_docstring([f"XDR union ``{name}``.", *_source_block(d.source)])]
-        arm_classes: list[tuple[int, str]] = []
-        for arm in d.arms:
-            for case in arm.cases:
-                arm_name = names.arm_class_name(self.model, d, case.value, case.name)
-                arm_classes.append((case.value, arm_name))
-                body += [
-                    "",
-                    *self._arm(
-                        d,
-                        name,
-                        arm,
-                        case.value,
-                        case.name,
-                        arm_name,
-                        discriminant,
-                        switch,
-                        write,
-                        counted,
-                    ),
-                ]
-        json_keys = [
-            names.json_case_name(self.model, d, c.value, c.name)
-            for a in d.arms
-            for c in a.cases
-        ]
-        _check_unique(d.name, "JSON keys", json_keys)
-        arm_names = [n for _, n in arm_classes]
+        head = _UnionHead(d, name, discriminant, switch, write, counted)
+        cases = names.union_cases(self.model, d)
+        for case in cases:
+            body += ["", *self._arm(head, case)]
+        _check_unique(d.name, "JSON keys", [c.json_key for c in cases])
+        arm_names = [c.class_name for c in cases]
         if len(set(arm_names)) != len(arm_names):
             msg = f"{d.name}: several cases have the same arm name: {arm_names}"
             raise GenerationError(msg)
@@ -1057,11 +1054,11 @@ class _Emitter:
             "_decode",
             "_from_json",
         }
-        clash = reserved & {n for _, n in arm_classes}
+        clash = reserved.intersection(arm_names)
         if clash:
             msg = f"{d.name}: arm names {clash} are reserved"
             raise GenerationError(msg)
-        members = " | ".join(n for _, n in arm_classes)
+        members = " | ".join(arm_names)
         decode = [
             f"discriminant = reader.{write}()",
             f"arm = {_arms_name(d)}.get(discriminant)",
@@ -1110,7 +1107,7 @@ class _Emitter:
             *_indent(_docstring(_FROM_JSON_DOC)),
             f"    return decode_json({name}._from_json, value, max_depth)",
         ]
-        arms = ", ".join(f"{v}: {name}.{n}" for v, n in arm_classes)
+        arms = ", ".join(f"{c.value}: {name}.{c.class_name}" for c in cases)
         tail = [
             "",
             "",
@@ -1118,17 +1115,8 @@ class _Emitter:
             f"{_sets_name(d)}: Final = frozenset({_arms_name(d)}.values())",
         ]
         if not self.rules.is_bare(d.name):
-            keys: list[str] = []
-            void: list[str] = []
-            for arm in d.arms:
-                for case in arm.cases:
-                    key = names.json_case_name(self.model, d, case.value, case.name)
-                    arm_name = names.arm_class_name(
-                        self.model, d, case.value, case.name
-                    )
-                    keys.append(f"{key!r}: {name}.{arm_name}")
-                    if arm.type is None:
-                        void.append(repr(key))
+            keys = [f"{c.json_key!r}: {name}.{c.class_name}" for c in cases]
+            void = [repr(c.json_key) for c in cases if c.arm.type is None]
             arms_table = f"dict[str, type[{name}.Any]]"
             void_set = f"frozenset({{{', '.join(void)}}})" if void else "frozenset()"
             tail += [
@@ -1172,14 +1160,11 @@ class _Emitter:
 
     def _arm_of(self, d: Union, case: str) -> tuple[str, str, TypeRef]:
         """The class of the arm of a case, the field that holds its value, its type."""
-        arm, c = self._case(d, case)
+        found = self._case(d, case)
+        arm = found.arm
         assert arm.name is not None  # noqa: S101 - _check_cases found a value
         assert arm.type is not None  # noqa: S101 - as above
-        return (
-            names.arm_class_name(self.model, d, c.value, c.name),
-            names.field_name(arm.name),
-            arm.type,
-        )
+        return found.class_name, names.field_name(arm.name), arm.type
 
     def _length_union_from_json(self, d: Union, name: str) -> list[str]:
         """Read a union whose arms are told apart by the length of their string."""
@@ -1227,19 +1212,9 @@ class _Emitter:
         lines += [f"set_field({var}, {f!r}, {v})" for f, v in values.items()]
         return var
 
-    def _arm(
-        self,
-        d: Union,
-        union_name: str,
-        arm: Arm,
-        value: int,
-        case: str | None,
-        arm_name: str,
-        discriminant: str,
-        switch: Enum | Primitive,
-        write: str,
-        counted: bool,  # noqa: FBT001
-    ) -> list[str]:
+    def _arm(self, union: _UnionHead, case: names.UnionCase) -> list[str]:
+        d, arm, value = union.d, case.arm, case.value
+        discriminant = union.discriminant
         fields: list[tuple[str, TypeRef]] = []
         if arm.type is not None:
             assert arm.name is not None  # noqa: S101 - checked by the loader
@@ -1247,24 +1222,24 @@ class _Emitter:
         if any(n == discriminant for n, _ in fields):
             msg = f"{d.name}: arm field {discriminant} hides the discriminant"
             raise GenerationError(msg)
-        if isinstance(switch, Enum):
-            enum = self.ctx.use(switch.name)
-            label = f"{enum}.{case}"
+        if isinstance(union.switch, Enum):
+            enum = self.ctx.use(union.switch.name)
+            label = f"{enum}.{case.xdr_name}"
             class_var = f"{discriminant}: ClassVar[Literal[{label}]] = {label}"
-            doc = [f"Arm ``{case}`` of ``{union_name}``."]
+            doc = [f"Arm ``{case.xdr_name}`` of ``{union.name}``."]
         else:
             class_var = f"{discriminant}: ClassVar[Literal[{value}]] = {value}"
-            doc = [f"Arm ``case {value}`` of ``{union_name}``."]
+            doc = [f"Arm ``case {value}`` of ``{union.name}``."]
         if arm.type is not None:
             doc[0] = doc[0].removesuffix(".") + f", holding ``{arm.name}``."
-        qualname = f"{union_name}.{arm_name}"
-        key = names.json_case_name(self.model, d, value, case)
+        qualname = f"{union.name}.{case.class_name}"
+        key = case.json_key
         bare = self.rules.is_bare(d.name)
         if bare:
             # Written as the bare payload, which is a string.
             assert fields  # noqa: S101 - _check_cases found a value in every arm
             ((n, t),) = fields
-            rule = self.rules.strkey_arm(d.name, case)
+            rule = self.rules.strkey_arm(d.name, case.xdr_name)
             converted = (
                 f"xdr_json.{rule.write}(self.{n})"
                 if rule is not None and rule.write is not None
@@ -1289,22 +1264,9 @@ class _Emitter:
             )
         else:
             from_json = _Conversion([], "new(cls)")
-        # The union's _decode and _from_json count the depth when reading, and each
-        # arm's _encode and _to_json when writing.
+        parts = _ArmParts(class_var, f"writer.{union.write}({value})")
         return self._value_class(
-            qualname,
-            arm_name,
-            "XdrArm",
-            doc,
-            fields,
-            [class_var],
-            [f"writer.{write}({value})"],
-            "_decode_payload",
-            to_json,
-            "_from_json_payload",
-            from_json,
-            count_encode=counted,
-            count_decode=False,
+            qualname, doc, fields, to_json, from_json, counted=union.counted, arm=parts
         )
 
     # Enums, typedefs and consts ---------------------------------------------------
@@ -1617,11 +1579,7 @@ class Generator(_Emitter):
         ]
         for d in self.model.definitions:
             if isinstance(d, Union):
-                arms = [
-                    names.arm_class_name(self.model, d, c.value, c.name)
-                    for a in d.arms
-                    for c in a.cases
-                ]
+                arms = [c.class_name for c in names.union_cases(self.model, d)]
                 lines.append(f"{names.type_name(d.name)}: {', '.join(arms)}")
         return "\n".join(lines) + "\n"
 
@@ -1735,22 +1693,17 @@ class StrategyGenerator:
                         f"STRATEGIES[{name!r}] = st.builds(xdr.{name}, {plain})"
                     )
             elif isinstance(d, Union):
+                cases = names.union_cases(self.model, d)
                 arms: list[str] = []
-                for arm in d.arms:
-                    payload = (
-                        "" if arm.type is None else f", {self._strategy(arm.type)}"
-                    )
-                    for case in arm.cases:
-                        arm_name = names.arm_class_name(
-                            self.model, d, case.value, case.name
-                        )
-                        strategy = f"st.builds(xdr.{name}.{arm_name}{payload})"
-                        arms.append(strategy)
-                        lines.append(
-                            f"ARMS['{name}.{arm_name}'] = ({name!r}, {strategy})"
-                        )
+                for case in cases:
+                    arm = f"{name}.{case.class_name}"
+                    held = case.arm.type
+                    payload = "" if held is None else f", {self._strategy(held)}"
+                    strategy = f"st.builds(xdr.{arm}{payload})"
+                    arms.append(strategy)
+                    lines.append(f"ARMS[{arm!r}] = ({name!r}, {strategy})")
                 lines.append(f"STRATEGIES[{name!r}] = st.one_of({', '.join(arms)})")
-                values = sorted(c.value for a in d.arms for c in a.cases)
+                values = sorted(c.value for c in cases)
                 lines.append(f"DISCRIMINANTS[{name!r}] = frozenset({values})")
         lines.append("")
         return "\n".join(lines)

@@ -8,9 +8,10 @@ the XDR names alone, so that a Python override can never change a JSON name.
 import keyword
 import re
 from collections.abc import Iterable
+from dataclasses import dataclass
 from typing import Final
 
-from .model import Enum, Model, Union
+from .model import Arm, Case, Enum, Model, Union
 
 # --- Word splitting ------------------------------------------------------------------
 
@@ -161,18 +162,18 @@ ARM_OVERRIDES: Final[dict[tuple[str, str], str]] = {
 }
 
 
-def arm_class_name(model: Model, union: Union, value: int, case: str | None) -> str:
+def arm_class_name(model: Model, union: Union, case: Case) -> str:
     """The Python name of the class of one case of a union."""
-    if case is None:
+    if case.name is None:
         # Integer switches: `case 0` -> V0. No negative value exists today.
-        return f"V{value}" if value >= 0 else f"VMinus{-value}"
-    override = ARM_OVERRIDES.get((union.name, case))
+        return f"V{case.value}" if case.value >= 0 else f"VMinus{-case.value}"
+    override = ARM_OVERRIDES.get((union.name, case.name))
     if override is not None:
         return override
     enum = model.switch(union)
     assert isinstance(enum, Enum)  # noqa: S101 - checked by the loader
     # MEMO_NONE and PRECOND_NONE become None_.
-    return _escape(_spell(_capitalized(_strip(case, enum))))
+    return _escape(_spell(_capitalized(_strip(case.name, enum))))
 
 
 # --- JSON names (SEP-51) ------------------------------------------------------------
@@ -183,15 +184,52 @@ def json_member_name(member: str, enum: Enum) -> str:
     return _serde_snake(upper_camel(_strip(member, enum)))
 
 
-def json_case_name(model: Model, union: Union, value: int, case: str | None) -> str:
+def json_case_name(model: Model, union: Union, case: Case) -> str:
     """The SEP-51 key of one case of a union."""
-    if case is None:
-        return f"v{value}" if value >= 0 else f"v_minus{-value}"
+    if case.name is None:
+        return f"v{case.value}" if case.value >= 0 else f"v_minus{-case.value}"
     enum = model.switch(union)
     assert isinstance(enum, Enum)  # noqa: S101 - checked by the loader
-    return json_member_name(case, enum)
+    return json_member_name(case.name, enum)
 
 
 def json_field_name(xdr_name: str) -> str:
     """The SEP-51 key of a struct field."""
     return snake(xdr_name)
+
+
+# --- The cases of a union ------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class UnionCase:
+    """One case of a union: its arm, and every name the case has.
+
+    `xdr_name` is the member of the enum the union switches on, or None when it
+    switches on an integer.
+    """
+
+    arm: Arm
+    value: int
+    xdr_name: str | None
+    class_name: str
+    json_key: str
+
+
+def union_cases(model: Model, union: Union) -> tuple[UnionCase, ...]:
+    """The cases of a union, in the order of the `.x` file.
+
+    Everything that needs a name of a case takes it from here: the class of the arm,
+    the tables that find it, the tests' strategies and the list of arm names.
+    """
+    return tuple(
+        UnionCase(
+            arm,
+            case.value,
+            case.name,
+            arm_class_name(model, union, case),
+            json_case_name(model, union, case),
+        )
+        for arm in union.arms
+        for case in arm.cases
+    )
