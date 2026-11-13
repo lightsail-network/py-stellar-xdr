@@ -7,8 +7,8 @@ to another file between releases.
 
 Every struct, enum, typedef and union arm has `to_xdr_bytes`, `to_xdr_base64` and
 `to_json_value`; every struct, enum, typedef and union has `from_xdr_bytes`,
-`from_xdr_base64` and `from_json_value`. They are documented once,
-[below](#methods-of-every-type).
+`from_xdr_base64` and `from_json_value`. They are documented once, on the
+[base classes](#base-classes).
 
 ## Types
 
@@ -26,22 +26,51 @@ Every struct, enum, typedef and union arm has `to_xdr_bytes`, `to_xdr_base64` an
 - [`Stellar-transaction.x`](transaction.md)
 - [`Stellar-types.x`](types.md)
 
-## Methods of every type
+## Base classes
 
-A union's decoding methods, such as `SCVal.from_xdr_bytes`, return the union's `Any`.
+Every generated class extends one of these. They are for annotations and `isinstance`,
+in code that handles values of more than one type; see the
+[guide](../guide.md#values-of-any-type).
 
-::: stellar_xdr.UInt128Parts
+::: stellar_xdr.XdrValue
     options:
-      inherited_members: true
       members:
         - to_xdr_bytes
         - to_xdr_base64
         - to_json_value
+
+A union's decoding methods, such as `SCVal.from_xdr_bytes`, are those of a struct, and
+return the union's `Any`. A typedef's are those of a struct too.
+
+::: stellar_xdr.XdrStruct
+    options:
+      members:
         - from_xdr_bytes
         - from_xdr_base64
         - from_json_value
-      show_root_heading: true
-      show_root_full_path: true
+
+::: stellar_xdr.XdrArm
+    options:
+      members: false
+
+::: stellar_xdr.XdrEnum
+    options:
+      members:
+        - from_xdr_bytes
+        - from_xdr_base64
+        - from_json_value
+
+::: stellar_xdr.XdrBytes
+    options:
+      members: false
+
+::: stellar_xdr.XdrInt
+    options:
+      members: false
+
+::: stellar_xdr.XdrArray
+    options:
+      members: false
 
 ## Functions
 

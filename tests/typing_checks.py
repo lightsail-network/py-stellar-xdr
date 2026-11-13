@@ -86,6 +86,22 @@ def exhaustive(value: xdr.MuxedAccount.Any) -> str:
             assert_never(value)
 
 
+def base_classes(value: xdr.XdrValue, record: xdr.XdrStruct | xdr.XdrArm) -> None:
+    # Code that works on values of more than one type names the base classes.
+    assert_type(value.to_xdr_bytes(), bytes)
+    assert_type(type(record).__match_args__, tuple[str, ...])
+    kinds: list[xdr.XdrValue] = [
+        xdr.Price(1, 2),
+        xdr.SCVal.U32(1),
+        xdr.SCValType.SCV_U32,
+        xdr.Hash(bytes(32)),
+        xdr.SequenceNumber(1),
+        xdr.SCVec([]),
+    ]
+    assert_type(xdr.encode_stream(kinds), bytes)
+    xdr.encode_stream([5])  # type: ignore[list-item]
+
+
 def replacing(value: xdr.UInt128Parts) -> None:
     assert_type(xdr.replace(value, lo=1), xdr.UInt128Parts)
     if sys.version_info >= (3, 13):
