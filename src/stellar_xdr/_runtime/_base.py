@@ -21,6 +21,7 @@ from typing import (
     TYPE_CHECKING,
     Any,
     ClassVar,
+    Never,
     NoReturn,
     Protocol,
     Self,
@@ -444,7 +445,12 @@ class UnionNamespace(type):
         msg = f"{cls.__name__} is a namespace, not a type: {cls._hint()}"
         raise TypeError(msg)
 
-    def __call__(cls, *_args: object, **_kwargs: object) -> NoReturn:
+    # Pyright checks a call to a namespace against this method, mypy against the
+    # class's `__init__`, which takes no arguments. Typed `Never`, the arguments make
+    # pyright reject a call such as `SCVal(SCValType.SCV_U32, u32=5)` too; typed
+    # `object`, they would let any call through. A call without arguments passes
+    # both and fails only when it runs.
+    def __call__(cls, *_args: Never, **_kwargs: Never) -> NoReturn:
         msg = f"{cls.__name__} is a namespace and can't be instantiated: {cls._hint()}"
         raise TypeError(msg)
 
