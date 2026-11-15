@@ -4,6 +4,33 @@ All notable changes to this project are documented in this file. The format is b
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1](https://github.com/lightsail-network/py-stellar-xdr/compare/v0.2.0...v0.2.1) - 2026-11-15
+
+This release raises the default depth limit, which refused transactions that the network
+admits, and lets type checkers catch more mistakes in code that uses the package.
+
+### Features
+
+- Type checkers check the fields given to `replace`, as they check a constructor's: a
+  misspelled field or a value of the wrong type is an error before the code runs. This
+  holds when the class of the value is known, so narrow a union, such as `SCVal.Any`,
+  with `match` or `isinstance` first ([#20](https://github.com/lightsail-network/py-stellar-xdr/pull/20))
+
+### Bug Fixes
+
+- The default `max_depth` is 500 levels of recursive types, up from 200, which refused
+  transactions that stellar-core admits, such as one whose authorization tree is nested
+  199 levels. The deepest values the network admits decode, encode and convert to and
+  from JSON within Python's default recursion limit ([#19](https://github.com/lightsail-network/py-stellar-xdr/pull/19))
+- pyright rejects a call to a union namespace, such as `SCVal(SCValType.SCV_U32, u32=5)`,
+  as mypy already did: a union's value is built from one of its arms, such as
+  `SCVal.U32(5)` ([#18](https://github.com/lightsail-network/py-stellar-xdr/pull/18))
+
+### Documentation
+
+- The API reference no longer lists the inherited methods of `XdrArm`, `XdrBytes`,
+  `XdrInt` and `XdrArray`, private ones included ([#21](https://github.com/lightsail-network/py-stellar-xdr/pull/21))
+
 ## [0.2.0](https://github.com/lightsail-network/py-stellar-xdr/compare/v0.1.0...v0.2.0) - 2026-11-13
 
 This release settles much of the API before 1.0, so most of it changes code written for
