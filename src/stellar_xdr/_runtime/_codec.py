@@ -7,9 +7,13 @@ from typing import Final, NoReturn, TypeVar
 
 from ._errors import XdrDecodeError, XdrDepthError
 
-# Only recursive types, such as SCVal, count towards the depth. Soroban accepts
-# contract values nested up to 100 levels, so the default leaves room above that.
-DEFAULT_MAX_DEPTH: Final = 200
+# Only recursive types, such as SCVal, count towards the depth: one for each level.
+# Since protocol 28, stellar-core admits a transaction only if rs-stellar-xdr reads it
+# within a depth of 1000. That depth counts every type, at least twice as many as the
+# levels counted here, so no transaction the network admits is deeper than 500 levels.
+# The depth of 500 that stellar-core checked before, counting structs, unions and
+# containers, bounds it too.
+DEFAULT_MAX_DEPTH: Final = 500
 
 _INT32: Final = struct.Struct(">i")
 _UINT32: Final = struct.Struct(">I")

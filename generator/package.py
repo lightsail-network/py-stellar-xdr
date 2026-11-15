@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 from typing import Final
 
 from . import names, sep51
-from .analysis import Sizes, counted_types, references
+from .analysis import Sizes, counted_types, cycles, references
 from .emit import Emitter
 from .model import (
     Const,
@@ -57,6 +57,7 @@ RUNTIME_NAMES: Final = (
     "XdrBytes",
     "XdrEnum",
     "XdrInt",
+    "XdrJsonError",
     "XdrStruct",
     "check",
     "decode_base64",
@@ -174,6 +175,7 @@ class Generator:
             module.definitions.append(d)
             self._module_of[d.name] = name
         self._counted = counted_types(model)
+        self._cycles = cycles(model)
         self._sizes = Sizes(model)
         self._check_names()
         sep51.check(model, rules)
@@ -210,6 +212,7 @@ class Generator:
             self.rules,
             self._module_of,
             self._counted,
+            self._cycles,
             self._sizes,
             module.name,
         )

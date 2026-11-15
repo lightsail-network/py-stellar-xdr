@@ -24,6 +24,7 @@ from ._runtime import (
     XdrArm,
     XdrBytes,
     XdrEnum,
+    XdrJsonError,
     XdrStruct,
     check,
     decode_base64,
@@ -1351,22 +1352,24 @@ class SCPQuorumSet(XdrStruct):
             "validators",
             tuple([PublicKey._decode(reader) for _ in range(reader.count(None, 36))]),
         )
-        set_field(
-            obj,
-            "inner_sets",
-            tuple(
-                [SCPQuorumSet._decode(reader) for _ in range(reader.count(None, 12))]
-            ),
-        )
+        inner_sets_items: list[SCPQuorumSet] = []
+        for _ in range(reader.count(None, 12)):
+            inner_sets_items.append(SCPQuorumSet._decode(reader))
+        set_field(obj, "inner_sets", tuple(inner_sets_items))
         reader.depth -= 1
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         ctx.enter()
+        threshold_result = self.threshold
+        validators_result = [item0._to_json(ctx) for item0 in self.validators]
+        inner_sets_list: list[Any] = []
+        for inner_sets_item0 in self.inner_sets:
+            inner_sets_list.append(inner_sets_item0._to_json(ctx))
         result = {
-            "threshold": self.threshold,
-            "validators": [item0._to_json(ctx) for item0 in self.validators],
-            "inner_sets": [item0._to_json(ctx) for item0 in self.inner_sets],
+            "threshold": threshold_result,
+            "validators": validators_result,
+            "inner_sets": inner_sets_list,
         }
         ctx.depth -= 1
         return result
@@ -1394,17 +1397,18 @@ class SCPQuorumSet(XdrStruct):
                 lambda item0: PublicKey._from_json(item0, ctx),
             ),
         )
-        set_field(
-            obj,
-            "inner_sets",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["inner_sets"], "SCPQuorumSet.inner_sets", None
-                ),
-                "SCPQuorumSet.inner_sets",
-                lambda item0: SCPQuorumSet._from_json(item0, ctx),
-            ),
+        inner_sets_json = xdr_json.read_array(
+            fields["inner_sets"], "SCPQuorumSet.inner_sets", None
         )
+        inner_sets_items: list[SCPQuorumSet] = []
+        try:
+            for inner_sets_item0 in inner_sets_json:
+                inner_sets_items.append(SCPQuorumSet._from_json(inner_sets_item0, ctx))
+        except XdrJsonError as e:
+            raise xdr_json.item_error(
+                "SCPQuorumSet.inner_sets", len(inner_sets_items), e
+            ) from None
+        set_field(obj, "inner_sets", tuple(inner_sets_items))
         result = obj
         ctx.depth -= 1
         return result

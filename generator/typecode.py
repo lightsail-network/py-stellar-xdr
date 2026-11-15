@@ -117,6 +117,7 @@ class Context:
     rules: sep51.Rules
     module_of: Mapping[str, str]
     counted: AbstractSet[str]
+    cycles: Mapping[str, frozenset[str]]
     sizes: Sizes
     module: str
     imports: dict[str, set[str]] = field(default_factory=dict[str, set[str]])
@@ -273,20 +274,22 @@ class TypeCode:
             return f"reader.opaque_fixed({t.size})"
         if isinstance(t, OpaqueVar | String):
             return f"reader.opaque_var({t.max_size})"
-        if isinstance(t, VarArray):
-            size = self.ctx.sizes.min_size(t.element)
-            if size == 0:
-                # The reader bounds a length by what the rest of the input can hold.
-                msg = f"an array of {t.element} has elements that encode to no bytes"
-                raise GenerationError(msg)
-            count = f"reader.count({t.max_count}, {size})"
-            items = f"[{self.decode(t.element)} for _ in range({count})]"
-            return items if as_list else f"tuple({items})"
-        if isinstance(t, Array):
-            items = f"[{self.decode(t.element)} for _ in range({t.count})]"
+        if isinstance(t, Array | VarArray):
+            items = f"[{self.decode(t.element)} for _ in range({self._count(t)})]"
             return items if as_list else f"tuple({items})"
         # The condition is evaluated first, so the flag is read before the value.
         return f"({self.decode(t.element)} if reader.present() else None)"
+
+    def _count(self, t: Array | VarArray) -> str:
+        """The number of items of an array, read from `reader` if it varies."""
+        if isinstance(t, Array):
+            return str(t.count)
+        size = self.ctx.sizes.min_size(t.element)
+        if size == 0:
+            # The reader bounds a length by what the rest of the input can hold.
+            msg = f"an array of {t.element} has elements that encode to no bytes"
+            raise GenerationError(msg)
+        return f"reader.count({t.max_count}, {size})"
 
     # Encoding ----------------------------------------------------------------------
 
@@ -396,3 +399,180 @@ class TypeCode:
             # A typedef of a typedef: the value becomes one of the outer type only.
             return self.from_json_plain(found[0], value, where, depth)
         return self.from_json(d.type, value, where, depth)
+
+    # Arrays on a cycle -------------------------------------------------------------
+    #
+    # An array of a type on a cycle with the type that holds it, such as the items of
+    # `SCVal.Vec`, is a level of nesting. It is read and written by a loop in the
+    # method of the type that holds it, which calls the method of each item itself. A
+    # comprehension (before CPython 3.12, and on PyPy) or a function of the runtime
+    # would take a stack frame of its own at every level, and Python's recursion limit
+    # would stop values that the network admits before `max_depth` does.
+    #
+    # Each method below gives the statements to run first and the expression of the
+    # result. `stem` names the variables; for any other type, there are no statements.
+
+    def loops(self, t: TypeRef, owner: str) -> bool:
+        """Whether a field of `owner` holds an array of a type on a cycle with it."""
+        if isinstance(t, Ref):
+            d = self.ctx.model.get(t.name)
+            return isinstance(d, Typedef) and self.loops(d.type, owner)
+        if isinstance(t, Array | VarArray):
+            return self._on_cycle(t.element, owner) or self.loops(t.element, owner)
+        if isinstance(t, Optional):
+            return self.loops(t.element, owner)
+        return False
+
+    def _on_cycle(self, item: TypeRef, owner: str) -> bool:
+        """Whether an item of an array, maybe optional, is on a cycle with `owner`.
+
+        Only items count: a field that refers to a type on the cycle directly is read
+        by a call to that type's method, which already takes one frame for the level.
+        """
+        while isinstance(item, Optional):
+            item = item.element
+        on_cycle = self.ctx.cycles.get(owner, frozenset[str]())
+        return isinstance(item, Ref) and item.name in on_cycle
+
+    def decode_lines(
+        self,
+        t: TypeRef,
+        owner: str,
+        stem: str,
+        depth: int = 0,
+        *,
+        as_list: bool = False,
+    ) -> tuple[list[str], str]:
+        """Read a value from `reader`, as `decode` does."""
+        if not self.loops(t, owner):
+            return [], self.decode(t, as_list=as_list)
+        suffix = str(depth) if depth else ""
+        if isinstance(t, Ref):
+            d = self.ctx.model.get(t.name)
+            assert isinstance(d, Typedef)  # noqa: S101 - loops looks through typedefs only
+            if typedef_base(self.ctx.model, d) is None:
+                return self.decode_lines(d.type, owner, stem, depth, as_list=as_list)
+            lines, plain = self.decode_lines(
+                self.plain(d), owner, stem, depth, as_list=True
+            )
+            return lines, self.wrap(t, plain)
+        if isinstance(t, Optional):
+            var = f"{stem}_value{suffix}"
+            lines, inner = self.decode_lines(t.element, owner, stem, depth)
+            return [
+                f"{var}: {self.annotation(t)} = None",
+                "if reader.present():",
+                *indent([*lines, f"{var} = {inner}"]),
+            ], var
+        assert isinstance(t, Array | VarArray)  # noqa: S101 - nothing else loops
+        var = f"{stem}_items{suffix}"
+        lines, item = self.decode_lines(t.element, owner, stem, depth + 1)
+        return [
+            f"{var}: list[{self.annotation(t.element)}] = []",
+            f"for _ in range({self._count(t)}):",
+            *indent([*lines, f"{var}.append({item})"]),
+        ], (var if as_list else f"tuple({var})")
+
+    def to_json_lines(
+        self, t: TypeRef, value: str, owner: str, stem: str, depth: int = 0
+    ) -> tuple[list[str], str]:
+        """Convert `value` to SEP-51 JSON, as `to_json` does."""
+        if not self.loops(t, owner) or self._json_rule(t):
+            return [], self.to_json(t, value, depth)
+        suffix = str(depth) if depth else ""
+        if isinstance(t, Ref):
+            d = self.ctx.model.get(t.name)
+            assert isinstance(d, Typedef)  # noqa: S101 - loops looks through typedefs only
+            return self.to_json_lines(d.type, value, owner, stem, depth)
+        if isinstance(t, Optional):
+            var = f"{stem}_json{suffix}"
+            lines, inner = self.to_json_lines(t.element, value, owner, stem, depth)
+            return [
+                f"{var}: Any = None",
+                f"if {value} is not None:",
+                *indent([*lines, f"{var} = {inner}"]),
+            ], var
+        assert isinstance(t, Array | VarArray)  # noqa: S101 - nothing else loops
+        var = f"{stem}_list{suffix}"
+        item = f"{stem}_item{depth}"
+        lines, converted = self.to_json_lines(t.element, item, owner, stem, depth + 1)
+        return [
+            f"{var}: list[Any] = []",
+            f"for {item} in {value}:",
+            *indent([*lines, f"{var}.append({converted})"]),
+        ], var
+
+    def from_json_lines(  # noqa: PLR0913 - from_json's arguments, the owner, the stem
+        self,
+        t: TypeRef,
+        value: str,
+        where: str,
+        owner: str,
+        stem: str,
+        *,
+        depth: int = 0,
+        as_list: bool = False,
+    ) -> tuple[list[str], str]:
+        """Read `value`, a JSON value, as `from_json` does.
+
+        An error in an item says which item it is, as `xdr_json.read_items` does.
+        """
+        if not self.loops(t, owner) or self._json_rule(t):
+            return [], self.from_json(t, value, where, depth)
+        suffix = str(depth) if depth else ""
+        if isinstance(t, Ref):
+            d = self.ctx.model.get(t.name)
+            assert isinstance(d, Typedef)  # noqa: S101 - loops looks through typedefs only
+            lines, read = self._from_json_plain_lines(
+                d, value, where, owner, stem, depth=depth
+            )
+            return lines, self.wrap(t, read)
+        if isinstance(t, Optional):
+            var = f"{stem}_value{suffix}"
+            lines, inner = self.from_json_lines(
+                t.element, value, where, owner, stem, depth=depth
+            )
+            return [
+                f"{var}: {self.annotation(t)} = None",
+                f"if {value} is not None:",
+                *indent([*lines, f"{var} = {inner}"]),
+            ], var
+        assert isinstance(t, Array | VarArray)  # noqa: S101 - nothing else loops
+        var = f"{stem}_items{suffix}"
+        items = f"{stem}_json{suffix}"
+        item = f"{stem}_item{depth}"
+        if isinstance(t, VarArray):
+            read_array = f"xdr_json.read_array({value}, {where!r}, {t.max_count})"
+        else:
+            read_array = f"xdr_json.read_array_fixed({value}, {where!r}, {t.count})"
+        lines, read = self.from_json_lines(
+            t.element, item, where, owner, stem, depth=depth + 1
+        )
+        return [
+            f"{items} = {read_array}",
+            f"{var}: list[{self.annotation(t.element)}] = []",
+            "try:",
+            f"    for {item} in {items}:",
+            *indent([*lines, f"{var}.append({read})"], 2),
+            "except XdrJsonError as e:",
+            f"    raise xdr_json.item_error({where!r}, len({var}), e) from None",
+        ], (var if as_list else f"tuple({var})")
+
+    def _from_json_plain_lines(  # noqa: PLR0913 - as from_json_lines
+        self, d: Typedef, value: str, where: str, owner: str, stem: str, *, depth: int
+    ) -> tuple[list[str], str]:
+        """Read the plain value of a typedef from JSON, as `from_json_plain` does."""
+        if d.name in self.ctx.rules.typedefs:
+            return [], self.from_json_plain(d, value, where, depth)
+        found = self.typedef_class(d.type)
+        if found is not None:
+            return self._from_json_plain_lines(
+                found[0], value, where, owner, stem, depth=depth
+            )
+        return self.from_json_lines(
+            d.type, value, where, owner, stem, depth=depth, as_list=True
+        )
+
+    def _json_rule(self, t: TypeRef) -> bool:
+        """Whether a SEP-51 rule converts a typedef, rather than its type."""
+        return isinstance(t, Ref) and t.name in self.ctx.rules.typedefs

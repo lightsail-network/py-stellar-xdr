@@ -58,6 +58,7 @@ from ._runtime import (
     XdrArm,
     XdrArray,
     XdrEnum,
+    XdrJsonError,
     XdrStruct,
     check,
     decode_base64,
@@ -6901,25 +6902,20 @@ class SorobanAuthorizedInvocation(XdrStruct):
         reader.enter()
         obj = new(cls)
         set_field(obj, "function", SorobanAuthorizedFunction._decode(reader))
-        set_field(
-            obj,
-            "sub_invocations",
-            tuple(
-                [
-                    SorobanAuthorizedInvocation._decode(reader)
-                    for _ in range(reader.count(None, 20))
-                ]
-            ),
-        )
+        sub_invocations_items: list[SorobanAuthorizedInvocation] = []
+        for _ in range(reader.count(None, 20)):
+            sub_invocations_items.append(SorobanAuthorizedInvocation._decode(reader))
+        set_field(obj, "sub_invocations", tuple(sub_invocations_items))
         reader.depth -= 1
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         ctx.enter()
-        result = {
-            "function": self.function._to_json(ctx),
-            "sub_invocations": [item0._to_json(ctx) for item0 in self.sub_invocations],
-        }
+        function_result = self.function._to_json(ctx)
+        sub_invocations_list: list[Any] = []
+        for sub_invocations_item0 in self.sub_invocations:
+            sub_invocations_list.append(sub_invocations_item0._to_json(ctx))
+        result = {"function": function_result, "sub_invocations": sub_invocations_list}
         ctx.depth -= 1
         return result
 
@@ -6935,19 +6931,24 @@ class SorobanAuthorizedInvocation(XdrStruct):
             "function",
             SorobanAuthorizedFunction._from_json(fields["function"], ctx),
         )
-        set_field(
-            obj,
-            "sub_invocations",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["sub_invocations"],
-                    "SorobanAuthorizedInvocation.sub_invocations",
-                    None,
-                ),
-                "SorobanAuthorizedInvocation.sub_invocations",
-                lambda item0: SorobanAuthorizedInvocation._from_json(item0, ctx),
-            ),
+        sub_invocations_json = xdr_json.read_array(
+            fields["sub_invocations"],
+            "SorobanAuthorizedInvocation.sub_invocations",
+            None,
         )
+        sub_invocations_items: list[SorobanAuthorizedInvocation] = []
+        try:
+            for sub_invocations_item0 in sub_invocations_json:
+                sub_invocations_items.append(
+                    SorobanAuthorizedInvocation._from_json(sub_invocations_item0, ctx)
+                )
+        except XdrJsonError as e:
+            raise xdr_json.item_error(
+                "SorobanAuthorizedInvocation.sub_invocations",
+                len(sub_invocations_items),
+                e,
+            ) from None
+        set_field(obj, "sub_invocations", tuple(sub_invocations_items))
         result = obj
         ctx.depth -= 1
         return result
@@ -7174,27 +7175,24 @@ class SorobanDelegateSignature(XdrStruct):
         obj = new(cls)
         set_field(obj, "address", SCAddress._decode(reader))
         set_field(obj, "signature", SCVal._decode(reader))
-        set_field(
-            obj,
-            "nested_delegates",
-            tuple(
-                [
-                    SorobanDelegateSignature._decode(reader)
-                    for _ in range(reader.count(None, 44))
-                ]
-            ),
-        )
+        nested_delegates_items: list[SorobanDelegateSignature] = []
+        for _ in range(reader.count(None, 44)):
+            nested_delegates_items.append(SorobanDelegateSignature._decode(reader))
+        set_field(obj, "nested_delegates", tuple(nested_delegates_items))
         reader.depth -= 1
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
         ctx.enter()
+        address_result = self.address._to_json(ctx)
+        signature_result = self.signature._to_json(ctx)
+        nested_delegates_list: list[Any] = []
+        for nested_delegates_item0 in self.nested_delegates:
+            nested_delegates_list.append(nested_delegates_item0._to_json(ctx))
         result = {
-            "address": self.address._to_json(ctx),
-            "signature": self.signature._to_json(ctx),
-            "nested_delegates": [
-                item0._to_json(ctx) for item0 in self.nested_delegates
-            ],
+            "address": address_result,
+            "signature": signature_result,
+            "nested_delegates": nested_delegates_list,
         }
         ctx.depth -= 1
         return result
@@ -7210,19 +7208,24 @@ class SorobanDelegateSignature(XdrStruct):
         obj = new(cls)
         set_field(obj, "address", SCAddress._from_json(fields["address"], ctx))
         set_field(obj, "signature", SCVal._from_json(fields["signature"], ctx))
-        set_field(
-            obj,
-            "nested_delegates",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["nested_delegates"],
-                    "SorobanDelegateSignature.nested_delegates",
-                    None,
-                ),
-                "SorobanDelegateSignature.nested_delegates",
-                lambda item0: SorobanDelegateSignature._from_json(item0, ctx),
-            ),
+        nested_delegates_json = xdr_json.read_array(
+            fields["nested_delegates"],
+            "SorobanDelegateSignature.nested_delegates",
+            None,
         )
+        nested_delegates_items: list[SorobanDelegateSignature] = []
+        try:
+            for nested_delegates_item0 in nested_delegates_json:
+                nested_delegates_items.append(
+                    SorobanDelegateSignature._from_json(nested_delegates_item0, ctx)
+                )
+        except XdrJsonError as e:
+            raise xdr_json.item_error(
+                "SorobanDelegateSignature.nested_delegates",
+                len(nested_delegates_items),
+                e,
+            ) from None
+        set_field(obj, "nested_delegates", tuple(nested_delegates_items))
         result = obj
         ctx.depth -= 1
         return result

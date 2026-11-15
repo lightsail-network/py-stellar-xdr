@@ -128,12 +128,14 @@ class Emitter:
         to_json: _Conversion,
         from_json: _Conversion | None,
         *,
+        owner: str,
         counted: bool,
         arm: _ArmParts | None = None,
     ) -> list[str]:
         """The class of a struct, or of an arm when `arm` is given.
 
-        `from_json` is None when the class isn't read from JSON by itself.
+        `owner` is the struct or the union, and `from_json` is None when the class
+        isn't read from JSON by itself.
         """
         code = self.code
         python_name = qualname.rpartition(".")[2]
@@ -200,7 +202,9 @@ class Emitter:
         ]
         if fields or count_decode:
             decode = ["obj = new(cls)"]
-            decode += [f"set_field(obj, {n!r}, {code.decode(t)})" for n, t in fields]
+            for n, t in fields:
+                lines, read = code.decode_lines(t, owner, n.rstrip("_"))
+                decode += [*lines, f"set_field(obj, {n!r}, {read})"]
             if count_decode:
                 decode = ["reader.enter()", *decode, "reader.depth -= 1"]
             decode.append("return obj")
@@ -251,10 +255,26 @@ class Emitter:
                 _Conversion([], f"xdr_json.{rule.write}({args})"),
                 _Conversion(build, "obj"),
             )
-        items = ", ".join(
-            f"{names.json_field_name(x)!r}: {code.to_json(t, f'self.{n}')}"
-            for (n, t), x in zip(fields, [f.name for f in d.fields], strict=True)
-        )
+        conversions = [
+            code.to_json_lines(t, f"self.{n}", d.name, n.rstrip("_")) for n, t in fields
+        ]
+        # The fields are converted in their order. When one of them takes statements,
+        # every other is converted into a variable too, so that none goes first; the
+        # statements of a field leave its value in a variable of their own.
+        in_order = any(lines for lines, _ in conversions)
+        converting: list[str] = []
+        items: list[str] = []
+        for (n, _), f, (lines, converted) in zip(
+            fields, d.fields, conversions, strict=True
+        ):
+            key = repr(names.json_field_name(f.name))
+            if lines or not in_order:
+                converting += lines
+                items.append(f"{key}: {converted}")
+            else:
+                variable = f"{n.rstrip('_')}_result"
+                converting.append(f"{variable} = {converted}")
+                items.append(f"{key}: {variable}")
         keys = tuple_display([repr(names.json_field_name(f.name)) for f in d.fields])
         # An optional field that is left out reads as null, as in the reference.
         optional = [
@@ -271,9 +291,12 @@ class Emitter:
         for (n, t), f in zip(fields, d.fields, strict=True):
             key = names.json_field_name(f.name)
             got = f"fields.get({key!r})" if key in optional else f"fields[{key!r}]"
-            read = code.from_json(t, got, f"{qualname}.{n}")
-            build.append(f"set_field(obj, {n!r}, {read})")
-        return _Conversion([], f"{{{items}}}"), _Conversion(build, "obj")
+            lines, read = code.from_json_lines(
+                t, got, f"{qualname}.{n}", d.name, n.rstrip("_")
+            )
+            build += [*lines, f"set_field(obj, {n!r}, {read})"]
+        result = f"{{{', '.join(items)}}}"
+        return _Conversion(converting, result), _Conversion(build, "obj")
 
     def struct(self, d: Struct) -> list[str]:
         """A struct class."""
@@ -285,7 +308,9 @@ class Emitter:
         doc = [f"XDR struct ``{name}``.", *source_block(d.source)]
         counted = d.name in self.ctx.counted
         to_json, from_json = self._struct_json(d, name, fields)
-        return self._value_class(name, doc, fields, to_json, from_json, counted=counted)
+        return self._value_class(
+            name, doc, fields, to_json, from_json, owner=d.name, counted=counted
+        )
 
     def _check_fields(self, owner: str, fields: list[str]) -> None:
         if len(set(fields)) != len(fields):
@@ -525,9 +550,10 @@ class Emitter:
             to_json = _Conversion([], converted)
         elif fields:
             ((n, t),) = fields
-            to_json = _Conversion(
-                [], f"{{{key!r}: {self.code.to_json(t, f'self.{n}')}}}"
+            lines, converted = self.code.to_json_lines(
+                t, f"self.{n}", d.name, n.rstrip("_")
             )
+            to_json = _Conversion(lines, f"{{{key!r}: {converted}}}")
         else:
             to_json = _Conversion([], repr(key))
         from_json: _Conversion | None
@@ -535,15 +561,24 @@ class Emitter:
             from_json = None  # the union reads the string and builds the arm
         elif fields:
             ((n, t),) = fields
-            read = self.code.from_json(t, "value", f"{qualname}.{n}")
+            lines, read = self.code.from_json_lines(
+                t, "value", f"{qualname}.{n}", d.name, n.rstrip("_")
+            )
             from_json = _Conversion(
-                ["obj = new(cls)", f"set_field(obj, {n!r}, {read})"], "obj"
+                ["obj = new(cls)", *lines, f"set_field(obj, {n!r}, {read})"], "obj"
             )
         else:
             from_json = _Conversion([], "new(cls)")
         parts = _ArmParts(class_var, f"writer.{union.write}({value})")
         return self._value_class(
-            qualname, doc, fields, to_json, from_json, counted=union.counted, arm=parts
+            qualname,
+            doc,
+            fields,
+            to_json,
+            from_json,
+            owner=d.name,
+            counted=union.counted,
+            arm=parts,
         )
 
     # Enums, typedefs and consts ---------------------------------------------------

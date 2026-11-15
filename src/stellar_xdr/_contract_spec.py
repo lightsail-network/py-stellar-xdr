@@ -24,6 +24,7 @@ from ._runtime import (
     Writer,
     XdrArm,
     XdrEnum,
+    XdrJsonError,
     XdrStruct,
     check,
     decode_base64,
@@ -629,31 +630,36 @@ class SCSpecTypeTuple(XdrStruct):
     @classmethod
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
-        set_field(
-            obj,
-            "value_types",
-            tuple([SCSpecTypeDef._decode(reader) for _ in range(reader.count(12, 4))]),
-        )
+        value_types_items: list[SCSpecTypeDef.Any] = []
+        for _ in range(reader.count(12, 4)):
+            value_types_items.append(SCSpecTypeDef._decode(reader))
+        set_field(obj, "value_types", tuple(value_types_items))
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {"value_types": [item0._to_json(ctx) for item0 in self.value_types]}
+        value_types_list: list[Any] = []
+        for value_types_item0 in self.value_types:
+            value_types_list.append(value_types_item0._to_json(ctx))
+        return {"value_types": value_types_list}
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
         fields = xdr_json.read_fields(value, "SCSpecTypeTuple", ("value_types",))
         obj = new(cls)
-        set_field(
-            obj,
-            "value_types",
-            xdr_json.read_items(
-                xdr_json.read_array(
-                    fields["value_types"], "SCSpecTypeTuple.value_types", 12
-                ),
-                "SCSpecTypeTuple.value_types",
-                lambda item0: SCSpecTypeDef._from_json(item0, ctx),
-            ),
+        value_types_json = xdr_json.read_array(
+            fields["value_types"], "SCSpecTypeTuple.value_types", 12
         )
+        value_types_items: list[SCSpecTypeDef.Any] = []
+        try:
+            for value_types_item0 in value_types_json:
+                value_types_items.append(
+                    SCSpecTypeDef._from_json(value_types_item0, ctx)
+                )
+        except XdrJsonError as e:
+            raise xdr_json.item_error(
+                "SCSpecTypeTuple.value_types", len(value_types_items), e
+            ) from None
+        set_field(obj, "value_types", tuple(value_types_items))
         return obj
 
 

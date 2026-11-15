@@ -28,6 +28,7 @@ from ._runtime import (
     XdrArray,
     XdrBytes,
     XdrEnum,
+    XdrJsonError,
     XdrStruct,
     check,
     decode_base64,
@@ -2212,29 +2213,24 @@ class SCContractInstance(XdrStruct):
     def _decode(cls, reader: Reader) -> Self:
         obj = new(cls)
         set_field(obj, "executable", ContractExecutable._decode(reader))
-        set_field(
-            obj,
-            "storage",
-            (
-                new_tuple(
-                    SCMap,
-                    [SCMapEntry._decode(reader) for _ in range(reader.count(None, 8))],
-                )
-                if reader.present()
-                else None
-            ),
-        )
+        storage_value: SCMap | None = None
+        if reader.present():
+            storage_items: list[SCMapEntry] = []
+            for _ in range(reader.count(None, 8)):
+                storage_items.append(SCMapEntry._decode(reader))
+            storage_value = new_tuple(SCMap, storage_items)
+        set_field(obj, "storage", storage_value)
         return obj
 
     def _to_json(self, ctx: JsonWriter) -> Any:
-        return {
-            "executable": self.executable._to_json(ctx),
-            "storage": (
-                None
-                if self.storage is None
-                else [item0._to_json(ctx) for item0 in self.storage]
-            ),
-        }
+        executable_result = self.executable._to_json(ctx)
+        storage_json: Any = None
+        if self.storage is not None:
+            storage_list: list[Any] = []
+            for storage_item0 in self.storage:
+                storage_list.append(storage_item0._to_json(ctx))
+            storage_json = storage_list
+        return {"executable": executable_result, "storage": storage_json}
 
     @classmethod
     def _from_json(cls, value: object, ctx: JsonReader) -> Self:
@@ -2248,24 +2244,21 @@ class SCContractInstance(XdrStruct):
         set_field(
             obj, "executable", ContractExecutable._from_json(fields["executable"], ctx)
         )
-        set_field(
-            obj,
-            "storage",
-            (
-                None
-                if fields.get("storage") is None
-                else new_tuple(
-                    SCMap,
-                    xdr_json.read_items(
-                        xdr_json.read_array(
-                            fields.get("storage"), "SCContractInstance.storage", None
-                        ),
-                        "SCContractInstance.storage",
-                        lambda item0: SCMapEntry._from_json(item0, ctx),
-                    ),
-                )
-            ),
-        )
+        storage_value: SCMap | None = None
+        if fields.get("storage") is not None:
+            storage_json = xdr_json.read_array(
+                fields.get("storage"), "SCContractInstance.storage", None
+            )
+            storage_items: list[SCMapEntry] = []
+            try:
+                for storage_item0 in storage_json:
+                    storage_items.append(SCMapEntry._from_json(storage_item0, ctx))
+            except XdrJsonError as e:
+                raise xdr_json.item_error(
+                    "SCContractInstance.storage", len(storage_items), e
+                ) from None
+            storage_value = new_tuple(SCMap, storage_items)
+        set_field(obj, "storage", storage_value)
         return obj
 
 
@@ -3117,51 +3110,43 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "vec",
-                (
-                    new_tuple(
-                        SCVec,
-                        [SCVal._decode(reader) for _ in range(reader.count(None, 4))],
-                    )
-                    if reader.present()
-                    else None
-                ),
-            )
+            vec_value: SCVec | None = None
+            if reader.present():
+                vec_items: list[SCVal.Any] = []
+                for _ in range(reader.count(None, 4)):
+                    vec_items.append(SCVal._decode(reader))
+                vec_value = new_tuple(SCVec, vec_items)
+            set_field(obj, "vec", vec_value)
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {
-                "vec": (
-                    None
-                    if self.vec is None
-                    else [item0._to_json(ctx) for item0 in self.vec]
-                )
-            }
+            vec_json: Any = None
+            if self.vec is not None:
+                vec_list: list[Any] = []
+                for vec_item0 in self.vec:
+                    vec_list.append(vec_item0._to_json(ctx))
+                vec_json = vec_list
+            result = {"vec": vec_json}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "vec",
-                (
-                    None
-                    if value is None
-                    else new_tuple(
-                        SCVec,
-                        xdr_json.read_items(
-                            xdr_json.read_array(value, "SCVal.Vec.vec", None),
-                            "SCVal.Vec.vec",
-                            lambda item0: SCVal._from_json(item0, ctx),
-                        ),
-                    )
-                ),
-            )
+            vec_value: SCVec | None = None
+            if value is not None:
+                vec_json = xdr_json.read_array(value, "SCVal.Vec.vec", None)
+                vec_items: list[SCVal.Any] = []
+                try:
+                    for vec_item0 in vec_json:
+                        vec_items.append(SCVal._from_json(vec_item0, ctx))
+                except XdrJsonError as e:
+                    raise xdr_json.item_error(
+                        "SCVal.Vec.vec", len(vec_items), e
+                    ) from None
+                vec_value = new_tuple(SCVec, vec_items)
+            set_field(obj, "vec", vec_value)
             return obj
 
     @final
@@ -3199,54 +3184,43 @@ class SCVal(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "map",
-                (
-                    new_tuple(
-                        SCMap,
-                        [
-                            SCMapEntry._decode(reader)
-                            for _ in range(reader.count(None, 8))
-                        ],
-                    )
-                    if reader.present()
-                    else None
-                ),
-            )
+            map_value: SCMap | None = None
+            if reader.present():
+                map_items: list[SCMapEntry] = []
+                for _ in range(reader.count(None, 8)):
+                    map_items.append(SCMapEntry._decode(reader))
+                map_value = new_tuple(SCMap, map_items)
+            set_field(obj, "map", map_value)
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {
-                "map": (
-                    None
-                    if self.map is None
-                    else [item0._to_json(ctx) for item0 in self.map]
-                )
-            }
+            map_json: Any = None
+            if self.map is not None:
+                map_list: list[Any] = []
+                for map_item0 in self.map:
+                    map_list.append(map_item0._to_json(ctx))
+                map_json = map_list
+            result = {"map": map_json}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "map",
-                (
-                    None
-                    if value is None
-                    else new_tuple(
-                        SCMap,
-                        xdr_json.read_items(
-                            xdr_json.read_array(value, "SCVal.Map.map", None),
-                            "SCVal.Map.map",
-                            lambda item0: SCMapEntry._from_json(item0, ctx),
-                        ),
-                    )
-                ),
-            )
+            map_value: SCMap | None = None
+            if value is not None:
+                map_json = xdr_json.read_array(value, "SCVal.Map.map", None)
+                map_items: list[SCMapEntry] = []
+                try:
+                    for map_item0 in map_json:
+                        map_items.append(SCMapEntry._from_json(map_item0, ctx))
+                except XdrJsonError as e:
+                    raise xdr_json.item_error(
+                        "SCVal.Map.map", len(map_items), e
+                    ) from None
+                map_value = new_tuple(SCMap, map_items)
+            set_field(obj, "map", map_value)
             return obj
 
     @final

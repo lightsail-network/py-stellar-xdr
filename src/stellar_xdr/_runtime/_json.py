@@ -408,15 +408,24 @@ def read_array(value: object, where: str, max_count: int | None) -> list[object]
 def read_items(
     values: list[object], where: str, read: Callable[[object], _V]
 ) -> tuple[_V, ...]:
-    """Read the items of an array, saying which item is wrong if one is."""
+    """Read the items of an array, saying which item is wrong if one is.
+
+    An array on a cycle, such as the items of `SCVal.Vec`, is read by a loop in the
+    generated code instead, which calls `item_error`: this function would take a stack
+    frame at every level of nesting.
+    """
     result: list[_V] = []
     for i, value in enumerate(values):
         try:
             result.append(read(value))
         except XdrJsonError as e:
-            msg = f"{where}[{i}]: {e}"
-            raise XdrJsonError(msg) from None
+            raise item_error(where, i, e) from None
     return tuple(result)
+
+
+def item_error(where: str, index: int, error: XdrJsonError) -> XdrJsonError:
+    """The error of an item of an array, saying which item it is."""
+    return XdrJsonError(f"{where}[{index}]: {error}")
 
 
 def read_array_fixed(value: object, where: str, count: int) -> list[object]:

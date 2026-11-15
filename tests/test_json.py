@@ -474,3 +474,38 @@ def test_errors_say_which_item_is_wrong() -> None:
         xdr.XdrJsonError, match=r"^SCVal\.Vec\.vec\[1\]: SCVal: unknown arm 'x'$"
     ):
         xdr.SCVal.from_json_value({"vec": ["void", "x"]})
+    # The items of an array off a cycle, such as the arguments of a call, are read by
+    # the runtime rather than by a loop in the generated code.
+    address = xdr.SCAddress.Contract(bytes(32))
+    call = xdr.InvokeContractArgs(address, "f", [xdr.SCVal.Void()] * 2).to_json_value()
+    call["args"][1] = "x"
+    with pytest.raises(
+        xdr.XdrJsonError,
+        match=r"^InvokeContractArgs\.args\[1\]: SCVal: unknown arm 'x'$",
+    ):
+        xdr.InvokeContractArgs.from_json_value(call)
+
+
+def test_the_fields_of_a_struct_are_converted_in_order(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # An array on a cycle is converted by statements of its own, and the fields ahead
+    # of it are still converted first, so that an error in one of them is the error
+    # reported. Each symbol records when it is converted.
+    converted: list[bytes] = []
+    write = vars(xdr.SCVal.Symbol)["_to_json"]
+
+    def spy(value: xdr.SCVal.Symbol, ctx: object) -> object:
+        converted.append(value.sym)
+        return write(value, ctx)
+
+    monkeypatch.setattr(xdr.SCVal.Symbol, "_to_json", spy)
+    address = xdr.SCAddress.Contract(bytes(32))
+
+    def function(name: str) -> xdr.SorobanAuthorizedFunction.Any:
+        call = xdr.InvokeContractArgs(address, "f", [xdr.SCVal.Symbol(name)])
+        return xdr.SorobanAuthorizedFunction.ContractFn(call)
+
+    child = xdr.SorobanAuthorizedInvocation(function("child"), [])
+    xdr.SorobanAuthorizedInvocation(function("parent"), [child]).to_json_value()
+    assert converted == [b"parent", b"child"]
