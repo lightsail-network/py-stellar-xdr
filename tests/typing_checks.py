@@ -25,6 +25,18 @@ def construction() -> None:
     xdr.SCAddress.Contract("C...")  # type: ignore[arg-type]
 
 
+# A union is built from one of its arms, not from the namespace. Positional and
+# keyword arguments are tried in separate calls, since a call with both fails if
+# either does. Each call has a function of its own: it never returns, and a checker
+# may skip what follows it, as ty does.
+def namespace_positional() -> None:
+    xdr.SCVal(xdr.SCValType.SCV_U32)  # type: ignore[call-arg]
+
+
+def namespace_keyword() -> None:
+    xdr.SCVal(u32=5)  # type: ignore[call-arg]
+
+
 def typedefs(value: xdr.SCVal.Vec, key: xdr.Hash, number: xdr.SequenceNumber) -> None:
     # A typedef's value is also a value of the type it extends.
     assert_type(key[:4], bytes)
