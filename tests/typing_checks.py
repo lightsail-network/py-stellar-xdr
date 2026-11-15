@@ -123,7 +123,20 @@ def base_classes(value: xdr.XdrValue, record: xdr.XdrStruct | xdr.XdrArm) -> Non
     xdr.encode_stream([5])  # type: ignore[list-item]
 
 
-def replacing(value: xdr.UInt128Parts) -> None:
+def replacing(
+    value: xdr.UInt128Parts, footprint: xdr.LedgerFootprint, record: xdr.XdrStruct
+) -> None:
     assert_type(xdr.replace(value, lo=1), xdr.UInt128Parts)
+    assert_type(xdr.replace(xdr.SCVal.U32(1), u32=2), xdr.SCVal.U32)
+    # The fields are checked as the constructor checks them, plain values included.
+    xdr.replace(value, low=1)  # type: ignore[call-arg]
+    xdr.replace(value, lo="1")  # type: ignore[arg-type]
+    xdr.replace(value, 1)  # type: ignore[call-arg]
+    assert_type(xdr.replace(footprint, read_only=[]), xdr.LedgerFootprint)
+    contract = xdr.SCAddress.Contract(bytes(32))
+    assert_type(xdr.replace(contract, contract_id=bytes(32)), xdr.SCAddress.Contract)
+    xdr.replace(xdr.SCValType.SCV_U32)  # type: ignore[arg-type]
+    # A value known only as a struct takes any field, which is checked when it runs.
+    assert_type(xdr.replace(record, anything=1), xdr.XdrStruct)
     if sys.version_info >= (3, 13):
         assert_type(copy.replace(value, lo=1), xdr.UInt128Parts)

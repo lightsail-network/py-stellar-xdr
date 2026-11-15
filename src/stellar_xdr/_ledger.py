@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._contract import _SC_VAL_CLASSES, SCVal
 from ._contract_config_setting import _CONFIG_SETTING_ENTRY_CLASSES, ConfigSettingEntry
@@ -419,6 +419,12 @@ class LedgerCloseValueSignature(XdrStruct):
             Signature._checked(signature, "LedgerCloseValueSignature.signature"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, node_id: NodeID.Any = ..., signature: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseValueSignature:
             return NotImplemented
@@ -527,6 +533,18 @@ class StellarValueProposedValue(XdrStruct):
                 LedgerCloseValueSignature,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_set_hash: bytes = ...,
+            previous_ledger_hash: bytes = ...,
+            previous_ledger_version: Uint32 = ...,
+            lc_value_signature: LedgerCloseValueSignature = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not StellarValueProposedValue:
@@ -663,6 +681,16 @@ class StellarValueSignedMsValue(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            close_time_ms: Uint64 = ...,
+            lc_value_signature: LedgerCloseValueSignature = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not StellarValueSignedMsValue:
             return NotImplemented
@@ -791,6 +819,19 @@ class StellarValueProposedMsValue(XdrStruct):
                 LedgerCloseValueSignature,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            close_time_ms: Uint64 = ...,
+            tx_set_hash: bytes = ...,
+            previous_ledger_hash: bytes = ...,
+            previous_ledger_version: Uint32 = ...,
+            lc_value_signature: LedgerCloseValueSignature = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not StellarValueProposedMsValue:
@@ -952,6 +993,10 @@ class StellarValueExt(metaclass=UnionNamespace):
             StellarValueType.STELLAR_VALUE_BASIC
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarValueExt.Basic:
                 return NotImplemented
@@ -995,6 +1040,12 @@ class StellarValueExt(metaclass=UnionNamespace):
                     LedgerCloseValueSignature,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, lc_value_signature: LedgerCloseValueSignature = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarValueExt.Signed:
@@ -1051,6 +1102,12 @@ class StellarValueExt(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, proposed_value: StellarValueProposedValue = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarValueExt.EmptyTxSet:
                 return NotImplemented
@@ -1102,6 +1159,12 @@ class StellarValueExt(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, signed_ms_value: StellarValueSignedMsValue = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarValueExt.SignedMs:
                 return NotImplemented
@@ -1152,6 +1215,12 @@ class StellarValueExt(metaclass=UnionNamespace):
                     StellarValueProposedMsValue,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, proposed_ms_value: StellarValueProposedMsValue = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarValueExt.EmptyTxSetMs:
@@ -1365,6 +1434,18 @@ class StellarValue(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_set_hash: bytes = ...,
+            close_time: Uint64 = ...,
+            upgrades: Sequence[bytes] = ...,
+            ext: StellarValueExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not StellarValue:
             return NotImplemented
@@ -1473,6 +1554,10 @@ class LedgerHeaderExtensionV1Ext(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerHeaderExtensionV1Ext.V0:
@@ -1620,6 +1705,12 @@ class LedgerHeaderExtensionV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, flags: Uint32 = ..., ext: LedgerHeaderExtensionV1Ext.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerHeaderExtensionV1:
             return NotImplemented
@@ -1679,6 +1770,10 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerHeaderExt.V0:
                 return NotImplemented
@@ -1716,6 +1811,12 @@ class LedgerHeaderExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "LedgerHeaderExt.V1.v1", LedgerHeaderExtensionV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: LedgerHeaderExtensionV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerHeaderExt.V1:
@@ -1990,6 +2091,29 @@ class LedgerHeader(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_version: Uint32 = ...,
+            previous_ledger_hash: bytes = ...,
+            scp_value: StellarValue = ...,
+            tx_set_result_hash: bytes = ...,
+            bucket_list_hash: bytes = ...,
+            ledger_seq: Uint32 = ...,
+            total_coins: Int64 = ...,
+            fee_pool: Int64 = ...,
+            inflation_seq: Uint32 = ...,
+            id_pool: Uint64 = ...,
+            base_fee: Uint32 = ...,
+            base_reserve: Uint32 = ...,
+            max_tx_set_size: Uint32 = ...,
+            skip_list: Sequence[bytes] = ...,
+            ext: LedgerHeaderExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerHeader:
             return NotImplemented
@@ -2248,6 +2372,12 @@ class ConfigUpgradeSetKey(XdrStruct):
             Hash._checked(content_hash, "ConfigUpgradeSetKey.content_hash"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, contract_id: bytes = ..., content_hash: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigUpgradeSetKey:
             return NotImplemented
@@ -2352,6 +2482,12 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, new_ledger_version: Uint32 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.Version:
                 return NotImplemented
@@ -2400,6 +2536,10 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                 "new_base_fee",
                 check.uint32(new_base_fee, "LedgerUpgrade.BaseFee.new_base_fee"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, new_base_fee: Uint32 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.BaseFee:
@@ -2452,6 +2592,12 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                     "LedgerUpgrade.MaxTxSetSize.new_max_tx_set_size",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, new_max_tx_set_size: Uint32 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.MaxTxSetSize:
@@ -2506,6 +2652,12 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, new_base_reserve: Uint32 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.BaseReserve:
                 return NotImplemented
@@ -2556,6 +2708,10 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                 "new_flags",
                 check.uint32(new_flags, "LedgerUpgrade.Flags.new_flags"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, new_flags: Uint32 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.Flags:
@@ -2608,6 +2764,12 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, new_config: ConfigUpgradeSetKey = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.Config:
                 return NotImplemented
@@ -2655,6 +2817,12 @@ class LedgerUpgrade(metaclass=UnionNamespace):
                     "LedgerUpgrade.MaxSorobanTxSetSize.new_max_soroban_tx_set_size",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, new_max_soroban_tx_set_size: Uint32 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerUpgrade.MaxSorobanTxSetSize:
@@ -2821,6 +2989,12 @@ class ConfigUpgradeSet(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, updated_entry: Sequence[ConfigSettingEntry.Any] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigUpgradeSet:
             return NotImplemented
@@ -2911,6 +3085,18 @@ class ParallelTxsComponent(XdrStruct):
                 ParallelTxExecutionStage._checked,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            base_fee: Int64 | None = ...,
+            execution_stages: Sequence[
+                Sequence[Sequence[TransactionEnvelope.Any]]
+            ] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ParallelTxsComponent:
@@ -3071,6 +3257,16 @@ class TxSetComponentTxsMaybeDiscountedFee(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            base_fee: Int64 | None = ...,
+            txs: Sequence[TransactionEnvelope.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TxSetComponentTxsMaybeDiscountedFee:
             return NotImplemented
@@ -3185,6 +3381,15 @@ class TxSetComponent(metaclass=UnionNamespace):
                     TxSetComponentTxsMaybeDiscountedFee,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                txs_maybe_discounted_fee: TxSetComponentTxsMaybeDiscountedFee = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TxSetComponent.TxsMaybeDiscountedFee:
@@ -3347,6 +3552,12 @@ class TransactionPhase(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v0_components: Sequence[TxSetComponent.Any] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionPhase.V0:
                 return NotImplemented
@@ -3414,6 +3625,12 @@ class TransactionPhase(metaclass=UnionNamespace):
                     ParallelTxsComponent,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, parallel_txs_component: ParallelTxsComponent = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionPhase.V1:
@@ -3572,6 +3789,16 @@ class TransactionSet(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            previous_ledger_hash: bytes = ...,
+            txs: Sequence[TransactionEnvelope.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionSet:
             return NotImplemented
@@ -3684,6 +3911,16 @@ class TransactionSetV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            previous_ledger_hash: bytes = ...,
+            phases: Sequence[TransactionPhase.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionSetV1:
             return NotImplemented
@@ -3784,6 +4021,12 @@ class GeneralizedTransactionSet(metaclass=UnionNamespace):
                     TransactionSetV1,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1_tx_set: TransactionSetV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not GeneralizedTransactionSet.V1:
@@ -3929,6 +4172,12 @@ class TransactionResultPair(XdrStruct):
             check.instance(result, "TransactionResultPair.result", TransactionResult),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, transaction_hash: bytes = ..., result: TransactionResult = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionResultPair:
             return NotImplemented
@@ -4008,6 +4257,12 @@ class TransactionResultSet(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, results: Sequence[TransactionResultPair] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionResultSet:
             return NotImplemented
@@ -4079,6 +4334,10 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionHistoryEntryExt.V0:
                 return NotImplemented
@@ -4121,6 +4380,12 @@ class TransactionHistoryEntryExt(metaclass=UnionNamespace):
                     "GeneralizedTransactionSet",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, generalized_tx_set: GeneralizedTransactionSet.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionHistoryEntryExt.V1:
@@ -4298,6 +4563,17 @@ class TransactionHistoryEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_seq: Uint32 = ...,
+            tx_set: TransactionSet = ...,
+            ext: TransactionHistoryEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionHistoryEntry:
             return NotImplemented
@@ -4367,6 +4643,10 @@ class TransactionHistoryResultEntryExt(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionHistoryResultEntryExt.V0:
@@ -4541,6 +4821,17 @@ class TransactionHistoryResultEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_seq: Uint32 = ...,
+            tx_result_set: TransactionResultSet = ...,
+            ext: TransactionHistoryResultEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionHistoryResultEntry:
             return NotImplemented
@@ -4625,6 +4916,10 @@ class LedgerHeaderHistoryEntryExt(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerHeaderHistoryEntryExt.V0:
@@ -4782,6 +5077,17 @@ class LedgerHeaderHistoryEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            hash: bytes = ...,
+            header: LedgerHeader = ...,
+            ext: LedgerHeaderHistoryEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerHeaderHistoryEntry:
             return NotImplemented
@@ -4870,6 +5176,12 @@ class LedgerSCPMessages(XdrStruct):
                 SCPEnvelope,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ledger_seq: Uint32 = ..., messages: Sequence[SCPEnvelope] = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerSCPMessages:
@@ -4967,6 +5279,16 @@ class SCPHistoryEntryV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            quorum_sets: Sequence[SCPQuorumSet] = ...,
+            ledger_messages: LedgerSCPMessages = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPHistoryEntryV0:
             return NotImplemented
@@ -5055,6 +5377,10 @@ class SCPHistoryEntry(metaclass=UnionNamespace):
                 "v0",
                 check.instance(v0, "SCPHistoryEntry.V0.v0", SCPHistoryEntryV0),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: SCPHistoryEntryV0 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCPHistoryEntry.V0:
@@ -5206,6 +5532,10 @@ class LedgerEntryChange(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, created: LedgerEntry = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryChange.Created:
                 return NotImplemented
@@ -5252,6 +5582,10 @@ class LedgerEntryChange(metaclass=UnionNamespace):
                     updated, "LedgerEntryChange.Updated.updated", LedgerEntry
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, updated: LedgerEntry = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryChange.Updated:
@@ -5303,6 +5637,12 @@ class LedgerEntryChange(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, removed: LedgerKey.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryChange.Removed:
                 return NotImplemented
@@ -5347,6 +5687,10 @@ class LedgerEntryChange(metaclass=UnionNamespace):
                 "state",
                 check.instance(state, "LedgerEntryChange.State.state", LedgerEntry),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, state: LedgerEntry = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryChange.State:
@@ -5394,6 +5738,10 @@ class LedgerEntryChange(metaclass=UnionNamespace):
                     restored, "LedgerEntryChange.Restored.restored", LedgerEntry
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, restored: LedgerEntry = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryChange.Restored:
@@ -5536,6 +5884,12 @@ class OperationMeta(XdrStruct):
             LedgerEntryChanges._checked(changes, "OperationMeta.changes"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, changes: Sequence[LedgerEntryChange.Any] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not OperationMeta:
             return NotImplemented
@@ -5628,6 +5982,16 @@ class TransactionMetaV1(XdrStruct):
                 OperationMeta,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_changes: Sequence[LedgerEntryChange.Any] = ...,
+            operations: Sequence[OperationMeta] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionMetaV1:
@@ -5763,6 +6127,17 @@ class TransactionMetaV2(XdrStruct):
                 tx_changes_after, "TransactionMetaV2.tx_changes_after"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_changes_before: Sequence[LedgerEntryChange.Any] = ...,
+            operations: Sequence[OperationMeta] = ...,
+            tx_changes_after: Sequence[LedgerEntryChange.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionMetaV2:
@@ -5930,6 +6305,12 @@ class ContractEventV0(XdrStruct):
             check.union(data, "ContractEventV0.data", _SC_VAL_CLASSES, "SCVal"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, topics: Sequence[SCVal.Any] = ..., data: SCVal.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractEventV0:
             return NotImplemented
@@ -6009,6 +6390,10 @@ class ContractEventBody(metaclass=UnionNamespace):
                 "v0",
                 check.instance(v0, "ContractEventBody.V0.v0", ContractEventV0),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: ContractEventV0 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractEventBody.V0:
@@ -6190,6 +6575,18 @@ class ContractEvent(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            contract_id: bytes | None = ...,
+            type: ContractEventType = ...,
+            body: ContractEventBody.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractEvent:
             return NotImplemented
@@ -6301,6 +6698,16 @@ class DiagnosticEvent(XdrStruct):
         set_field(
             self, "event", check.instance(event, "DiagnosticEvent.event", ContractEvent)
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            in_successful_contract_call: bool = ...,
+            event: ContractEvent = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not DiagnosticEvent:
@@ -6442,6 +6849,18 @@ class SorobanTransactionMetaExtV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            total_non_refundable_resource_fee_charged: Int64 = ...,
+            total_refundable_resource_fee_charged: Int64 = ...,
+            rent_fee_charged: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanTransactionMetaExtV1:
             return NotImplemented
@@ -6555,6 +6974,10 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanTransactionMetaExt.V0:
                 return NotImplemented
@@ -6594,6 +7017,12 @@ class SorobanTransactionMetaExt(metaclass=UnionNamespace):
                     v1, "SorobanTransactionMetaExt.V1.v1", SorobanTransactionMetaExtV1
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: SorobanTransactionMetaExtV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanTransactionMetaExt.V1:
@@ -6787,6 +7216,18 @@ class SorobanTransactionMeta(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: SorobanTransactionMetaExt.Any = ...,
+            events: Sequence[ContractEvent] = ...,
+            return_value: SCVal.Any = ...,
+            diagnostic_events: Sequence[DiagnosticEvent] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanTransactionMeta:
             return NotImplemented
@@ -6970,6 +7411,19 @@ class TransactionMetaV3(XdrStruct):
                 SorobanTransactionMeta,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            tx_changes_before: Sequence[LedgerEntryChange.Any] = ...,
+            operations: Sequence[OperationMeta] = ...,
+            tx_changes_after: Sequence[LedgerEntryChange.Any] = ...,
+            soroban_meta: SorobanTransactionMeta | None = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionMetaV3:
@@ -7185,6 +7639,17 @@ class OperationMetaV2(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            changes: Sequence[LedgerEntryChange.Any] = ...,
+            events: Sequence[ContractEvent] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not OperationMetaV2:
             return NotImplemented
@@ -7314,6 +7779,16 @@ class SorobanTransactionMetaV2(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: SorobanTransactionMetaExt.Any = ...,
+            return_value: SCVal.Any | None = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanTransactionMetaV2:
             return NotImplemented
@@ -7397,6 +7872,12 @@ class TransactionEvent(XdrStruct):
             "event",
             check.instance(event, "TransactionEvent.event", ContractEvent),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, stage: TransactionEventStage = ..., event: ContractEvent = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionEvent:
@@ -7544,6 +8025,21 @@ class TransactionMetaV4(XdrStruct):
                 DiagnosticEvent,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            tx_changes_before: Sequence[LedgerEntryChange.Any] = ...,
+            operations: Sequence[OperationMetaV2] = ...,
+            tx_changes_after: Sequence[LedgerEntryChange.Any] = ...,
+            soroban_meta: SorobanTransactionMetaV2 | None = ...,
+            events: Sequence[TransactionEvent] = ...,
+            diagnostic_events: Sequence[DiagnosticEvent] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionMetaV4:
@@ -7811,6 +8307,16 @@ class InvokeHostFunctionSuccessPreImage(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            return_value: SCVal.Any = ...,
+            events: Sequence[ContractEvent] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not InvokeHostFunctionSuccessPreImage:
             return NotImplemented
@@ -7907,6 +8413,12 @@ class TransactionMeta(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, operations: Sequence[OperationMeta] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionMeta.V0:
                 return NotImplemented
@@ -7969,6 +8481,10 @@ class TransactionMeta(metaclass=UnionNamespace):
                 check.instance(v1, "TransactionMeta.V1.v1", TransactionMetaV1),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v1: TransactionMetaV1 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionMeta.V1:
                 return NotImplemented
@@ -8011,6 +8527,10 @@ class TransactionMeta(metaclass=UnionNamespace):
                 "v2",
                 check.instance(v2, "TransactionMeta.V2.v2", TransactionMetaV2),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v2: TransactionMetaV2 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionMeta.V2:
@@ -8055,6 +8575,10 @@ class TransactionMeta(metaclass=UnionNamespace):
                 check.instance(v3, "TransactionMeta.V3.v3", TransactionMetaV3),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v3: TransactionMetaV3 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionMeta.V3:
                 return NotImplemented
@@ -8097,6 +8621,10 @@ class TransactionMeta(metaclass=UnionNamespace):
                 "v4",
                 check.instance(v4, "TransactionMeta.V4.v4", TransactionMetaV4),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v4: TransactionMetaV4 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionMeta.V4:
@@ -8267,6 +8795,17 @@ class TransactionResultMeta(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            result: TransactionResultPair = ...,
+            fee_processing: Sequence[LedgerEntryChange.Any] = ...,
+            tx_apply_processing: TransactionMeta.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionResultMeta:
             return NotImplemented
@@ -8435,6 +8974,19 @@ class TransactionResultMetaV1(XdrStruct):
                 "TransactionResultMetaV1.post_tx_apply_fee_processing",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            result: TransactionResultPair = ...,
+            fee_processing: Sequence[LedgerEntryChange.Any] = ...,
+            tx_apply_processing: TransactionMeta.Any = ...,
+            post_tx_apply_fee_processing: Sequence[LedgerEntryChange.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionResultMetaV1:
@@ -8606,6 +9158,16 @@ class UpgradeEntryMeta(XdrStruct):
             LedgerEntryChanges._checked(changes, "UpgradeEntryMeta.changes"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            upgrade: LedgerUpgrade.Any = ...,
+            changes: Sequence[LedgerEntryChange.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not UpgradeEntryMeta:
             return NotImplemented
@@ -8760,6 +9322,19 @@ class LedgerCloseMetaV0(XdrStruct):
                 "SCPHistoryEntry",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_header: LedgerHeaderHistoryEntry = ...,
+            tx_set: TransactionSet = ...,
+            tx_processing: Sequence[TransactionResultMeta] = ...,
+            upgrades_processing: Sequence[UpgradeEntryMeta] = ...,
+            scp_info: Sequence[SCPHistoryEntry.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseMetaV0:
@@ -8937,6 +9512,16 @@ class LedgerCloseMetaExtV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            soroban_fee_write1_kb: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseMetaExtV1:
             return NotImplemented
@@ -9005,6 +9590,10 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerCloseMetaExt.V0:
                 return NotImplemented
@@ -9042,6 +9631,12 @@ class LedgerCloseMetaExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "LedgerCloseMetaExt.V1.v1", LedgerCloseMetaExtV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: LedgerCloseMetaExtV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerCloseMetaExt.V1:
@@ -9316,6 +9911,23 @@ class LedgerCloseMetaV1(XdrStruct):
                 unused, "LedgerCloseMetaV1.unused", None, check.instance, LedgerEntry
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: LedgerCloseMetaExt.Any = ...,
+            ledger_header: LedgerHeaderHistoryEntry = ...,
+            tx_set: GeneralizedTransactionSet.Any = ...,
+            tx_processing: Sequence[TransactionResultMeta] = ...,
+            upgrades_processing: Sequence[UpgradeEntryMeta] = ...,
+            scp_info: Sequence[SCPHistoryEntry.Any] = ...,
+            total_byte_size_of_live_soroban_state: Uint64 = ...,
+            evicted_keys: Sequence[LedgerKey.Any] = ...,
+            unused: Sequence[LedgerEntry] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseMetaV1:
@@ -9675,6 +10287,22 @@ class LedgerCloseMetaV2(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: LedgerCloseMetaExt.Any = ...,
+            ledger_header: LedgerHeaderHistoryEntry = ...,
+            tx_set: GeneralizedTransactionSet.Any = ...,
+            tx_processing: Sequence[TransactionResultMetaV1] = ...,
+            upgrades_processing: Sequence[UpgradeEntryMeta] = ...,
+            scp_info: Sequence[SCPHistoryEntry.Any] = ...,
+            total_byte_size_of_live_soroban_state: Uint64 = ...,
+            evicted_keys: Sequence[LedgerKey.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseMetaV2:
             return NotImplemented
@@ -9895,6 +10523,10 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
                 check.instance(v0, "LedgerCloseMeta.V0.v0", LedgerCloseMetaV0),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: LedgerCloseMetaV0 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerCloseMeta.V0:
                 return NotImplemented
@@ -9938,6 +10570,10 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
                 check.instance(v1, "LedgerCloseMeta.V1.v1", LedgerCloseMetaV1),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v1: LedgerCloseMetaV1 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerCloseMeta.V1:
                 return NotImplemented
@@ -9980,6 +10616,10 @@ class LedgerCloseMeta(metaclass=UnionNamespace):
                 "v2",
                 check.instance(v2, "LedgerCloseMeta.V2.v2", LedgerCloseMetaV2),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v2: LedgerCloseMetaV2 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerCloseMeta.V2:

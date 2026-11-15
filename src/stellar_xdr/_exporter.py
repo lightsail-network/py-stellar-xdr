@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, Self, final
+from typing import TYPE_CHECKING, Any, Self, final
 
 from ._ledger import _LEDGER_CLOSE_META_CLASSES, LedgerCloseMeta
 from ._runtime import (
@@ -82,6 +82,17 @@ class LedgerCloseMetaBatch(XdrStruct):
                 "LedgerCloseMeta",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            start_sequence: Uint32 = ...,
+            end_sequence: Uint32 = ...,
+            ledger_close_metas: Sequence[LedgerCloseMeta.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerCloseMetaBatch:

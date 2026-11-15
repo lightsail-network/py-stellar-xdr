@@ -72,6 +72,7 @@ RUNTIME_NAMES: Final = (
 )
 
 TYPING_NAMES: Final = (
+    "TYPE_CHECKING",
     "Any",
     "ClassVar",
     "Final",

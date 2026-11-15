@@ -173,6 +173,16 @@ class Emitter:
                     for n, t in fields
                 ]
             )
+        # For type checkers only: the fields a copy takes, as the constructor takes
+        # them, which `replace` checks (see `_Record._replace_signature`).
+        changes = [f"{n}: {unshadow(code.parameter(t))} = ..." for n, t in fields]
+        replaced = ", ".join(["self", "/", *(["*", *changes] if changes else [])])
+        body += [
+            "",
+            "if TYPE_CHECKING:",
+            "",
+            f"    def _replace_signature({replaced}) -> Self: ...",
+        ]
         # Equality and hashing are generated per class, unlike the rest of the shared
         # behaviour in the runtime's base classes: a generic version that loops over the
         # fields made `==` on a whole envelope about 3 times slower on CPython and 10

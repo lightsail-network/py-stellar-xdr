@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._runtime import (
     DEFAULT_MAX_DEPTH,
@@ -617,6 +617,12 @@ class ConfigSettingContractExecutionLanesV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ledger_max_tx_count: Uint32 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractExecutionLanesV0:
             return NotImplemented
@@ -725,6 +731,18 @@ class ConfigSettingContractComputeV0(XdrStruct):
                 tx_memory_limit, "ConfigSettingContractComputeV0.tx_memory_limit"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_max_instructions: Int64 = ...,
+            tx_max_instructions: Int64 = ...,
+            fee_rate_per_instructions_increment: Int64 = ...,
+            tx_memory_limit: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractComputeV0:
@@ -850,6 +868,12 @@ class ConfigSettingContractParallelComputeV0(XdrStruct):
                 "ConfigSettingContractParallelComputeV0.ledger_max_dependent_tx_clusters",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ledger_max_dependent_tx_clusters: Uint32 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractParallelComputeV0:
@@ -1114,6 +1138,29 @@ class ConfigSettingContractLedgerCostV0(XdrStruct):
                 "ConfigSettingContractLedgerCostV0.soroban_state_rent_fee_growth_factor",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_max_disk_read_entries: Uint32 = ...,
+            ledger_max_disk_read_bytes: Uint32 = ...,
+            ledger_max_write_ledger_entries: Uint32 = ...,
+            ledger_max_write_bytes: Uint32 = ...,
+            tx_max_disk_read_entries: Uint32 = ...,
+            tx_max_disk_read_bytes: Uint32 = ...,
+            tx_max_write_ledger_entries: Uint32 = ...,
+            tx_max_write_bytes: Uint32 = ...,
+            fee_disk_read_ledger_entry: Int64 = ...,
+            fee_write_ledger_entry: Int64 = ...,
+            fee_disk_read1_kb: Int64 = ...,
+            soroban_state_target_size_bytes: Int64 = ...,
+            rent_fee1_kb_soroban_state_size_low: Int64 = ...,
+            rent_fee1_kb_soroban_state_size_high: Int64 = ...,
+            soroban_state_rent_fee_growth_factor: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractLedgerCostV0:
@@ -1411,6 +1458,16 @@ class ConfigSettingContractLedgerCostExtV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_max_footprint_entries: Uint32 = ...,
+            fee_write1_kb: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractLedgerCostExtV0:
             return NotImplemented
@@ -1498,6 +1555,10 @@ class ConfigSettingContractHistoricalDataV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, fee_historical1_kb: Int64 = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractHistoricalDataV0:
             return NotImplemented
@@ -1574,6 +1635,16 @@ class ConfigSettingContractEventsV0(XdrStruct):
                 "ConfigSettingContractEventsV0.fee_contract_events1_kb",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_max_contract_events_size_bytes: Uint32 = ...,
+            fee_contract_events1_kb: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractEventsV0:
@@ -1689,6 +1760,17 @@ class ConfigSettingContractBandwidthV0(XdrStruct):
                 fee_tx_size1_kb, "ConfigSettingContractBandwidthV0.fee_tx_size1_kb"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_max_txs_size_bytes: Uint32 = ...,
+            tx_max_size_bytes: Uint32 = ...,
+            fee_tx_size1_kb: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingContractBandwidthV0:
@@ -1808,6 +1890,17 @@ class ContractCostParamEntry(XdrStruct):
             "linear_term",
             check.int64(linear_term, "ContractCostParamEntry.linear_term"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            const_term: Int64 = ...,
+            linear_term: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractCostParamEntry:
@@ -2007,6 +2100,24 @@ class StateArchivalSettings(XdrStruct):
                 "StateArchivalSettings.starting_eviction_scan_level",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            max_entry_ttl: Uint32 = ...,
+            min_temporary_ttl: Uint32 = ...,
+            min_persistent_ttl: Uint32 = ...,
+            persistent_rent_rate_denominator: Int64 = ...,
+            temp_rent_rate_denominator: Int64 = ...,
+            max_entries_to_archive: Uint32 = ...,
+            live_soroban_state_size_window_sample_size: Uint32 = ...,
+            live_soroban_state_size_window_sample_period: Uint32 = ...,
+            eviction_scan_size: Uint32 = ...,
+            starting_eviction_scan_level: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not StateArchivalSettings:
@@ -2226,6 +2337,17 @@ class EvictionIterator(XdrStruct):
             check.uint64(bucket_file_offset, "EvictionIterator.bucket_file_offset"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            bucket_list_level: Uint32 = ...,
+            is_curr_bucket: bool = ...,
+            bucket_file_offset: Uint64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not EvictionIterator:
             return NotImplemented
@@ -2375,6 +2497,19 @@ class ConfigSettingSCPTiming(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_target_close_time_milliseconds: Uint32 = ...,
+            nomination_timeout_initial_milliseconds: Uint32 = ...,
+            nomination_timeout_increment_milliseconds: Uint32 = ...,
+            ballot_timeout_initial_milliseconds: Uint32 = ...,
+            ballot_timeout_increment_milliseconds: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ConfigSettingSCPTiming:
             return NotImplemented
@@ -2508,6 +2643,10 @@ class FrozenLedgerKeys(XdrStruct):
             check.array(keys, "FrozenLedgerKeys.keys", None, EncodedLedgerKey._checked),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, keys: Sequence[bytes] = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not FrozenLedgerKeys:
             return NotImplemented
@@ -2598,6 +2737,16 @@ class FrozenLedgerKeysDelta(XdrStruct):
                 EncodedLedgerKey._checked,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            keys_to_freeze: Sequence[bytes] = ...,
+            keys_to_unfreeze: Sequence[bytes] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not FrozenLedgerKeysDelta:
@@ -2716,6 +2865,12 @@ class FreezeBypassTxs(XdrStruct):
             check.array(tx_hashes, "FreezeBypassTxs.tx_hashes", None, Hash._checked),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, tx_hashes: Sequence[bytes] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not FreezeBypassTxs:
             return NotImplemented
@@ -2798,6 +2953,16 @@ class FreezeBypassTxsDelta(XdrStruct):
                 remove_txs, "FreezeBypassTxsDelta.remove_txs", None, Hash._checked
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            add_txs: Sequence[bytes] = ...,
+            remove_txs: Sequence[bytes] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not FreezeBypassTxsDelta:
@@ -2958,6 +3123,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_max_size_bytes: Uint32 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractMaxSizeBytes:
                 return NotImplemented
@@ -3016,6 +3187,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_compute: ConfigSettingContractComputeV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractComputeV0:
                 return NotImplemented
@@ -3072,6 +3249,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     ConfigSettingContractLedgerCostV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_ledger_cost: ConfigSettingContractLedgerCostV0 = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractLedgerCostV0:
@@ -3133,6 +3319,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     ConfigSettingContractHistoricalDataV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_historical_data: ConfigSettingContractHistoricalDataV0 = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractHistoricalDataV0:
@@ -3200,6 +3395,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_events: ConfigSettingContractEventsV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractEventsV0:
                 return NotImplemented
@@ -3256,6 +3457,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     ConfigSettingContractBandwidthV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_bandwidth: ConfigSettingContractBandwidthV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractBandwidthV0:
@@ -3318,6 +3525,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     "ConfigSettingEntry.ContractCostParamsCpuInstructions.contract_cost_params_cpu_insns",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_cost_params_cpu_insns: Sequence[ContractCostParamEntry] = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractCostParamsCpuInstructions:
@@ -3410,6 +3626,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_cost_params_mem_bytes: Sequence[ContractCostParamEntry] = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractCostParamsMemoryBytes:
                 return NotImplemented
@@ -3499,6 +3724,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_data_key_size_bytes: Uint32 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractDataKeySizeBytes:
                 return NotImplemented
@@ -3560,6 +3791,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     "ConfigSettingEntry.ContractDataEntrySizeBytes.contract_data_entry_size_bytes",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_data_entry_size_bytes: Uint32 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractDataEntrySizeBytes:
@@ -3627,6 +3864,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, state_archival_settings: StateArchivalSettings = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.StateArchival:
                 return NotImplemented
@@ -3685,6 +3928,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     ConfigSettingContractExecutionLanesV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_execution_lanes: ConfigSettingContractExecutionLanesV0 = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractExecutionLanes:
@@ -3750,6 +4002,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     check.uint64,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, live_soroban_state_size_window: Sequence[Uint64] = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.LiveSorobanStateSizeWindow:
@@ -3835,6 +4093,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, eviction_iterator: EvictionIterator = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.EvictionIterator:
                 return NotImplemented
@@ -3885,6 +4149,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     ConfigSettingContractParallelComputeV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_parallel_compute: ConfigSettingContractParallelComputeV0 = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractParallelComputeV0:
@@ -3954,6 +4227,15 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                contract_ledger_cost_ext: ConfigSettingContractLedgerCostExtV0 = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.ContractLedgerCostExtV0:
                 return NotImplemented
@@ -4020,6 +4302,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_scp_timing: ConfigSettingSCPTiming = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.SCPTiming:
                 return NotImplemented
@@ -4075,6 +4363,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, frozen_ledger_keys: FrozenLedgerKeys = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.FrozenLedgerKeys:
                 return NotImplemented
@@ -4125,6 +4419,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     FrozenLedgerKeysDelta,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, frozen_ledger_keys_delta: FrozenLedgerKeysDelta = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.FrozenLedgerKeysDelta:
@@ -4188,6 +4488,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, freeze_bypass_txs: FreezeBypassTxs = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.FreezeBypassTxs:
                 return NotImplemented
@@ -4236,6 +4542,12 @@ class ConfigSettingEntry(metaclass=UnionNamespace):
                     FreezeBypassTxsDelta,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, freeze_bypass_txs_delta: FreezeBypassTxsDelta = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ConfigSettingEntry.FreezeBypassTxsDelta:

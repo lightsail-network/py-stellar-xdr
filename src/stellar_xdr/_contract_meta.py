@@ -11,7 +11,7 @@ file between releases.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._runtime import (
     DEFAULT_MAX_DEPTH,
@@ -82,6 +82,12 @@ class SCMetaV0(XdrStruct):
         set_field(self, "key", check.string(key, "SCMetaV0.key", None))
         set_field(self, "val", check.string(val, "SCMetaV0.val", None))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, key: bytes | str = ..., val: bytes | str = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCMetaV0:
             return NotImplemented
@@ -139,6 +145,10 @@ class SCMetaEntry(metaclass=UnionNamespace):
 
         def __init__(self, v0: SCMetaV0) -> None:
             set_field(self, "v0", check.instance(v0, "SCMetaEntry.V0.v0", SCMetaV0))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: SCMetaV0 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCMetaEntry.V0:

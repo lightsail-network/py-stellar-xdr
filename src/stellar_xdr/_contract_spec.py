@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._contract import SCSymbol
 from ._runtime import (
@@ -336,6 +336,12 @@ class SCSpecTypeOption(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, value_type: SCSpecTypeDef.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeOption:
             return NotImplemented
@@ -408,6 +414,16 @@ class SCSpecTypeResult(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ok_type: SCSpecTypeDef.Any = ...,
+            error_type: SCSpecTypeDef.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeResult:
             return NotImplemented
@@ -473,6 +489,12 @@ class SCSpecTypeVec(XdrStruct):
                 "SCSpecTypeDef",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, element_type: SCSpecTypeDef.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeVec:
@@ -546,6 +568,16 @@ class SCSpecTypeMap(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            key_type: SCSpecTypeDef.Any = ...,
+            value_type: SCSpecTypeDef.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeMap:
             return NotImplemented
@@ -613,6 +645,12 @@ class SCSpecTypeTuple(XdrStruct):
                 "SCSpecTypeDef",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, value_types: Sequence[SCSpecTypeDef.Any] = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeTuple:
@@ -682,6 +720,10 @@ class SCSpecTypeBytesN(XdrStruct):
     def __init__(self, n: Uint32) -> None:
         set_field(self, "n", check.uint32(n, "SCSpecTypeBytesN.n"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, n: Uint32 = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeBytesN:
             return NotImplemented
@@ -728,6 +770,10 @@ class SCSpecTypeUDT(XdrStruct):
 
     def __init__(self, name: bytes | str) -> None:
         set_field(self, "name", check.string(name, "SCSpecTypeUDT.name", 1024))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, name: bytes | str = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecTypeUDT:
@@ -815,6 +861,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_VAL
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Val:
                 return NotImplemented
@@ -851,6 +901,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_BOOL]] = (
             SCSpecType.SC_SPEC_TYPE_BOOL
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Bool:
@@ -889,6 +943,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_VOID
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Void:
                 return NotImplemented
@@ -925,6 +983,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_ERROR]] = (
             SCSpecType.SC_SPEC_TYPE_ERROR
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Error:
@@ -963,6 +1025,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_U32
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.U32:
                 return NotImplemented
@@ -999,6 +1065,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_I32]] = (
             SCSpecType.SC_SPEC_TYPE_I32
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.I32:
@@ -1037,6 +1107,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_U64
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.U64:
                 return NotImplemented
@@ -1073,6 +1147,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_I64]] = (
             SCSpecType.SC_SPEC_TYPE_I64
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.I64:
@@ -1111,6 +1189,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_TIMEPOINT
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.TimePoint:
                 return NotImplemented
@@ -1147,6 +1229,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_DURATION]] = (
             SCSpecType.SC_SPEC_TYPE_DURATION
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Duration:
@@ -1185,6 +1271,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_U128
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.U128:
                 return NotImplemented
@@ -1221,6 +1311,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_I128]] = (
             SCSpecType.SC_SPEC_TYPE_I128
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.I128:
@@ -1259,6 +1353,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_U256
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.U256:
                 return NotImplemented
@@ -1295,6 +1393,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_I256]] = (
             SCSpecType.SC_SPEC_TYPE_I256
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.I256:
@@ -1333,6 +1435,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_BYTES
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Bytes:
                 return NotImplemented
@@ -1369,6 +1475,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_STRING]] = (
             SCSpecType.SC_SPEC_TYPE_STRING
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.String:
@@ -1407,6 +1517,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_SYMBOL
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Symbol:
                 return NotImplemented
@@ -1444,6 +1558,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             SCSpecType.SC_SPEC_TYPE_ADDRESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Address:
                 return NotImplemented
@@ -1480,6 +1598,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCSpecType.SC_SPEC_TYPE_MUXED_ADDRESS]] = (
             SCSpecType.SC_SPEC_TYPE_MUXED_ADDRESS
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.MuxedAddress:
@@ -1525,6 +1647,12 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
                 "option",
                 check.instance(option, "SCSpecTypeDef.Option.option", SCSpecTypeOption),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, option: SCSpecTypeOption = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Option:
@@ -1576,6 +1704,12 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
                 check.instance(result, "SCSpecTypeDef.Result.result", SCSpecTypeResult),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, result: SCSpecTypeResult = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Result:
                 return NotImplemented
@@ -1624,6 +1758,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
                 self, "vec", check.instance(vec, "SCSpecTypeDef.Vec.vec", SCSpecTypeVec)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, vec: SCSpecTypeVec = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Vec:
                 return NotImplemented
@@ -1671,6 +1809,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             set_field(
                 self, "map", check.instance(map, "SCSpecTypeDef.Map.map", SCSpecTypeMap)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, map: SCSpecTypeMap = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Map:
@@ -1721,6 +1863,12 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
                 "tuple",
                 check.instance(tuple, "SCSpecTypeDef.Tuple.tuple", SCSpecTypeTuple),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, tuple: SCSpecTypeTuple = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.Tuple:
@@ -1774,6 +1922,12 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, bytes_n: SCSpecTypeBytesN = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.BytesN:
                 return NotImplemented
@@ -1821,6 +1975,10 @@ class SCSpecTypeDef(metaclass=UnionNamespace):
             set_field(
                 self, "udt", check.instance(udt, "SCSpecTypeDef.UDT.udt", SCSpecTypeUDT)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, udt: SCSpecTypeUDT = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecTypeDef.UDT:
@@ -2078,6 +2236,17 @@ class SCSpecUDTStructFieldV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            type: SCSpecTypeDef.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTStructFieldV0:
             return NotImplemented
@@ -2173,6 +2342,18 @@ class SCSpecUDTStructV0(XdrStruct):
                 SCSpecUDTStructFieldV0,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            lib: bytes | str = ...,
+            name: bytes | str = ...,
+            fields: Sequence[SCSpecUDTStructFieldV0] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTStructV0:
@@ -2274,6 +2455,12 @@ class SCSpecUDTUnionCaseVoidV0(XdrStruct):
         set_field(self, "doc", check.string(doc, "SCSpecUDTUnionCaseVoidV0.doc", 1024))
         set_field(self, "name", check.string(name, "SCSpecUDTUnionCaseVoidV0.name", 60))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, doc: bytes | str = ..., name: bytes | str = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTUnionCaseVoidV0:
             return NotImplemented
@@ -2357,6 +2544,17 @@ class SCSpecUDTUnionCaseTupleV0(XdrStruct):
                 "SCSpecTypeDef",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            type: Sequence[SCSpecTypeDef.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTUnionCaseTupleV0:
@@ -2464,6 +2662,12 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, void_case: SCSpecUDTUnionCaseVoidV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecUDTUnionCaseV0.VoidV0:
                 return NotImplemented
@@ -2512,6 +2716,12 @@ class SCSpecUDTUnionCaseV0(metaclass=UnionNamespace):
                     SCSpecUDTUnionCaseTupleV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, tuple_case: SCSpecUDTUnionCaseTupleV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecUDTUnionCaseV0.TupleV0:
@@ -2675,6 +2885,18 @@ class SCSpecUDTUnionV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            lib: bytes | str = ...,
+            name: bytes | str = ...,
+            cases: Sequence[SCSpecUDTUnionCaseV0.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTUnionV0:
             return NotImplemented
@@ -2778,6 +3000,17 @@ class SCSpecUDTEnumCaseV0(XdrStruct):
         set_field(self, "name", check.string(name, "SCSpecUDTEnumCaseV0.name", 60))
         set_field(self, "value", check.uint32(value, "SCSpecUDTEnumCaseV0.value"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            value: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTEnumCaseV0:
             return NotImplemented
@@ -2877,6 +3110,18 @@ class SCSpecUDTEnumV0(XdrStruct):
                 SCSpecUDTEnumCaseV0,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            lib: bytes | str = ...,
+            name: bytes | str = ...,
+            cases: Sequence[SCSpecUDTEnumCaseV0] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTEnumV0:
@@ -2979,6 +3224,17 @@ class SCSpecUDTErrorEnumCaseV0(XdrStruct):
         set_field(self, "name", check.string(name, "SCSpecUDTErrorEnumCaseV0.name", 60))
         set_field(self, "value", check.uint32(value, "SCSpecUDTErrorEnumCaseV0.value"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            value: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTErrorEnumCaseV0:
             return NotImplemented
@@ -3078,6 +3334,18 @@ class SCSpecUDTErrorEnumV0(XdrStruct):
                 SCSpecUDTErrorEnumCaseV0,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            lib: bytes | str = ...,
+            name: bytes | str = ...,
+            cases: Sequence[SCSpecUDTErrorEnumCaseV0] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecUDTErrorEnumV0:
@@ -3197,6 +3465,17 @@ class SCSpecFunctionInputV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            type: SCSpecTypeDef.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecFunctionInputV0:
             return NotImplemented
@@ -3303,6 +3582,18 @@ class SCSpecFunctionV0(XdrStruct):
                 "SCSpecTypeDef",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            inputs: Sequence[SCSpecFunctionInputV0] = ...,
+            outputs: Sequence[SCSpecTypeDef.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecFunctionV0:
@@ -3446,6 +3737,18 @@ class SCSpecEventParamV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            name: bytes | str = ...,
+            type: SCSpecTypeDef.Any = ...,
+            location: SCSpecEventParamLocationV0 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecEventParamV0:
             return NotImplemented
@@ -3566,6 +3869,20 @@ class SCSpecEventV0(XdrStruct):
                 data_format, "SCSpecEventV0.data_format", SCSpecEventDataFormat
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            doc: bytes | str = ...,
+            lib: bytes | str = ...,
+            name: bytes | str = ...,
+            prefix_topics: Sequence[bytes | str] = ...,
+            params: Sequence[SCSpecEventParamV0] = ...,
+            data_format: SCSpecEventDataFormat = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCSpecEventV0:
@@ -3737,6 +4054,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, function_v0: SCSpecFunctionV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.FunctionV0:
                 return NotImplemented
@@ -3785,6 +4108,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                     SCSpecUDTStructV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, udt_struct_v0: SCSpecUDTStructV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.UDTStructV0:
@@ -3835,6 +4164,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, udt_union_v0: SCSpecUDTUnionV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.UDTUnionV0:
                 return NotImplemented
@@ -3881,6 +4216,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                     udt_enum_v0, "SCSpecEntry.UDTEnumV0.udt_enum_v0", SCSpecUDTEnumV0
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, udt_enum_v0: SCSpecUDTEnumV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.UDTEnumV0:
@@ -3931,6 +4272,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, udt_error_enum_v0: SCSpecUDTErrorEnumV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.UDTErrorEnumV0:
                 return NotImplemented
@@ -3977,6 +4324,12 @@ class SCSpecEntry(metaclass=UnionNamespace):
                 "event_v0",
                 check.instance(event_v0, "SCSpecEntry.EventV0.event_v0", SCSpecEventV0),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, event_v0: SCSpecEventV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCSpecEntry.EventV0:

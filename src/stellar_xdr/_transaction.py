@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 import stellar_strkey as strkey
 
@@ -2181,6 +2181,15 @@ class LiquidityPoolParameters(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                constant_product: LiquidityPoolConstantProductParameters = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolParameters.ConstantProduct:
                 return NotImplemented
@@ -2331,6 +2340,12 @@ class MuxedAccountMed25519(XdrStruct):
             self, "ed25519", Uint256._checked(ed25519, "MuxedAccountMed25519.ed25519")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, id: Uint64 = ..., ed25519: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not MuxedAccountMed25519:
             return NotImplemented
@@ -2398,6 +2413,10 @@ class MuxedAccount(metaclass=UnionNamespace):
                 Uint256._checked(ed25519, "MuxedAccount.Ed25519.ed25519"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ed25519: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not MuxedAccount.Ed25519:
                 return NotImplemented
@@ -2438,6 +2457,12 @@ class MuxedAccount(metaclass=UnionNamespace):
                     med25519, "MuxedAccount.MuxedEd25519.med25519", MuxedAccountMed25519
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, med25519: MuxedAccountMed25519 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not MuxedAccount.MuxedEd25519:
@@ -2572,6 +2597,12 @@ class DecoratedSignature(XdrStruct):
             Signature._checked(signature, "DecoratedSignature.signature"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, hint: bytes = ..., signature: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not DecoratedSignature:
             return NotImplemented
@@ -2655,6 +2686,12 @@ class CreateAccountOp(XdrStruct):
             "starting_balance",
             check.int64(starting_balance, "CreateAccountOp.starting_balance"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, destination: AccountID.Any = ..., starting_balance: Int64 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not CreateAccountOp:
@@ -2740,6 +2777,17 @@ class PaymentOp(XdrStruct):
             check.union(asset, "PaymentOp.asset", _ASSET_CLASSES, "Asset"),
         )
         set_field(self, "amount", check.int64(amount, "PaymentOp.amount"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            destination: MuxedAccount.Any = ...,
+            asset: Asset.Any = ...,
+            amount: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PaymentOp:
@@ -2887,6 +2935,20 @@ class PathPaymentStrictReceiveOp(XdrStruct):
                 "Asset",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            send_asset: Asset.Any = ...,
+            send_max: Int64 = ...,
+            destination: MuxedAccount.Any = ...,
+            dest_asset: Asset.Any = ...,
+            dest_amount: Int64 = ...,
+            path: Sequence[Asset.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PathPaymentStrictReceiveOp:
@@ -3093,6 +3155,20 @@ class PathPaymentStrictSendOp(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            send_asset: Asset.Any = ...,
+            send_amount: Int64 = ...,
+            destination: MuxedAccount.Any = ...,
+            dest_asset: Asset.Any = ...,
+            dest_min: Int64 = ...,
+            path: Sequence[Asset.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not PathPaymentStrictSendOp:
             return NotImplemented
@@ -3247,6 +3323,19 @@ class ManageSellOfferOp(XdrStruct):
         )
         set_field(self, "offer_id", check.int64(offer_id, "ManageSellOfferOp.offer_id"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            selling: Asset.Any = ...,
+            buying: Asset.Any = ...,
+            amount: Int64 = ...,
+            price: Price = ...,
+            offer_id: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ManageSellOfferOp:
             return NotImplemented
@@ -3371,6 +3460,19 @@ class ManageBuyOfferOp(XdrStruct):
         set_field(self, "price", check.instance(price, "ManageBuyOfferOp.price", Price))
         set_field(self, "offer_id", check.int64(offer_id, "ManageBuyOfferOp.offer_id"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            selling: Asset.Any = ...,
+            buying: Asset.Any = ...,
+            buy_amount: Int64 = ...,
+            price: Price = ...,
+            offer_id: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ManageBuyOfferOp:
             return NotImplemented
@@ -3491,6 +3593,18 @@ class CreatePassiveSellOfferOp(XdrStruct):
             "price",
             check.instance(price, "CreatePassiveSellOfferOp.price", Price),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            selling: Asset.Any = ...,
+            buying: Asset.Any = ...,
+            amount: Int64 = ...,
+            price: Price = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not CreatePassiveSellOfferOp:
@@ -3665,6 +3779,23 @@ class SetOptionsOp(XdrStruct):
             "signer",
             check.optional(signer, "SetOptionsOp.signer", check.instance, Signer),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            inflation_dest: AccountID.Any | None = ...,
+            clear_flags: Uint32 | None = ...,
+            set_flags: Uint32 | None = ...,
+            master_weight: Uint32 | None = ...,
+            low_threshold: Uint32 | None = ...,
+            med_threshold: Uint32 | None = ...,
+            high_threshold: Uint32 | None = ...,
+            home_domain: bytes | str | None = ...,
+            signer: Signer | None = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SetOptionsOp:
@@ -3962,6 +4093,10 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_NATIVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustAsset.Native:
                 return NotImplemented
@@ -4003,6 +4138,10 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
                     alpha_num4, "ChangeTrustAsset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, alpha_num4: AlphaNum4 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustAsset.CreditAlphaNum4:
@@ -4053,6 +4192,12 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, alpha_num12: AlphaNum12 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustAsset.CreditAlphaNum12:
                 return NotImplemented
@@ -4102,6 +4247,12 @@ class ChangeTrustAsset(metaclass=UnionNamespace):
                     "LiquidityPoolParameters",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool: LiquidityPoolParameters.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustAsset.PoolShare:
@@ -4254,6 +4405,12 @@ class ChangeTrustOp(XdrStruct):
         )
         set_field(self, "limit", check.int64(limit, "ChangeTrustOp.limit"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, line: ChangeTrustAsset.Any = ..., limit: Int64 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ChangeTrustOp:
             return NotImplemented
@@ -4325,6 +4482,17 @@ class AllowTrustOp(XdrStruct):
             check.union(asset, "AllowTrustOp.asset", _ASSET_CODE_CLASSES, "AssetCode"),
         )
         set_field(self, "authorize", check.uint32(authorize, "AllowTrustOp.authorize"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            trustor: AccountID.Any = ...,
+            asset: AssetCode.Any = ...,
+            authorize: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not AllowTrustOp:
@@ -4401,6 +4569,12 @@ class ManageDataOp(XdrStruct):
             "data_value",
             check.optional(data_value, "ManageDataOp.data_value", DataValue._checked),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, data_name: bytes | str = ..., data_value: bytes | None = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ManageDataOp:
@@ -4490,6 +4664,10 @@ class BumpSequenceOp(XdrStruct):
             self, "bump_to", SequenceNumber._checked(bump_to, "BumpSequenceOp.bump_to")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, bump_to: Int64 = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not BumpSequenceOp:
             return NotImplemented
@@ -4570,6 +4748,17 @@ class CreateClaimableBalanceOp(XdrStruct):
                 "Claimant",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            asset: Asset.Any = ...,
+            amount: Int64 = ...,
+            claimants: Sequence[Claimant.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not CreateClaimableBalanceOp:
@@ -4663,6 +4852,12 @@ class ClaimClaimableBalanceOp(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, balance_id: ClaimableBalanceID.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimClaimableBalanceOp:
             return NotImplemented
@@ -4720,6 +4915,12 @@ class BeginSponsoringFutureReservesOp(XdrStruct):
                 "PublicKey",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, sponsored_id: AccountID.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not BeginSponsoringFutureReservesOp:
@@ -4792,6 +4993,12 @@ class RevokeSponsorshipOpSigner(XdrStruct):
                 "SignerKey",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, account_id: AccountID.Any = ..., signer_key: SignerKey.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not RevokeSponsorshipOpSigner:
@@ -4872,6 +5079,12 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, ledger_key: LedgerKey.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipOp.LedgerEntry:
                 return NotImplemented
@@ -4920,6 +5133,12 @@ class RevokeSponsorshipOp(metaclass=UnionNamespace):
                     RevokeSponsorshipOpSigner,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, signer: RevokeSponsorshipOpSigner = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipOp.Signer:
@@ -5070,6 +5289,17 @@ class ClawbackOp(XdrStruct):
         )
         set_field(self, "amount", check.int64(amount, "ClawbackOp.amount"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            asset: Asset.Any = ...,
+            from_: MuxedAccount.Any = ...,
+            amount: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClawbackOp:
             return NotImplemented
@@ -5141,6 +5371,12 @@ class ClawbackClaimableBalanceOp(XdrStruct):
                 "ClaimableBalanceID",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, balance_id: ClaimableBalanceID.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClawbackClaimableBalanceOp:
@@ -5224,6 +5460,18 @@ class SetTrustLineFlagsOp(XdrStruct):
         set_field(
             self, "set_flags", check.uint32(set_flags, "SetTrustLineFlagsOp.set_flags")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            trustor: AccountID.Any = ...,
+            asset: Asset.Any = ...,
+            clear_flags: Uint32 = ...,
+            set_flags: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SetTrustLineFlagsOp:
@@ -5359,6 +5607,19 @@ class LiquidityPoolDepositOp(XdrStruct):
             "max_price",
             check.instance(max_price, "LiquidityPoolDepositOp.max_price", Price),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liquidity_pool_id: bytes = ...,
+            max_amount_a: Int64 = ...,
+            max_amount_b: Int64 = ...,
+            min_price: Price = ...,
+            max_price: Price = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LiquidityPoolDepositOp:
@@ -5503,6 +5764,18 @@ class LiquidityPoolWithdrawOp(XdrStruct):
             check.int64(min_amount_b, "LiquidityPoolWithdrawOp.min_amount_b"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liquidity_pool_id: bytes = ...,
+            amount: Int64 = ...,
+            min_amount_a: Int64 = ...,
+            min_amount_b: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LiquidityPoolWithdrawOp:
             return NotImplemented
@@ -5623,6 +5896,12 @@ class ContractIDPreimageFromAddress(XdrStruct):
             self, "salt", Uint256._checked(salt, "ContractIDPreimageFromAddress.salt")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, address: SCAddress.Any = ..., salt: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractIDPreimageFromAddress:
             return NotImplemented
@@ -5705,6 +5984,12 @@ class ContractIDPreimage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, from_address: ContractIDPreimageFromAddress = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractIDPreimage.Address:
                 return NotImplemented
@@ -5760,6 +6045,10 @@ class ContractIDPreimage(metaclass=UnionNamespace):
                     "Asset",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, from_asset: Asset.Any = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractIDPreimage.Asset:
@@ -5917,6 +6206,16 @@ class CreateContractArgs(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            contract_id_preimage: ContractIDPreimage.Any = ...,
+            executable: ContractExecutable.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not CreateContractArgs:
             return NotImplemented
@@ -6021,6 +6320,17 @@ class CreateContractArgsV2(XdrStruct):
                 "SCVal",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            contract_id_preimage: ContractIDPreimage.Any = ...,
+            executable: ContractExecutable.Any = ...,
+            constructor_args: Sequence[SCVal.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not CreateContractArgsV2:
@@ -6154,6 +6464,17 @@ class InvokeContractArgs(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            contract_address: SCAddress.Any = ...,
+            function_name: bytes | str = ...,
+            args: Sequence[SCVal.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not InvokeContractArgs:
             return NotImplemented
@@ -6267,6 +6588,12 @@ class HostFunction(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, invoke_contract: InvokeContractArgs = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HostFunction.InvokeContract:
                 return NotImplemented
@@ -6316,6 +6643,12 @@ class HostFunction(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_contract: CreateContractArgs = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HostFunction.CreateContract:
                 return NotImplemented
@@ -6360,6 +6693,10 @@ class HostFunction(metaclass=UnionNamespace):
                 "wasm",
                 check.opaque_var(wasm, "HostFunction.UploadContractWasm.wasm", None),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, wasm: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HostFunction.UploadContractWasm:
@@ -6415,6 +6752,12 @@ class HostFunction(metaclass=UnionNamespace):
                     CreateContractArgsV2,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_contract_v2: CreateContractArgsV2 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HostFunction.CreateContractV2:
@@ -6581,6 +6924,12 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_fn: InvokeContractArgs = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanAuthorizedFunction.ContractFn:
                 return NotImplemented
@@ -6631,6 +6980,12 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
                     CreateContractArgs,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_contract_host_fn: CreateContractArgs = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanAuthorizedFunction.CreateContractHostFn:
@@ -6695,6 +7050,12 @@ class SorobanAuthorizedFunction(metaclass=UnionNamespace):
                     CreateContractArgsV2,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_contract_v2_host_fn: CreateContractArgsV2 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanAuthorizedFunction.CreateContractV2HostFn:
@@ -6878,6 +7239,16 @@ class SorobanAuthorizedInvocation(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            function: SorobanAuthorizedFunction.Any = ...,
+            sub_invocations: Sequence[SorobanAuthorizedInvocation] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanAuthorizedInvocation:
             return NotImplemented
@@ -7013,6 +7384,18 @@ class SorobanAddressCredentials(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            address: SCAddress.Any = ...,
+            nonce: Int64 = ...,
+            signature_expiration_ledger: Uint32 = ...,
+            signature: SCVal.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanAddressCredentials:
             return NotImplemented
@@ -7140,6 +7523,17 @@ class SorobanDelegateSignature(XdrStruct):
                 SorobanDelegateSignature,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            address: SCAddress.Any = ...,
+            signature: SCVal.Any = ...,
+            nested_delegates: Sequence[SorobanDelegateSignature] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanDelegateSignature:
@@ -7275,6 +7669,16 @@ class SorobanAddressCredentialsWithDelegates(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            address_credentials: SorobanAddressCredentials = ...,
+            delegates: Sequence[SorobanDelegateSignature] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanAddressCredentialsWithDelegates:
             return NotImplemented
@@ -7377,6 +7781,10 @@ class SorobanCredentials(metaclass=UnionNamespace):
             Literal[SorobanCredentialsType.SOROBAN_CREDENTIALS_SOURCE_ACCOUNT]
         ] = SorobanCredentialsType.SOROBAN_CREDENTIALS_SOURCE_ACCOUNT
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanCredentials.SourceAccount:
                 return NotImplemented
@@ -7420,6 +7828,12 @@ class SorobanCredentials(metaclass=UnionNamespace):
                     SorobanAddressCredentials,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, address: SorobanAddressCredentials = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanCredentials.Address:
@@ -7469,6 +7883,12 @@ class SorobanCredentials(metaclass=UnionNamespace):
                     SorobanAddressCredentials,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, address_v2: SorobanAddressCredentials = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanCredentials.AddressV2:
@@ -7522,6 +7942,15 @@ class SorobanCredentials(metaclass=UnionNamespace):
                     SorobanAddressCredentialsWithDelegates,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                address_with_delegates: SorobanAddressCredentialsWithDelegates = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanCredentials.AddressWithDelegates:
@@ -7692,6 +8121,16 @@ class SorobanAuthorizationEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            credentials: SorobanCredentials.Any = ...,
+            root_invocation: SorobanAuthorizedInvocation = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanAuthorizationEntry:
             return NotImplemented
@@ -7784,6 +8223,16 @@ class InvokeHostFunctionOp(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            host_function: HostFunction.Any = ...,
+            auth: Sequence[SorobanAuthorizationEntry] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not InvokeHostFunctionOp:
             return NotImplemented
@@ -7874,6 +8323,12 @@ class ExtendFootprintTTLOp(XdrStruct):
             self, "extend_to", check.uint32(extend_to, "ExtendFootprintTTLOp.extend_to")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ext: ExtensionPoint.Any = ..., extend_to: Uint32 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ExtendFootprintTTLOp:
             return NotImplemented
@@ -7938,6 +8393,10 @@ class RestoreFootprintOp(XdrStruct):
                 "ExtensionPoint",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, ext: ExtensionPoint.Any = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not RestoreFootprintOp:
@@ -8053,6 +8512,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_account_op: CreateAccountOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.CreateAccount:
                 return NotImplemented
@@ -8097,6 +8562,10 @@ class OperationBody(metaclass=UnionNamespace):
                     payment_op, "OperationBody.Payment.payment_op", PaymentOp
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, payment_op: PaymentOp = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.Payment:
@@ -8148,6 +8617,15 @@ class OperationBody(metaclass=UnionNamespace):
                     PathPaymentStrictReceiveOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                path_payment_strict_receive_op: PathPaymentStrictReceiveOp = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.PathPaymentStrictReceive:
@@ -8218,6 +8696,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_sell_offer_op: ManageSellOfferOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ManageSellOffer:
                 return NotImplemented
@@ -8270,6 +8754,12 @@ class OperationBody(metaclass=UnionNamespace):
                     CreatePassiveSellOfferOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_passive_sell_offer_op: CreatePassiveSellOfferOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.CreatePassiveSellOffer:
@@ -8337,6 +8827,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, set_options_op: SetOptionsOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.SetOptions:
                 return NotImplemented
@@ -8384,6 +8880,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, change_trust_op: ChangeTrustOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ChangeTrust:
                 return NotImplemented
@@ -8430,6 +8932,12 @@ class OperationBody(metaclass=UnionNamespace):
                     AllowTrustOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, allow_trust_op: AllowTrustOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.AllowTrust:
@@ -8481,6 +8989,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, destination: MuxedAccount.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.AccountMerge:
                 return NotImplemented
@@ -8515,6 +9029,10 @@ class OperationBody(metaclass=UnionNamespace):
         __slots__ = ()
 
         type: ClassVar[Literal[OperationType.INFLATION]] = OperationType.INFLATION
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.Inflation:
@@ -8557,6 +9075,12 @@ class OperationBody(metaclass=UnionNamespace):
                     ManageDataOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_data_op: ManageDataOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ManageData:
@@ -8607,6 +9131,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, bump_sequence_op: BumpSequenceOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.BumpSequence:
                 return NotImplemented
@@ -8655,6 +9185,12 @@ class OperationBody(metaclass=UnionNamespace):
                     ManageBuyOfferOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_buy_offer_op: ManageBuyOfferOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ManageBuyOffer:
@@ -8708,6 +9244,12 @@ class OperationBody(metaclass=UnionNamespace):
                     PathPaymentStrictSendOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, path_payment_strict_send_op: PathPaymentStrictSendOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.PathPaymentStrictSend:
@@ -8774,6 +9316,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_claimable_balance_op: CreateClaimableBalanceOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.CreateClaimableBalance:
                 return NotImplemented
@@ -8836,6 +9384,12 @@ class OperationBody(metaclass=UnionNamespace):
                     ClaimClaimableBalanceOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, claim_claimable_balance_op: ClaimClaimableBalanceOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ClaimClaimableBalance:
@@ -8900,6 +9454,15 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                begin_sponsoring_future_reserves_op: BeginSponsoringFutureReservesOp = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.BeginSponsoringFutureReserves:
                 return NotImplemented
@@ -8957,6 +9520,10 @@ class OperationBody(metaclass=UnionNamespace):
             OperationType.END_SPONSORING_FUTURE_RESERVES
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.EndSponsoringFutureReserves:
                 return NotImplemented
@@ -9001,6 +9568,12 @@ class OperationBody(metaclass=UnionNamespace):
                     "RevokeSponsorshipOp",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, revoke_sponsorship_op: RevokeSponsorshipOp.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.RevokeSponsorship:
@@ -9048,6 +9621,12 @@ class OperationBody(metaclass=UnionNamespace):
                     clawback_op, "OperationBody.Clawback.clawback_op", ClawbackOp
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, clawback_op: ClawbackOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.Clawback:
@@ -9099,6 +9678,15 @@ class OperationBody(metaclass=UnionNamespace):
                     ClawbackClaimableBalanceOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                clawback_claimable_balance_op: ClawbackClaimableBalanceOp = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ClawbackClaimableBalance:
@@ -9169,6 +9757,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, set_trust_line_flags_op: SetTrustLineFlagsOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.SetTrustLineFlags:
                 return NotImplemented
@@ -9223,6 +9817,12 @@ class OperationBody(metaclass=UnionNamespace):
                     LiquidityPoolDepositOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool_deposit_op: LiquidityPoolDepositOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.LiquidityPoolDeposit:
@@ -9282,6 +9882,12 @@ class OperationBody(metaclass=UnionNamespace):
                     LiquidityPoolWithdrawOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool_withdraw_op: LiquidityPoolWithdrawOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.LiquidityPoolWithdraw:
@@ -9344,6 +9950,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, invoke_host_function_op: InvokeHostFunctionOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.InvokeHostFunction:
                 return NotImplemented
@@ -9401,6 +10013,12 @@ class OperationBody(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, extend_footprint_ttl_op: ExtendFootprintTTLOp = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.ExtendFootprintTTL:
                 return NotImplemented
@@ -9457,6 +10075,12 @@ class OperationBody(metaclass=UnionNamespace):
                     RestoreFootprintOp,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, restore_footprint_op: RestoreFootprintOp = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationBody.RestoreFootprint:
@@ -9750,6 +10374,16 @@ class Operation(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            source_account: MuxedAccount.Any | None = ...,
+            body: OperationBody.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Operation:
             return NotImplemented
@@ -9850,6 +10484,17 @@ class HashIDPreimageOperationID(XdrStruct):
         set_field(
             self, "op_num", check.uint32(op_num, "HashIDPreimageOperationID.op_num")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            source_account: AccountID.Any = ...,
+            seq_num: Int64 = ...,
+            op_num: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not HashIDPreimageOperationID:
@@ -9972,6 +10617,19 @@ class HashIDPreimageRevokeID(XdrStruct):
             "asset",
             check.union(asset, "HashIDPreimageRevokeID.asset", _ASSET_CLASSES, "Asset"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            source_account: AccountID.Any = ...,
+            seq_num: Int64 = ...,
+            op_num: Uint32 = ...,
+            liquidity_pool_id: bytes = ...,
+            asset: Asset.Any = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not HashIDPreimageRevokeID:
@@ -10102,6 +10760,16 @@ class HashIDPreimageContractID(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            network_id: bytes = ...,
+            contract_id_preimage: ContractIDPreimage.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not HashIDPreimageContractID:
             return NotImplemented
@@ -10212,6 +10880,18 @@ class HashIDPreimageSorobanAuthorization(XdrStruct):
                 SorobanAuthorizedInvocation,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            network_id: bytes = ...,
+            nonce: Int64 = ...,
+            signature_expiration_ledger: Uint32 = ...,
+            invocation: SorobanAuthorizedInvocation = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not HashIDPreimageSorobanAuthorization:
@@ -10377,6 +11057,19 @@ class HashIDPreimageSorobanAuthorizationWithAddress(XdrStruct):
                 SorobanAuthorizedInvocation,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            network_id: bytes = ...,
+            nonce: Int64 = ...,
+            signature_expiration_ledger: Uint32 = ...,
+            address: SCAddress.Any = ...,
+            invocation: SorobanAuthorizedInvocation = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not HashIDPreimageSorobanAuthorizationWithAddress:
@@ -10548,6 +11241,12 @@ class HashIDPreimage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, operation_id: HashIDPreimageOperationID = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HashIDPreimage.OpID:
                 return NotImplemented
@@ -10599,6 +11298,12 @@ class HashIDPreimage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, revoke_id: HashIDPreimageRevokeID = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HashIDPreimage.PoolRevokeOpID:
                 return NotImplemented
@@ -10647,6 +11352,12 @@ class HashIDPreimage(metaclass=UnionNamespace):
                     HashIDPreimageContractID,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_id: HashIDPreimageContractID = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HashIDPreimage.ContractID:
@@ -10700,6 +11411,15 @@ class HashIDPreimage(metaclass=UnionNamespace):
                     HashIDPreimageSorobanAuthorization,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                soroban_authorization: HashIDPreimageSorobanAuthorization = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HashIDPreimage.SorobanAuthorization:
@@ -10764,6 +11484,15 @@ class HashIDPreimage(metaclass=UnionNamespace):
                     HashIDPreimageSorobanAuthorizationWithAddress,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                soroban_authorization_with_address: HashIDPreimageSorobanAuthorizationWithAddress = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HashIDPreimage.SorobanAuthorizationWithAddress:
@@ -10937,6 +11666,10 @@ class Memo(metaclass=UnionNamespace):
 
         type: ClassVar[Literal[MemoType.MEMO_NONE]] = MemoType.MEMO_NONE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.None_:
                 return NotImplemented
@@ -10970,6 +11703,10 @@ class Memo(metaclass=UnionNamespace):
 
         def __init__(self, text: bytes | str) -> None:
             set_field(self, "text", check.string(text, "Memo.Text.text", 28))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, text: bytes | str = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.Text:
@@ -11010,6 +11747,10 @@ class Memo(metaclass=UnionNamespace):
         def __init__(self, id: Uint64) -> None:
             set_field(self, "id", check.uint64(id, "Memo.ID.id"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, id: Uint64 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.ID:
                 return NotImplemented
@@ -11048,6 +11789,10 @@ class Memo(metaclass=UnionNamespace):
 
         def __init__(self, hash: bytes) -> None:
             set_field(self, "hash", Hash._checked(hash, "Memo.Hash.hash"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, hash: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.Hash:
@@ -11091,6 +11836,10 @@ class Memo(metaclass=UnionNamespace):
 
         def __init__(self, ret_hash: bytes) -> None:
             set_field(self, "ret_hash", Hash._checked(ret_hash, "Memo.Return.ret_hash"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ret_hash: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Memo.Return:
@@ -11233,6 +11982,12 @@ class TimeBounds(XdrStruct):
         set_field(self, "min_time", TimePoint._checked(min_time, "TimeBounds.min_time"))
         set_field(self, "max_time", TimePoint._checked(max_time, "TimeBounds.max_time"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, min_time: Uint64 = ..., max_time: Uint64 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeBounds:
             return NotImplemented
@@ -11303,6 +12058,12 @@ class LedgerBounds(XdrStruct):
         set_field(
             self, "max_ledger", check.uint32(max_ledger, "LedgerBounds.max_ledger")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, min_ledger: Uint32 = ..., max_ledger: Uint32 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerBounds:
@@ -11458,6 +12219,20 @@ class PreconditionsV2(XdrStruct):
                 "SignerKey",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            time_bounds: TimeBounds | None = ...,
+            ledger_bounds: LedgerBounds | None = ...,
+            min_seq_num: Int64 | None = ...,
+            min_seq_age: Uint64 = ...,
+            min_seq_ledger_gap: Uint32 = ...,
+            extra_signers: Sequence[SignerKey.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PreconditionsV2:
@@ -11654,6 +12429,10 @@ class Preconditions(metaclass=UnionNamespace):
             PreconditionType.PRECOND_NONE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not Preconditions.None_:
                 return NotImplemented
@@ -11695,6 +12474,12 @@ class Preconditions(metaclass=UnionNamespace):
                     time_bounds, "Preconditions.Time.time_bounds", TimeBounds
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, time_bounds: TimeBounds = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Preconditions.Time:
@@ -11738,6 +12523,10 @@ class Preconditions(metaclass=UnionNamespace):
             set_field(
                 self, "v2", check.instance(v2, "Preconditions.V2.v2", PreconditionsV2)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v2: PreconditionsV2 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Preconditions.V2:
@@ -11896,6 +12685,16 @@ class LedgerFootprint(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            read_only: Sequence[LedgerKey.Any] = ...,
+            read_write: Sequence[LedgerKey.Any] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerFootprint:
             return NotImplemented
@@ -12019,6 +12818,18 @@ class SorobanResources(XdrStruct):
             check.uint32(write_bytes, "SorobanResources.write_bytes"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            footprint: LedgerFootprint = ...,
+            instructions: Uint32 = ...,
+            disk_read_bytes: Uint32 = ...,
+            write_bytes: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanResources:
             return NotImplemented
@@ -12127,6 +12938,12 @@ class SorobanResourcesExtV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, archived_soroban_entries: Sequence[Uint32] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanResourcesExtV0:
             return NotImplemented
@@ -12199,6 +13016,10 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanTransactionDataExt.V0:
                 return NotImplemented
@@ -12240,6 +13061,12 @@ class SorobanTransactionDataExt(metaclass=UnionNamespace):
                     SorobanResourcesExtV0,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, resource_ext: SorobanResourcesExtV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SorobanTransactionDataExt.V1:
@@ -12419,6 +13246,17 @@ class SorobanTransactionData(XdrStruct):
             check.int64(resource_fee, "SorobanTransactionData.resource_fee"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: SorobanTransactionDataExt.Any = ...,
+            resources: SorobanResources = ...,
+            resource_fee: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SorobanTransactionData:
             return NotImplemented
@@ -12492,6 +13330,10 @@ class TransactionV0Ext(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionV0Ext.V0:
@@ -12688,6 +13530,21 @@ class TransactionV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            source_account_ed25519: bytes = ...,
+            fee: Uint32 = ...,
+            seq_num: Int64 = ...,
+            time_bounds: TimeBounds | None = ...,
+            memo: Memo.Any = ...,
+            operations: Sequence[Operation] = ...,
+            ext: TransactionV0Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionV0:
             return NotImplemented
@@ -12866,6 +13723,16 @@ class TransactionV0Envelope(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx: TransactionV0 = ...,
+            signatures: Sequence[DecoratedSignature] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionV0Envelope:
             return NotImplemented
@@ -12942,6 +13809,10 @@ class TransactionExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionExt.V0:
                 return NotImplemented
@@ -12983,6 +13854,12 @@ class TransactionExt(metaclass=UnionNamespace):
                     SorobanTransactionData,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, soroban_data: SorobanTransactionData = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionExt.V1:
@@ -13200,6 +14077,21 @@ class Transaction(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            source_account: MuxedAccount.Any = ...,
+            fee: Uint32 = ...,
+            seq_num: Int64 = ...,
+            cond: Preconditions.Any = ...,
+            memo: Memo.Any = ...,
+            operations: Sequence[Operation] = ...,
+            ext: TransactionExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Transaction:
             return NotImplemented
@@ -13342,6 +14234,16 @@ class TransactionV1Envelope(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx: Transaction = ...,
+            signatures: Sequence[DecoratedSignature] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionV1Envelope:
             return NotImplemented
@@ -13427,6 +14329,12 @@ class FeeBumpTransactionInnerTx(metaclass=UnionNamespace):
                     v1, "FeeBumpTransactionInnerTx.Tx.v1", TransactionV1Envelope
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: TransactionV1Envelope = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not FeeBumpTransactionInnerTx.Tx:
@@ -13561,6 +14469,10 @@ class FeeBumpTransactionExt(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not FeeBumpTransactionExt.V0:
@@ -13742,6 +14654,18 @@ class FeeBumpTransaction(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            fee_source: MuxedAccount.Any = ...,
+            fee: Int64 = ...,
+            inner_tx: FeeBumpTransactionInnerTx.Any = ...,
+            ext: FeeBumpTransactionExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not FeeBumpTransaction:
             return NotImplemented
@@ -13839,6 +14763,16 @@ class FeeBumpTransactionEnvelope(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx: FeeBumpTransaction = ...,
+            signatures: Sequence[DecoratedSignature] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not FeeBumpTransactionEnvelope:
             return NotImplemented
@@ -13929,6 +14863,12 @@ class TransactionEnvelope(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v0: TransactionV0Envelope = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionEnvelope.TxV0:
                 return NotImplemented
@@ -13973,6 +14913,12 @@ class TransactionEnvelope(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "TransactionEnvelope.Tx.v1", TransactionV1Envelope),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: TransactionV1Envelope = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionEnvelope.Tx:
@@ -14022,6 +14968,12 @@ class TransactionEnvelope(metaclass=UnionNamespace):
                     FeeBumpTransactionEnvelope,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, fee_bump: FeeBumpTransactionEnvelope = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionEnvelope.TxFeeBump:
@@ -14176,6 +15128,10 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, tx: Transaction = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionSignaturePayloadTaggedTransaction.Tx:
                 return NotImplemented
@@ -14224,6 +15180,12 @@ class TransactionSignaturePayloadTaggedTransaction(metaclass=UnionNamespace):
                     FeeBumpTransaction,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, fee_bump: FeeBumpTransaction = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if (
@@ -14407,6 +15369,16 @@ class TransactionSignaturePayload(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            network_id: bytes = ...,
+            tagged_transaction: TransactionSignaturePayloadTaggedTransaction.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionSignaturePayload:
             return NotImplemented
@@ -14544,6 +15516,20 @@ class ClaimOfferAtomV0(XdrStruct):
             "amount_bought",
             check.int64(amount_bought, "ClaimOfferAtomV0.amount_bought"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            seller_ed25519: bytes = ...,
+            offer_id: Int64 = ...,
+            asset_sold: Asset.Any = ...,
+            amount_sold: Int64 = ...,
+            asset_bought: Asset.Any = ...,
+            amount_bought: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimOfferAtomV0:
@@ -14724,6 +15710,20 @@ class ClaimOfferAtom(XdrStruct):
             check.int64(amount_bought, "ClaimOfferAtom.amount_bought"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            seller_id: AccountID.Any = ...,
+            offer_id: Int64 = ...,
+            asset_sold: Asset.Any = ...,
+            amount_sold: Int64 = ...,
+            asset_bought: Asset.Any = ...,
+            amount_bought: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimOfferAtom:
             return NotImplemented
@@ -14888,6 +15888,19 @@ class ClaimLiquidityAtom(XdrStruct):
             check.int64(amount_bought, "ClaimLiquidityAtom.amount_bought"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liquidity_pool_id: bytes = ...,
+            asset_sold: Asset.Any = ...,
+            amount_sold: Int64 = ...,
+            asset_bought: Asset.Any = ...,
+            amount_bought: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimLiquidityAtom:
             return NotImplemented
@@ -15014,6 +16027,10 @@ class ClaimAtom(metaclass=UnionNamespace):
                 self, "v0", check.instance(v0, "ClaimAtom.V0.v0", ClaimOfferAtomV0)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: ClaimOfferAtomV0 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimAtom.V0:
                 return NotImplemented
@@ -15060,6 +16077,12 @@ class ClaimAtom(metaclass=UnionNamespace):
                     order_book, "ClaimAtom.OrderBook.order_book", ClaimOfferAtom
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, order_book: ClaimOfferAtom = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimAtom.OrderBook:
@@ -15109,6 +16132,12 @@ class ClaimAtom(metaclass=UnionNamespace):
                     ClaimLiquidityAtom,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool: ClaimLiquidityAtom = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimAtom.LiquidityPool:
@@ -15248,6 +16277,10 @@ class CreateAccountResult(metaclass=UnionNamespace):
             CreateAccountResultCode.CREATE_ACCOUNT_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateAccountResult.Success:
                 return NotImplemented
@@ -15279,6 +16312,10 @@ class CreateAccountResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[CreateAccountResultCode.CREATE_ACCOUNT_MALFORMED]] = (
             CreateAccountResultCode.CREATE_ACCOUNT_MALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateAccountResult.Malformed:
@@ -15312,6 +16349,10 @@ class CreateAccountResult(metaclass=UnionNamespace):
             CreateAccountResultCode.CREATE_ACCOUNT_UNDERFUNDED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateAccountResult.Underfunded:
                 return NotImplemented
@@ -15344,6 +16385,10 @@ class CreateAccountResult(metaclass=UnionNamespace):
             CreateAccountResultCode.CREATE_ACCOUNT_LOW_RESERVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateAccountResult.LowReserve:
                 return NotImplemented
@@ -15375,6 +16420,10 @@ class CreateAccountResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[CreateAccountResultCode.CREATE_ACCOUNT_ALREADY_EXIST]
         ] = CreateAccountResultCode.CREATE_ACCOUNT_ALREADY_EXIST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateAccountResult.AlreadyExist:
@@ -15523,6 +16572,10 @@ class PaymentResult(metaclass=UnionNamespace):
             PaymentResultCode.PAYMENT_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.Success:
                 return NotImplemented
@@ -15554,6 +16607,10 @@ class PaymentResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[PaymentResultCode.PAYMENT_MALFORMED]] = (
             PaymentResultCode.PAYMENT_MALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.Malformed:
@@ -15587,6 +16644,10 @@ class PaymentResult(metaclass=UnionNamespace):
             PaymentResultCode.PAYMENT_UNDERFUNDED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.Underfunded:
                 return NotImplemented
@@ -15618,6 +16679,10 @@ class PaymentResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[PaymentResultCode.PAYMENT_SRC_NO_TRUST]] = (
             PaymentResultCode.PAYMENT_SRC_NO_TRUST
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.SrcNoTrust:
@@ -15651,6 +16716,10 @@ class PaymentResult(metaclass=UnionNamespace):
             PaymentResultCode.PAYMENT_SRC_NOT_AUTHORIZED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.SrcNotAuthorized:
                 return NotImplemented
@@ -15682,6 +16751,10 @@ class PaymentResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[PaymentResultCode.PAYMENT_NO_DESTINATION]] = (
             PaymentResultCode.PAYMENT_NO_DESTINATION
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.NoDestination:
@@ -15715,6 +16788,10 @@ class PaymentResult(metaclass=UnionNamespace):
             PaymentResultCode.PAYMENT_NO_TRUST
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.NoTrust:
                 return NotImplemented
@@ -15746,6 +16823,10 @@ class PaymentResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[PaymentResultCode.PAYMENT_NOT_AUTHORIZED]] = (
             PaymentResultCode.PAYMENT_NOT_AUTHORIZED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.NotAuthorized:
@@ -15779,6 +16860,10 @@ class PaymentResult(metaclass=UnionNamespace):
             PaymentResultCode.PAYMENT_LINE_FULL
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.LineFull:
                 return NotImplemented
@@ -15810,6 +16895,10 @@ class PaymentResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[PaymentResultCode.PAYMENT_NO_ISSUER]] = (
             PaymentResultCode.PAYMENT_NO_ISSUER
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PaymentResult.NoIssuer:
@@ -15995,6 +17084,17 @@ class SimplePaymentResult(XdrStruct):
         )
         set_field(self, "amount", check.int64(amount, "SimplePaymentResult.amount"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            destination: AccountID.Any = ...,
+            asset: Asset.Any = ...,
+            amount: Int64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SimplePaymentResult:
             return NotImplemented
@@ -16083,6 +17183,16 @@ class PathPaymentStrictReceiveResultSuccess(XdrStruct):
                 last, "PathPaymentStrictReceiveResultSuccess.last", SimplePaymentResult
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            offers: Sequence[ClaimAtom.Any] = ...,
+            last: SimplePaymentResult = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PathPaymentStrictReceiveResultSuccess:
@@ -16194,6 +17304,12 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, success: PathPaymentStrictReceiveResultSuccess = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.Success:
                 return NotImplemented
@@ -16239,6 +17355,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.Malformed:
                 return NotImplemented
@@ -16272,6 +17392,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_UNDERFUNDED
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_UNDERFUNDED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.Underfunded:
@@ -16307,6 +17431,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_SRC_NO_TRUST
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.SrcNoTrust:
                 return NotImplemented
@@ -16340,6 +17468,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_SRC_NOT_AUTHORIZED
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_SRC_NOT_AUTHORIZED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.SrcNotAuthorized:
@@ -16375,6 +17507,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_NO_DESTINATION
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.NoDestination:
                 return NotImplemented
@@ -16408,6 +17544,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_NO_TRUST
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.NoTrust:
@@ -16443,6 +17583,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.NotAuthorized:
                 return NotImplemented
@@ -16476,6 +17620,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_LINE_FULL
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_LINE_FULL
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.LineFull:
@@ -16524,6 +17672,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, no_issuer: Asset.Any = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.NoIssuer:
                 return NotImplemented
@@ -16563,6 +17715,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_TOO_FEW_OFFERS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.TooFewOffers:
                 return NotImplemented
@@ -16597,6 +17753,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_OFFER_CROSS_SELF
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.OfferCrossSelf:
                 return NotImplemented
@@ -16630,6 +17790,10 @@ class PathPaymentStrictReceiveResult(metaclass=UnionNamespace):
                 PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_OVER_SENDMAX
             ]
         ] = PathPaymentStrictReceiveResultCode.PATH_PAYMENT_STRICT_RECEIVE_OVER_SENDMAX
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictReceiveResult.OverSendmax:
@@ -16839,6 +18003,16 @@ class PathPaymentStrictSendResultSuccess(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            offers: Sequence[ClaimAtom.Any] = ...,
+            last: SimplePaymentResult = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not PathPaymentStrictSendResultSuccess:
             return NotImplemented
@@ -16944,6 +18118,12 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, success: PathPaymentStrictSendResultSuccess = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.Success:
                 return NotImplemented
@@ -16987,6 +18167,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             Literal[PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_MALFORMED]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.Malformed:
                 return NotImplemented
@@ -17020,6 +18204,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
                 PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_UNDERFUNDED
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_UNDERFUNDED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.Underfunded:
@@ -17055,6 +18243,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_SRC_NO_TRUST
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.SrcNoTrust:
                 return NotImplemented
@@ -17088,6 +18280,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
                 PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_SRC_NOT_AUTHORIZED
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_SRC_NOT_AUTHORIZED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.SrcNotAuthorized:
@@ -17123,6 +18319,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_NO_DESTINATION
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.NoDestination:
                 return NotImplemented
@@ -17154,6 +18354,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_NO_TRUST]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.NoTrust:
@@ -17189,6 +18393,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.NotAuthorized:
                 return NotImplemented
@@ -17220,6 +18428,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_LINE_FULL]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_LINE_FULL
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.LineFull:
@@ -17266,6 +18478,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, no_issuer: Asset.Any = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.NoIssuer:
                 return NotImplemented
@@ -17305,6 +18521,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_TOO_FEW_OFFERS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.TooFewOffers:
                 return NotImplemented
@@ -17339,6 +18559,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_OFFER_CROSS_SELF
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.OfferCrossSelf:
                 return NotImplemented
@@ -17372,6 +18596,10 @@ class PathPaymentStrictSendResult(metaclass=UnionNamespace):
                 PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_UNDER_DESTMIN
             ]
         ] = PathPaymentStrictSendResultCode.PATH_PAYMENT_STRICT_SEND_UNDER_DESTMIN
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PathPaymentStrictSendResult.UnderDestmin:
@@ -17573,6 +18801,10 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, offer: OfferEntry = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageOfferSuccessResultOffer.Created:
                 return NotImplemented
@@ -17620,6 +18852,10 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, offer: OfferEntry = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageOfferSuccessResultOffer.Updated:
                 return NotImplemented
@@ -17656,6 +18892,10 @@ class ManageOfferSuccessResultOffer(metaclass=UnionNamespace):
         effect: ClassVar[Literal[ManageOfferEffect.MANAGE_OFFER_DELETED]] = (
             ManageOfferEffect.MANAGE_OFFER_DELETED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageOfferSuccessResultOffer.Deleted:
@@ -17832,6 +19072,16 @@ class ManageOfferSuccessResult(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            offers_claimed: Sequence[ClaimAtom.Any] = ...,
+            offer: ManageOfferSuccessResultOffer.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ManageOfferSuccessResult:
             return NotImplemented
@@ -17935,6 +19185,12 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, success: ManageOfferSuccessResult = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.Success:
                 return NotImplemented
@@ -17972,6 +19228,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_MALFORMED]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.Malformed:
                 return NotImplemented
@@ -18003,6 +19263,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NO_TRUST]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.SellNoTrust:
@@ -18036,6 +19300,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NO_TRUST]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NO_TRUST
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.BuyNoTrust:
                 return NotImplemented
@@ -18067,6 +19335,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NOT_AUTHORIZED]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NOT_AUTHORIZED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.SellNotAuthorized:
@@ -18100,6 +19372,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NOT_AUTHORIZED]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.BuyNotAuthorized:
                 return NotImplemented
@@ -18131,6 +19407,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_LINE_FULL]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_LINE_FULL
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.LineFull:
@@ -18164,6 +19444,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_UNDERFUNDED]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_UNDERFUNDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.Underfunded:
                 return NotImplemented
@@ -18195,6 +19479,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_CROSS_SELF]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_CROSS_SELF
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.CrossSelf:
@@ -18228,6 +19516,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NO_ISSUER]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_SELL_NO_ISSUER
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.SellNoIssuer:
                 return NotImplemented
@@ -18259,6 +19551,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NO_ISSUER]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_BUY_NO_ISSUER
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.BuyNoIssuer:
@@ -18292,6 +19588,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_NOT_FOUND]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_NOT_FOUND
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.NotFound:
                 return NotImplemented
@@ -18323,6 +19623,10 @@ class ManageSellOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageSellOfferResultCode.MANAGE_SELL_OFFER_LOW_RESERVE]
         ] = ManageSellOfferResultCode.MANAGE_SELL_OFFER_LOW_RESERVE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageSellOfferResult.LowReserve:
@@ -18535,6 +19839,12 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, success: ManageOfferSuccessResult = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.Success:
                 return NotImplemented
@@ -18572,6 +19882,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             ManageBuyOfferResultCode.MANAGE_BUY_OFFER_MALFORMED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.Malformed:
                 return NotImplemented
@@ -18603,6 +19917,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NO_TRUST]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.SellNoTrust:
@@ -18636,6 +19954,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NO_TRUST]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NO_TRUST
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.BuyNoTrust:
                 return NotImplemented
@@ -18667,6 +19989,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NOT_AUTHORIZED]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NOT_AUTHORIZED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.SellNotAuthorized:
@@ -18700,6 +20026,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NOT_AUTHORIZED]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.BuyNotAuthorized:
                 return NotImplemented
@@ -18731,6 +20061,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_LINE_FULL]] = (
             ManageBuyOfferResultCode.MANAGE_BUY_OFFER_LINE_FULL
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.LineFull:
@@ -18764,6 +20098,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_UNDERFUNDED]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_UNDERFUNDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.Underfunded:
                 return NotImplemented
@@ -18795,6 +20133,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_CROSS_SELF]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_CROSS_SELF
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.CrossSelf:
@@ -18828,6 +20170,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NO_ISSUER]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_SELL_NO_ISSUER
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.SellNoIssuer:
                 return NotImplemented
@@ -18859,6 +20205,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NO_ISSUER]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_BUY_NO_ISSUER
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.BuyNoIssuer:
@@ -18892,6 +20242,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
             ManageBuyOfferResultCode.MANAGE_BUY_OFFER_NOT_FOUND
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.NotFound:
                 return NotImplemented
@@ -18923,6 +20277,10 @@ class ManageBuyOfferResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ManageBuyOfferResultCode.MANAGE_BUY_OFFER_LOW_RESERVE]
         ] = ManageBuyOfferResultCode.MANAGE_BUY_OFFER_LOW_RESERVE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageBuyOfferResult.LowReserve:
@@ -19119,6 +20477,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             SetOptionsResultCode.SET_OPTIONS_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.Success:
                 return NotImplemented
@@ -19150,6 +20512,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[SetOptionsResultCode.SET_OPTIONS_LOW_RESERVE]] = (
             SetOptionsResultCode.SET_OPTIONS_LOW_RESERVE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.LowReserve:
@@ -19183,6 +20549,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             SetOptionsResultCode.SET_OPTIONS_TOO_MANY_SIGNERS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.TooManySigners:
                 return NotImplemented
@@ -19214,6 +20584,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[SetOptionsResultCode.SET_OPTIONS_BAD_FLAGS]] = (
             SetOptionsResultCode.SET_OPTIONS_BAD_FLAGS
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.BadFlags:
@@ -19247,6 +20621,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             SetOptionsResultCode.SET_OPTIONS_INVALID_INFLATION
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.InvalidInflation:
                 return NotImplemented
@@ -19278,6 +20656,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[SetOptionsResultCode.SET_OPTIONS_CANT_CHANGE]] = (
             SetOptionsResultCode.SET_OPTIONS_CANT_CHANGE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.CantChange:
@@ -19311,6 +20693,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             SetOptionsResultCode.SET_OPTIONS_UNKNOWN_FLAG
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.UnknownFlag:
                 return NotImplemented
@@ -19342,6 +20728,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[SetOptionsResultCode.SET_OPTIONS_THRESHOLD_OUT_OF_RANGE]
         ] = SetOptionsResultCode.SET_OPTIONS_THRESHOLD_OUT_OF_RANGE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.ThresholdOutOfRange:
@@ -19375,6 +20765,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             SetOptionsResultCode.SET_OPTIONS_BAD_SIGNER
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.BadSigner:
                 return NotImplemented
@@ -19407,6 +20801,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
             Literal[SetOptionsResultCode.SET_OPTIONS_INVALID_HOME_DOMAIN]
         ] = SetOptionsResultCode.SET_OPTIONS_INVALID_HOME_DOMAIN
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.InvalidHomeDomain:
                 return NotImplemented
@@ -19438,6 +20836,10 @@ class SetOptionsResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[SetOptionsResultCode.SET_OPTIONS_AUTH_REVOCABLE_REQUIRED]
         ] = SetOptionsResultCode.SET_OPTIONS_AUTH_REVOCABLE_REQUIRED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetOptionsResult.AuthRevocableRequired:
@@ -19621,6 +21023,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
             ChangeTrustResultCode.CHANGE_TRUST_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.Success:
                 return NotImplemented
@@ -19652,6 +21058,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ChangeTrustResultCode.CHANGE_TRUST_MALFORMED]] = (
             ChangeTrustResultCode.CHANGE_TRUST_MALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.Malformed:
@@ -19685,6 +21095,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
             ChangeTrustResultCode.CHANGE_TRUST_NO_ISSUER
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.NoIssuer:
                 return NotImplemented
@@ -19716,6 +21130,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ChangeTrustResultCode.CHANGE_TRUST_INVALID_LIMIT]] = (
             ChangeTrustResultCode.CHANGE_TRUST_INVALID_LIMIT
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.InvalidLimit:
@@ -19749,6 +21167,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
             ChangeTrustResultCode.CHANGE_TRUST_LOW_RESERVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.LowReserve:
                 return NotImplemented
@@ -19780,6 +21202,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ChangeTrustResultCode.CHANGE_TRUST_SELF_NOT_ALLOWED]] = (
             ChangeTrustResultCode.CHANGE_TRUST_SELF_NOT_ALLOWED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.SelfNotAllowed:
@@ -19813,6 +21239,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
             Literal[ChangeTrustResultCode.CHANGE_TRUST_TRUST_LINE_MISSING]
         ] = ChangeTrustResultCode.CHANGE_TRUST_TRUST_LINE_MISSING
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.TrustLineMissing:
                 return NotImplemented
@@ -19845,6 +21275,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
             ChangeTrustResultCode.CHANGE_TRUST_CANNOT_DELETE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.CannotDelete:
                 return NotImplemented
@@ -19876,6 +21310,10 @@ class ChangeTrustResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ChangeTrustResultCode.CHANGE_TRUST_NOT_AUTH_MAINTAIN_LIABILITIES]
         ] = ChangeTrustResultCode.CHANGE_TRUST_NOT_AUTH_MAINTAIN_LIABILITIES
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ChangeTrustResult.NotAuthMaintainLiabilities:
@@ -20049,6 +21487,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
             AllowTrustResultCode.ALLOW_TRUST_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.Success:
                 return NotImplemented
@@ -20080,6 +21522,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[AllowTrustResultCode.ALLOW_TRUST_MALFORMED]] = (
             AllowTrustResultCode.ALLOW_TRUST_MALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.Malformed:
@@ -20113,6 +21559,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
             AllowTrustResultCode.ALLOW_TRUST_NO_TRUST_LINE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.NoTrustLine:
                 return NotImplemented
@@ -20144,6 +21594,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[AllowTrustResultCode.ALLOW_TRUST_TRUST_NOT_REQUIRED]] = (
             AllowTrustResultCode.ALLOW_TRUST_TRUST_NOT_REQUIRED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.TrustNotRequired:
@@ -20177,6 +21631,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
             AllowTrustResultCode.ALLOW_TRUST_CANT_REVOKE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.CantRevoke:
                 return NotImplemented
@@ -20209,6 +21667,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
             AllowTrustResultCode.ALLOW_TRUST_SELF_NOT_ALLOWED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.SelfNotAllowed:
                 return NotImplemented
@@ -20240,6 +21702,10 @@ class AllowTrustResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[AllowTrustResultCode.ALLOW_TRUST_LOW_RESERVE]] = (
             AllowTrustResultCode.ALLOW_TRUST_LOW_RESERVE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AllowTrustResult.LowReserve:
@@ -20417,6 +21883,12 @@ class AccountMergeResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, source_account_balance: Int64 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.Success:
                 return NotImplemented
@@ -20460,6 +21932,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
             AccountMergeResultCode.ACCOUNT_MERGE_MALFORMED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.Malformed:
                 return NotImplemented
@@ -20491,6 +21967,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[AccountMergeResultCode.ACCOUNT_MERGE_NO_ACCOUNT]] = (
             AccountMergeResultCode.ACCOUNT_MERGE_NO_ACCOUNT
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.NoAccount:
@@ -20524,6 +22004,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
             AccountMergeResultCode.ACCOUNT_MERGE_IMMUTABLE_SET
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.ImmutableSet:
                 return NotImplemented
@@ -20555,6 +22039,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[AccountMergeResultCode.ACCOUNT_MERGE_HAS_SUB_ENTRIES]
         ] = AccountMergeResultCode.ACCOUNT_MERGE_HAS_SUB_ENTRIES
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.HasSubEntries:
@@ -20588,6 +22076,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
             AccountMergeResultCode.ACCOUNT_MERGE_SEQNUM_TOO_FAR
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.SeqnumTooFar:
                 return NotImplemented
@@ -20620,6 +22112,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
             AccountMergeResultCode.ACCOUNT_MERGE_DEST_FULL
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.DestFull:
                 return NotImplemented
@@ -20651,6 +22147,10 @@ class AccountMergeResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[AccountMergeResultCode.ACCOUNT_MERGE_IS_SPONSOR]] = (
             AccountMergeResultCode.ACCOUNT_MERGE_IS_SPONSOR
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountMergeResult.IsSponsor:
@@ -20821,6 +22321,12 @@ class InflationPayout(XdrStruct):
         )
         set_field(self, "amount", check.int64(amount, "InflationPayout.amount"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, destination: AccountID.Any = ..., amount: Int64 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not InflationPayout:
             return NotImplemented
@@ -20899,6 +22405,12 @@ class InflationResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, payouts: Sequence[InflationPayout] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InflationResult.Success:
                 return NotImplemented
@@ -20954,6 +22466,10 @@ class InflationResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[InflationResultCode.INFLATION_NOT_TIME]] = (
             InflationResultCode.INFLATION_NOT_TIME
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InflationResult.NotTime:
@@ -21089,6 +22605,10 @@ class ManageDataResult(metaclass=UnionNamespace):
             ManageDataResultCode.MANAGE_DATA_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageDataResult.Success:
                 return NotImplemented
@@ -21120,6 +22640,10 @@ class ManageDataResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ManageDataResultCode.MANAGE_DATA_NOT_SUPPORTED_YET]] = (
             ManageDataResultCode.MANAGE_DATA_NOT_SUPPORTED_YET
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageDataResult.NotSupportedYet:
@@ -21153,6 +22677,10 @@ class ManageDataResult(metaclass=UnionNamespace):
             ManageDataResultCode.MANAGE_DATA_NAME_NOT_FOUND
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageDataResult.NameNotFound:
                 return NotImplemented
@@ -21185,6 +22713,10 @@ class ManageDataResult(metaclass=UnionNamespace):
             ManageDataResultCode.MANAGE_DATA_LOW_RESERVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageDataResult.LowReserve:
                 return NotImplemented
@@ -21216,6 +22748,10 @@ class ManageDataResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ManageDataResultCode.MANAGE_DATA_INVALID_NAME]] = (
             ManageDataResultCode.MANAGE_DATA_INVALID_NAME
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ManageDataResult.InvalidName:
@@ -21356,6 +22892,10 @@ class BumpSequenceResult(metaclass=UnionNamespace):
             BumpSequenceResultCode.BUMP_SEQUENCE_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BumpSequenceResult.Success:
                 return NotImplemented
@@ -21387,6 +22927,10 @@ class BumpSequenceResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[BumpSequenceResultCode.BUMP_SEQUENCE_BAD_SEQ]] = (
             BumpSequenceResultCode.BUMP_SEQUENCE_BAD_SEQ
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BumpSequenceResult.BadSeq:
@@ -21539,6 +23083,12 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, balance_id: ClaimableBalanceID.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.Success:
                 return NotImplemented
@@ -21576,6 +23126,10 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
             Literal[CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_MALFORMED]
         ] = CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.Malformed:
                 return NotImplemented
@@ -21610,6 +23164,10 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_LOW_RESERVE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.LowReserve:
                 return NotImplemented
@@ -21641,6 +23199,10 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_NO_TRUST]
         ] = CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.NoTrust:
@@ -21676,6 +23238,10 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.NotAuthorized:
                 return NotImplemented
@@ -21709,6 +23275,10 @@ class CreateClaimableBalanceResult(metaclass=UnionNamespace):
                 CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_UNDERFUNDED
             ]
         ] = CreateClaimableBalanceResultCode.CREATE_CLAIMABLE_BALANCE_UNDERFUNDED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not CreateClaimableBalanceResult.Underfunded:
@@ -21866,6 +23436,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
             Literal[ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_SUCCESS]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.Success:
                 return NotImplemented
@@ -21899,6 +23473,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
                 ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_DOES_NOT_EXIST
             ]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_DOES_NOT_EXIST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.DoesNotExist:
@@ -21934,6 +23512,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_CANNOT_CLAIM
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.CannotClaim:
                 return NotImplemented
@@ -21966,6 +23548,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
             Literal[ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_LINE_FULL]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_LINE_FULL
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.LineFull:
                 return NotImplemented
@@ -21997,6 +23583,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_NO_TRUST]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.NoTrust:
@@ -22032,6 +23622,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.NotAuthorized:
                 return NotImplemented
@@ -22065,6 +23659,10 @@ class ClaimClaimableBalanceResult(metaclass=UnionNamespace):
                 ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN
             ]
         ] = ClaimClaimableBalanceResultCode.CLAIM_CLAIMABLE_BALANCE_TRUSTLINE_FROZEN
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimClaimableBalanceResult.TrustLineFrozen:
@@ -22238,6 +23836,10 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
             ]
         ] = BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BeginSponsoringFutureReservesResult.Success:
                 return NotImplemented
@@ -22271,6 +23873,10 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
                 BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_MALFORMED
             ]
         ] = BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BeginSponsoringFutureReservesResult.Malformed:
@@ -22306,6 +23912,10 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
             ]
         ] = BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_ALREADY_SPONSORED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BeginSponsoringFutureReservesResult.AlreadySponsored:
                 return NotImplemented
@@ -22339,6 +23949,10 @@ class BeginSponsoringFutureReservesResult(metaclass=UnionNamespace):
                 BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_RECURSIVE
             ]
         ] = BeginSponsoringFutureReservesResultCode.BEGIN_SPONSORING_FUTURE_RESERVES_RECURSIVE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BeginSponsoringFutureReservesResult.Recursive:
@@ -22494,6 +24108,10 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
             ]
         ] = EndSponsoringFutureReservesResultCode.END_SPONSORING_FUTURE_RESERVES_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not EndSponsoringFutureReservesResult.Success:
                 return NotImplemented
@@ -22527,6 +24145,10 @@ class EndSponsoringFutureReservesResult(metaclass=UnionNamespace):
                 EndSponsoringFutureReservesResultCode.END_SPONSORING_FUTURE_RESERVES_NOT_SPONSORED
             ]
         ] = EndSponsoringFutureReservesResultCode.END_SPONSORING_FUTURE_RESERVES_NOT_SPONSORED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not EndSponsoringFutureReservesResult.NotSponsored:
@@ -22677,6 +24299,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_SUCCESS]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.Success:
                 return NotImplemented
@@ -22708,6 +24334,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_DOES_NOT_EXIST]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_DOES_NOT_EXIST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.DoesNotExist:
@@ -22741,6 +24371,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_NOT_SPONSOR]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_NOT_SPONSOR
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.NotSponsor:
                 return NotImplemented
@@ -22772,6 +24406,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_LOW_RESERVE]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_LOW_RESERVE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.LowReserve:
@@ -22805,6 +24443,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_ONLY_TRANSFERABLE]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_ONLY_TRANSFERABLE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.OnlyTransferable:
                 return NotImplemented
@@ -22836,6 +24478,10 @@ class RevokeSponsorshipResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_MALFORMED]
         ] = RevokeSponsorshipResultCode.REVOKE_SPONSORSHIP_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RevokeSponsorshipResult.Malformed:
@@ -22996,6 +24642,10 @@ class ClawbackResult(metaclass=UnionNamespace):
             ClawbackResultCode.CLAWBACK_SUCCESS
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackResult.Success:
                 return NotImplemented
@@ -23027,6 +24677,10 @@ class ClawbackResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ClawbackResultCode.CLAWBACK_MALFORMED]] = (
             ClawbackResultCode.CLAWBACK_MALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackResult.Malformed:
@@ -23060,6 +24714,10 @@ class ClawbackResult(metaclass=UnionNamespace):
             ClawbackResultCode.CLAWBACK_NOT_CLAWBACK_ENABLED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackResult.NotClawbackEnabled:
                 return NotImplemented
@@ -23092,6 +24750,10 @@ class ClawbackResult(metaclass=UnionNamespace):
             ClawbackResultCode.CLAWBACK_NO_TRUST
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackResult.NoTrust:
                 return NotImplemented
@@ -23123,6 +24785,10 @@ class ClawbackResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[ClawbackResultCode.CLAWBACK_UNDERFUNDED]] = (
             ClawbackResultCode.CLAWBACK_UNDERFUNDED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackResult.Underfunded:
@@ -23268,6 +24934,10 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackClaimableBalanceResult.Success:
                 return NotImplemented
@@ -23301,6 +24971,10 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
                 ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_DOES_NOT_EXIST
             ]
         ] = ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_DOES_NOT_EXIST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackClaimableBalanceResult.DoesNotExist:
@@ -23336,6 +25010,10 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
             ]
         ] = ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_NOT_ISSUER
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackClaimableBalanceResult.NotIssuer:
                 return NotImplemented
@@ -23369,6 +25047,10 @@ class ClawbackClaimableBalanceResult(metaclass=UnionNamespace):
                 ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_NOT_CLAWBACK_ENABLED
             ]
         ] = ClawbackClaimableBalanceResultCode.CLAWBACK_CLAIMABLE_BALANCE_NOT_CLAWBACK_ENABLED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClawbackClaimableBalanceResult.NotClawbackEnabled:
@@ -23521,6 +25203,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_SUCCESS]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.Success:
                 return NotImplemented
@@ -23552,6 +25238,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_MALFORMED]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.Malformed:
@@ -23585,6 +25275,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_NO_TRUST_LINE]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_NO_TRUST_LINE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.NoTrustLine:
                 return NotImplemented
@@ -23616,6 +25310,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_CANT_REVOKE]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_CANT_REVOKE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.CantRevoke:
@@ -23649,6 +25347,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_INVALID_STATE]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_INVALID_STATE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.InvalidState:
                 return NotImplemented
@@ -23680,6 +25382,10 @@ class SetTrustLineFlagsResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_LOW_RESERVE]
         ] = SetTrustLineFlagsResultCode.SET_TRUST_LINE_FLAGS_LOW_RESERVE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SetTrustLineFlagsResult.LowReserve:
@@ -23846,6 +25552,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_SUCCESS]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.Success:
                 return NotImplemented
@@ -23878,6 +25588,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_MALFORMED]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.Malformed:
                 return NotImplemented
@@ -23909,6 +25623,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_NO_TRUST]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_NO_TRUST
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.NoTrust:
@@ -23944,6 +25662,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             ]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_NOT_AUTHORIZED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.NotAuthorized:
                 return NotImplemented
@@ -23975,6 +25697,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_UNDERFUNDED]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_UNDERFUNDED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.Underfunded:
@@ -24008,6 +25734,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_LINE_FULL]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_LINE_FULL
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.LineFull:
                 return NotImplemented
@@ -24040,6 +25770,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_BAD_PRICE]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_BAD_PRICE
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.BadPrice:
                 return NotImplemented
@@ -24071,6 +25805,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_POOL_FULL]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_POOL_FULL
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.PoolFull:
@@ -24105,6 +25843,10 @@ class LiquidityPoolDepositResult(metaclass=UnionNamespace):
                 LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN
             ]
         ] = LiquidityPoolDepositResultCode.LIQUIDITY_POOL_DEPOSIT_TRUSTLINE_FROZEN
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolDepositResult.TrustLineFrozen:
@@ -24286,6 +26028,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_SUCCESS]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.Success:
                 return NotImplemented
@@ -24317,6 +26063,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_MALFORMED]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.Malformed:
@@ -24350,6 +26100,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_NO_TRUST]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_NO_TRUST
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.NoTrust:
                 return NotImplemented
@@ -24382,6 +26136,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
             Literal[LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_UNDERFUNDED]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_UNDERFUNDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.Underfunded:
                 return NotImplemented
@@ -24413,6 +26171,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_LINE_FULL]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_LINE_FULL
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.LineFull:
@@ -24448,6 +26210,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
             ]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_UNDER_MINIMUM
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.UnderMinimum:
                 return NotImplemented
@@ -24481,6 +26247,10 @@ class LiquidityPoolWithdrawResult(metaclass=UnionNamespace):
                 LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN
             ]
         ] = LiquidityPoolWithdrawResultCode.LIQUIDITY_POOL_WITHDRAW_TRUSTLINE_FROZEN
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolWithdrawResult.TrustLineFrozen:
@@ -24661,6 +26431,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
                 Hash._checked(success, "InvokeHostFunctionResult.Success.success"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, success: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.Success:
                 return NotImplemented
@@ -24707,6 +26481,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
             Literal[InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_MALFORMED]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_MALFORMED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.Malformed:
                 return NotImplemented
@@ -24738,6 +26516,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_TRAPPED]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_TRAPPED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.Trapped:
@@ -24773,6 +26555,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
             ]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_RESOURCE_LIMIT_EXCEEDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.ResourceLimitExceeded:
                 return NotImplemented
@@ -24804,6 +26590,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_ENTRY_ARCHIVED]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_ENTRY_ARCHIVED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.EntryArchived:
@@ -24838,6 +26628,10 @@ class InvokeHostFunctionResult(metaclass=UnionNamespace):
                 InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_INSUFFICIENT_REFUNDABLE_FEE
             ]
         ] = InvokeHostFunctionResultCode.INVOKE_HOST_FUNCTION_INSUFFICIENT_REFUNDABLE_FEE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InvokeHostFunctionResult.InsufficientRefundableFee:
@@ -25003,6 +26797,10 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
             Literal[ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_SUCCESS]
         ] = ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ExtendFootprintTTLResult.Success:
                 return NotImplemented
@@ -25034,6 +26832,10 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_MALFORMED]
         ] = ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ExtendFootprintTTLResult.Malformed:
@@ -25069,6 +26871,10 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
             ]
         ] = ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_RESOURCE_LIMIT_EXCEEDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ExtendFootprintTTLResult.ResourceLimitExceeded:
                 return NotImplemented
@@ -25102,6 +26908,10 @@ class ExtendFootprintTTLResult(metaclass=UnionNamespace):
                 ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_INSUFFICIENT_REFUNDABLE_FEE
             ]
         ] = ExtendFootprintTTLResultCode.EXTEND_FOOTPRINT_TTL_INSUFFICIENT_REFUNDABLE_FEE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ExtendFootprintTTLResult.InsufficientRefundableFee:
@@ -25252,6 +27062,10 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
             Literal[RestoreFootprintResultCode.RESTORE_FOOTPRINT_SUCCESS]
         ] = RestoreFootprintResultCode.RESTORE_FOOTPRINT_SUCCESS
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RestoreFootprintResult.Success:
                 return NotImplemented
@@ -25283,6 +27097,10 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
         code: ClassVar[
             Literal[RestoreFootprintResultCode.RESTORE_FOOTPRINT_MALFORMED]
         ] = RestoreFootprintResultCode.RESTORE_FOOTPRINT_MALFORMED
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RestoreFootprintResult.Malformed:
@@ -25318,6 +27136,10 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
             ]
         ] = RestoreFootprintResultCode.RESTORE_FOOTPRINT_RESOURCE_LIMIT_EXCEEDED
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not RestoreFootprintResult.ResourceLimitExceeded:
                 return NotImplemented
@@ -25351,6 +27173,10 @@ class RestoreFootprintResult(metaclass=UnionNamespace):
                 RestoreFootprintResultCode.RESTORE_FOOTPRINT_INSUFFICIENT_REFUNDABLE_FEE
             ]
         ] = RestoreFootprintResultCode.RESTORE_FOOTPRINT_INSUFFICIENT_REFUNDABLE_FEE
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not RestoreFootprintResult.InsufficientRefundableFee:
@@ -25560,6 +27386,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, create_account_result: CreateAccountResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.CreateAccount:
                 return NotImplemented
@@ -25609,6 +27441,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "PaymentResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, payment_result: PaymentResult.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.Payment:
@@ -25661,6 +27499,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "PathPaymentStrictReceiveResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                path_payment_strict_receive_result: PathPaymentStrictReceiveResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.PathPaymentStrictReceive:
@@ -25732,6 +27579,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_sell_offer_result: ManageSellOfferResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ManageSellOffer:
                 return NotImplemented
@@ -25791,6 +27644,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "ManageSellOfferResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                create_passive_sell_offer_result: ManageSellOfferResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.CreatePassiveSellOffer:
@@ -25860,6 +27722,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, set_options_result: SetOptionsResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.SetOptions:
                 return NotImplemented
@@ -25910,6 +27778,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, change_trust_result: ChangeTrustResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ChangeTrust:
                 return NotImplemented
@@ -25959,6 +27833,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "AllowTrustResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, allow_trust_result: AllowTrustResult.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.AllowTrust:
@@ -26012,6 +27892,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, account_merge_result: AccountMergeResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.AccountMerge:
                 return NotImplemented
@@ -26062,6 +27948,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, inflation_result: InflationResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.Inflation:
                 return NotImplemented
@@ -26109,6 +28001,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "ManageDataResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_data_result: ManageDataResult.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ManageData:
@@ -26162,6 +28060,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, bump_seq_result: BumpSequenceResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.BumpSequence:
                 return NotImplemented
@@ -26211,6 +28115,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "ManageBuyOfferResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, manage_buy_offer_result: ManageBuyOfferResult.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ManageBuyOffer:
@@ -26271,6 +28181,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "PathPaymentStrictSendResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                path_payment_strict_send_result: PathPaymentStrictSendResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.PathPaymentStrictSend:
@@ -26344,6 +28263,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                create_claimable_balance_result: CreateClaimableBalanceResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.CreateClaimableBalance:
                 return NotImplemented
@@ -26415,6 +28343,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "ClaimClaimableBalanceResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                claim_claimable_balance_result: ClaimClaimableBalanceResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ClaimClaimableBalance:
@@ -26489,6 +28426,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                begin_sponsoring_future_reserves_result: BeginSponsoringFutureReservesResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.BeginSponsoringFutureReserves:
                 return NotImplemented
@@ -26562,6 +28508,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                end_sponsoring_future_reserves_result: EndSponsoringFutureReservesResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.EndSponsoringFutureReserves:
                 return NotImplemented
@@ -26634,6 +28589,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, revoke_sponsorship_result: RevokeSponsorshipResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.RevokeSponsorship:
                 return NotImplemented
@@ -26692,6 +28653,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, clawback_result: ClawbackResult.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.Clawback:
                 return NotImplemented
@@ -26743,6 +28710,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "ClawbackClaimableBalanceResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                clawback_claimable_balance_result: ClawbackClaimableBalanceResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ClawbackClaimableBalance:
@@ -26816,6 +28792,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                set_trust_line_flags_result: SetTrustLineFlagsResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.SetTrustLineFlags:
                 return NotImplemented
@@ -26879,6 +28864,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "LiquidityPoolDepositResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                liquidity_pool_deposit_result: LiquidityPoolDepositResult.Any = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.LiquidityPoolDeposit:
@@ -26952,6 +28946,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                liquidity_pool_withdraw_result: LiquidityPoolWithdrawResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.LiquidityPoolWithdraw:
                 return NotImplemented
@@ -27024,6 +29027,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                invoke_host_function_result: InvokeHostFunctionResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.InvokeHostFunction:
                 return NotImplemented
@@ -27088,6 +29100,15 @@ class OperationResultTr(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                extend_footprint_ttl_result: ExtendFootprintTTLResult.Any = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.ExtendFootprintTTL:
                 return NotImplemented
@@ -27151,6 +29172,12 @@ class OperationResultTr(metaclass=UnionNamespace):
                     "RestoreFootprintResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, restore_footprint_result: RestoreFootprintResult.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResultTr.RestoreFootprint:
@@ -27449,6 +29476,12 @@ class OperationResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, tr: OperationResultTr.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpInner:
                 return NotImplemented
@@ -27486,6 +29519,10 @@ class OperationResult(metaclass=UnionNamespace):
             OperationResultCode.opBAD_AUTH
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpBadAuth:
                 return NotImplemented
@@ -27517,6 +29554,10 @@ class OperationResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[OperationResultCode.opNO_ACCOUNT]] = (
             OperationResultCode.opNO_ACCOUNT
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpNoAccount:
@@ -27550,6 +29591,10 @@ class OperationResult(metaclass=UnionNamespace):
             OperationResultCode.opNOT_SUPPORTED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpNotSupported:
                 return NotImplemented
@@ -27581,6 +29626,10 @@ class OperationResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[OperationResultCode.opTOO_MANY_SUBENTRIES]] = (
             OperationResultCode.opTOO_MANY_SUBENTRIES
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpTooManySubentries:
@@ -27614,6 +29663,10 @@ class OperationResult(metaclass=UnionNamespace):
             OperationResultCode.opEXCEEDED_WORK_LIMIT
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpExceededWorkLimit:
                 return NotImplemented
@@ -27645,6 +29698,10 @@ class OperationResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[OperationResultCode.opTOO_MANY_SPONSORING]] = (
             OperationResultCode.opTOO_MANY_SPONSORING
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OperationResult.OpTooManySponsoring:
@@ -27837,6 +29894,12 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, results: Sequence[OperationResult.Any] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxSuccess:
                 return NotImplemented
@@ -27910,6 +29973,12 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, results: Sequence[OperationResult.Any] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxFailed:
                 return NotImplemented
@@ -27968,6 +30037,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txTOO_EARLY
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxTooEarly:
                 return NotImplemented
@@ -27999,6 +30072,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txTOO_LATE]] = (
             TransactionResultCode.txTOO_LATE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxTooLate:
@@ -28032,6 +30109,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txMISSING_OPERATION
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxMissingOperation:
                 return NotImplemented
@@ -28063,6 +30144,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txBAD_SEQ]] = (
             TransactionResultCode.txBAD_SEQ
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxBadSeq:
@@ -28096,6 +30181,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_AUTH
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxBadAuth:
                 return NotImplemented
@@ -28127,6 +30216,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINSUFFICIENT_BALANCE]] = (
             TransactionResultCode.txINSUFFICIENT_BALANCE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxInsufficientBalance:
@@ -28160,6 +30253,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txNO_ACCOUNT
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxNoAccount:
                 return NotImplemented
@@ -28191,6 +30288,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINSUFFICIENT_FEE]] = (
             TransactionResultCode.txINSUFFICIENT_FEE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxInsufficientFee:
@@ -28224,6 +30325,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_AUTH_EXTRA
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxBadAuthExtra:
                 return NotImplemented
@@ -28255,6 +30360,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINTERNAL_ERROR]] = (
             TransactionResultCode.txINTERNAL_ERROR
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxInternalError:
@@ -28288,6 +30397,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txNOT_SUPPORTED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxNotSupported:
                 return NotImplemented
@@ -28319,6 +30432,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txBAD_SPONSORSHIP]] = (
             TransactionResultCode.txBAD_SPONSORSHIP
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxBadSponsorship:
@@ -28352,6 +30469,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_MIN_SEQ_AGE_OR_GAP
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxBadMinSeqAgeOrGap:
                 return NotImplemented
@@ -28383,6 +30504,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txMALFORMED]] = (
             TransactionResultCode.txMALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxMalformed:
@@ -28416,6 +30541,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txSOROBAN_INVALID
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxSorobanInvalid:
                 return NotImplemented
@@ -28447,6 +30576,10 @@ class InnerTransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txFROZEN_KEY_ACCESSED]] = (
             TransactionResultCode.txFROZEN_KEY_ACCESSED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultResult.TxFrozenKeyAccessed:
@@ -28653,6 +30786,10 @@ class InnerTransactionResultExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not InnerTransactionResultExt.V0:
                 return NotImplemented
@@ -28848,6 +30985,17 @@ class InnerTransactionResult(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            fee_charged: Int64 = ...,
+            result: InnerTransactionResultResult.Any = ...,
+            ext: InnerTransactionResultExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not InnerTransactionResult:
             return NotImplemented
@@ -28935,6 +31083,16 @@ class InnerTransactionResultPair(XdrStruct):
                 result, "InnerTransactionResultPair.result", InnerTransactionResult
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            transaction_hash: bytes = ...,
+            result: InnerTransactionResult = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not InnerTransactionResultPair:
@@ -29044,6 +31202,12 @@ class TransactionResultResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, inner_result_pair: InnerTransactionResultPair = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxFeeBumpInnerSuccess:
                 return NotImplemented
@@ -29100,6 +31264,12 @@ class TransactionResultResult(metaclass=UnionNamespace):
                     InnerTransactionResultPair,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, inner_result_pair: InnerTransactionResultPair = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxFeeBumpInnerFailed:
@@ -29160,6 +31330,12 @@ class TransactionResultResult(metaclass=UnionNamespace):
                     "OperationResult",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, results: Sequence[OperationResult.Any] = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxSuccess:
@@ -29234,6 +31410,12 @@ class TransactionResultResult(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, results: Sequence[OperationResult.Any] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxFailed:
                 return NotImplemented
@@ -29292,6 +31474,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txTOO_EARLY
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxTooEarly:
                 return NotImplemented
@@ -29323,6 +31509,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txTOO_LATE]] = (
             TransactionResultCode.txTOO_LATE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxTooLate:
@@ -29356,6 +31546,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txMISSING_OPERATION
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxMissingOperation:
                 return NotImplemented
@@ -29387,6 +31581,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txBAD_SEQ]] = (
             TransactionResultCode.txBAD_SEQ
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxBadSeq:
@@ -29420,6 +31618,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_AUTH
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxBadAuth:
                 return NotImplemented
@@ -29451,6 +31653,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINSUFFICIENT_BALANCE]] = (
             TransactionResultCode.txINSUFFICIENT_BALANCE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxInsufficientBalance:
@@ -29484,6 +31690,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txNO_ACCOUNT
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxNoAccount:
                 return NotImplemented
@@ -29515,6 +31725,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINSUFFICIENT_FEE]] = (
             TransactionResultCode.txINSUFFICIENT_FEE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxInsufficientFee:
@@ -29548,6 +31762,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_AUTH_EXTRA
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxBadAuthExtra:
                 return NotImplemented
@@ -29579,6 +31797,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txINTERNAL_ERROR]] = (
             TransactionResultCode.txINTERNAL_ERROR
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxInternalError:
@@ -29612,6 +31834,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txNOT_SUPPORTED
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxNotSupported:
                 return NotImplemented
@@ -29643,6 +31869,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txBAD_SPONSORSHIP]] = (
             TransactionResultCode.txBAD_SPONSORSHIP
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxBadSponsorship:
@@ -29676,6 +31906,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txBAD_MIN_SEQ_AGE_OR_GAP
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxBadMinSeqAgeOrGap:
                 return NotImplemented
@@ -29707,6 +31941,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txMALFORMED]] = (
             TransactionResultCode.txMALFORMED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxMalformed:
@@ -29740,6 +31978,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
             TransactionResultCode.txSOROBAN_INVALID
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxSorobanInvalid:
                 return NotImplemented
@@ -29771,6 +32013,10 @@ class TransactionResultResult(metaclass=UnionNamespace):
         code: ClassVar[Literal[TransactionResultCode.txFROZEN_KEY_ACCESSED]] = (
             TransactionResultCode.txFROZEN_KEY_ACCESSED
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultResult.TxFrozenKeyAccessed:
@@ -29981,6 +32227,10 @@ class TransactionResultExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TransactionResultExt.V0:
                 return NotImplemented
@@ -30176,6 +32426,17 @@ class TransactionResult(XdrStruct):
                 "TransactionResultExt",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            fee_charged: Int64 = ...,
+            result: TransactionResultResult.Any = ...,
+            ext: TransactionResultExt.Any = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TransactionResult:

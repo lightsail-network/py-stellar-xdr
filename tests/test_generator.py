@@ -594,7 +594,7 @@ def test_a_word_in_the_xdr_source_is_not_a_use_of_a_name(tmp_path: Path) -> None
     runtime = "JsonReader, JsonWriter, Reader, Writer, XdrStruct, check, new, set_field"
     assert imports == [
         "from __future__ import annotations",
-        "from typing import Any, Self, final",
+        "from typing import Any, Self, TYPE_CHECKING, final",
         f"from ._runtime import {runtime}, xdr_json",
     ]
 
