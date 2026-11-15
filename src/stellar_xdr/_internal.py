@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._ledger import (
     _GENERALIZED_TRANSACTION_SET_CLASSES,
@@ -73,6 +73,12 @@ class StoredTransactionSet(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, tx_set: TransactionSet = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StoredTransactionSet.V0:
                 return NotImplemented
@@ -120,6 +126,12 @@ class StoredTransactionSet(metaclass=UnionNamespace):
                     "GeneralizedTransactionSet",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, generalized_tx_set: GeneralizedTransactionSet.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StoredTransactionSet.V1:
@@ -292,6 +304,17 @@ class StoredDebugTransactionSet(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            tx_set: StoredTransactionSet.Any = ...,
+            ledger_seq: Uint32 = ...,
+            scp_value: StellarValue = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not StoredDebugTransactionSet:
             return NotImplemented
@@ -404,6 +427,17 @@ class PersistedSCPStateV0(XdrStruct):
                 "StoredTransactionSet",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            scp_envelopes: Sequence[SCPEnvelope] = ...,
+            quorum_sets: Sequence[SCPQuorumSet] = ...,
+            tx_sets: Sequence[StoredTransactionSet.Any] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PersistedSCPStateV0:
@@ -551,6 +585,16 @@ class PersistedSCPStateV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            scp_envelopes: Sequence[SCPEnvelope] = ...,
+            quorum_sets: Sequence[SCPQuorumSet] = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not PersistedSCPStateV1:
             return NotImplemented
@@ -654,6 +698,12 @@ class PersistedSCPState(metaclass=UnionNamespace):
                 check.instance(v0, "PersistedSCPState.V0.v0", PersistedSCPStateV0),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v0: PersistedSCPStateV0 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PersistedSCPState.V0:
                 return NotImplemented
@@ -696,6 +746,12 @@ class PersistedSCPState(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "PersistedSCPState.V1.v1", PersistedSCPStateV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: PersistedSCPStateV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PersistedSCPState.V1:

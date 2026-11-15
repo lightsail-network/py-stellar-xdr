@@ -23,6 +23,7 @@ from typing import (
     ClassVar,
     Never,
     NoReturn,
+    ParamSpec,
     Protocol,
     Self,
     TypeVar,
@@ -250,6 +251,16 @@ class _Record(XdrValue):
         fields.update(changes)
         return type(self)(**fields)
 
+    # For type checkers only: the fields that a copy takes, which `replace` checks.
+    # Each generated class declares its own, as its constructor takes them. This one
+    # is gradual, the only form that lets theirs be narrower: a value known only as a
+    # struct or an arm takes any field, and even positional changes, which `replace`
+    # rejects when it runs. `__replace__` can't say it: when targeting Python 3.13 and
+    # later, mypy puts its own in its place, which takes each field as it is stored.
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *args: Any, **kwargs: Any) -> Self: ...  # noqa: ANN401
+
 
 class XdrStruct(_Record, _Decodes):
     """Base class of the generated structs.
@@ -455,26 +466,40 @@ class UnionNamespace(type):
         raise TypeError(msg)
 
 
-_Value = TypeVar("_Value", bound=XdrStruct | XdrArm)
+_P = ParamSpec("_P")
+_R = TypeVar("_R")
+_R_co = TypeVar("_R_co", covariant=True)
 
 
-def replace(value: _Value, /, **changes: Any) -> _Value:  # noqa: ANN401 - any field
+class _Replaceable(Protocol[_P, _R_co]):
+    """A struct or a union arm, with the fields a copy of it takes."""
+
+    def _replace_signature(self, /, *args: _P.args, **kwargs: _P.kwargs) -> _R_co: ...
+
+
+def replace(value: _Replaceable[_P, _R], /, *args: _P.args, **changes: _P.kwargs) -> _R:
     """Return a copy of a struct or union arm with some fields replaced.
 
     The same as `copy.replace`, which needs Python 3.13. The new value is checked like
-    any other constructed value.
+    any other constructed value. When the class of `value` is known, type checkers
+    check the names and the types of the fields too, as a constructor's: narrow a
+    union first, with `match` or `isinstance`. A value known only by a base class, or
+    by a type variable bound to one, takes any field until the call runs, and mypy may
+    widen the result to a base class.
 
     Raises:
         TypeError: The value is not a struct or a union arm, a field doesn't exist, or
             a new value has the wrong type.
         ValueError: A new value is out of range.
     """
-    if not isinstance(value, _Record):  # pyright: ignore[reportUnnecessaryIsInstance]
+    if not isinstance(value, _Record):
         msg = f"expected a struct or a union arm, got {type(value).__name__}"
         raise TypeError(msg)
-    # `__replace__` returns the class of the value. mypy takes it from the two classes
-    # that bound `_Value` instead, so it is told.
-    return cast("_Value", value.__replace__(**changes))
+    if args:
+        msg = "replace takes the new values of fields by name"
+        raise TypeError(msg)
+    # The type of the copy is the one its class declares for _replace_signature.
+    return cast("_R", value.__replace__(**changes))
 
 
 class _Decodable(Protocol[_T_co]):

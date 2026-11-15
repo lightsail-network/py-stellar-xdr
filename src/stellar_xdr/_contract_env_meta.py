@@ -11,7 +11,7 @@ file between releases.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._runtime import (
     DEFAULT_MAX_DEPTH,
@@ -91,6 +91,12 @@ class SCEnvMetaEntryInterfaceVersion(XdrStruct):
             "pre_release",
             check.uint32(pre_release, "SCEnvMetaEntryInterfaceVersion.pre_release"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, protocol: Uint32 = ..., pre_release: Uint32 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCEnvMetaEntryInterfaceVersion:
@@ -173,6 +179,12 @@ class SCEnvMetaEntry(metaclass=UnionNamespace):
                     SCEnvMetaEntryInterfaceVersion,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, interface_version: SCEnvMetaEntryInterfaceVersion = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCEnvMetaEntry.InterfaceVersion:

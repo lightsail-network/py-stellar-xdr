@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import builtins
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 import stellar_strkey as strkey
 
@@ -515,6 +515,10 @@ class SCError(metaclass=UnionNamespace):
                 check.uint32(contract_code, "SCError.Contract.contract_code"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, contract_code: Uint32 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Contract:
                 return NotImplemented
@@ -560,6 +564,10 @@ class SCError(metaclass=UnionNamespace):
                 self, "code", check.instance(code, "SCError.WasmVm.code", SCErrorCode)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.WasmVm:
                 return NotImplemented
@@ -600,6 +608,10 @@ class SCError(metaclass=UnionNamespace):
             set_field(
                 self, "code", check.instance(code, "SCError.Context.code", SCErrorCode)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Context:
@@ -642,6 +654,10 @@ class SCError(metaclass=UnionNamespace):
                 self, "code", check.instance(code, "SCError.Storage.code", SCErrorCode)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Storage:
                 return NotImplemented
@@ -682,6 +698,10 @@ class SCError(metaclass=UnionNamespace):
             set_field(
                 self, "code", check.instance(code, "SCError.Object.code", SCErrorCode)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Object:
@@ -724,6 +744,10 @@ class SCError(metaclass=UnionNamespace):
                 self, "code", check.instance(code, "SCError.Crypto.code", SCErrorCode)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Crypto:
                 return NotImplemented
@@ -764,6 +788,10 @@ class SCError(metaclass=UnionNamespace):
             set_field(
                 self, "code", check.instance(code, "SCError.Events.code", SCErrorCode)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Events:
@@ -806,6 +834,10 @@ class SCError(metaclass=UnionNamespace):
                 self, "code", check.instance(code, "SCError.Budget.code", SCErrorCode)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Budget:
                 return NotImplemented
@@ -847,6 +879,10 @@ class SCError(metaclass=UnionNamespace):
                 self, "code", check.instance(code, "SCError.Value.code", SCErrorCode)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Value:
                 return NotImplemented
@@ -887,6 +923,10 @@ class SCError(metaclass=UnionNamespace):
             set_field(
                 self, "code", check.instance(code, "SCError.Auth.code", SCErrorCode)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, code: SCErrorCode = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCError.Auth:
@@ -1045,6 +1085,12 @@ class UInt128Parts(XdrStruct):
         set_field(self, "hi", check.uint64(hi, "UInt128Parts.hi"))
         set_field(self, "lo", check.uint64(lo, "UInt128Parts.lo"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, hi: Uint64 = ..., lo: Uint64 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not UInt128Parts:
             return NotImplemented
@@ -1096,6 +1142,12 @@ class Int128Parts(XdrStruct):
     def __init__(self, hi: Int64, lo: Uint64) -> None:
         set_field(self, "hi", check.int64(hi, "Int128Parts.hi"))
         set_field(self, "lo", check.uint64(lo, "Int128Parts.lo"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, hi: Int64 = ..., lo: Uint64 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not Int128Parts:
@@ -1156,6 +1208,18 @@ class UInt256Parts(XdrStruct):
         set_field(self, "hi_lo", check.uint64(hi_lo, "UInt256Parts.hi_lo"))
         set_field(self, "lo_hi", check.uint64(lo_hi, "UInt256Parts.lo_hi"))
         set_field(self, "lo_lo", check.uint64(lo_lo, "UInt256Parts.lo_lo"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            hi_hi: Uint64 = ...,
+            hi_lo: Uint64 = ...,
+            lo_hi: Uint64 = ...,
+            lo_lo: Uint64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not UInt256Parts:
@@ -1228,6 +1292,18 @@ class Int256Parts(XdrStruct):
         set_field(self, "lo_hi", check.uint64(lo_hi, "Int256Parts.lo_hi"))
         set_field(self, "lo_lo", check.uint64(lo_lo, "Int256Parts.lo_lo"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            hi_hi: Int64 = ...,
+            hi_lo: Uint64 = ...,
+            lo_hi: Uint64 = ...,
+            lo_lo: Uint64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Int256Parts:
             return NotImplemented
@@ -1294,6 +1370,12 @@ class MuxedEd25519Account(XdrStruct):
             self, "ed25519", Uint256._checked(ed25519, "MuxedEd25519Account.ed25519")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, id: Uint64 = ..., ed25519: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not MuxedEd25519Account:
             return NotImplemented
@@ -1350,6 +1432,12 @@ class MuxedContract(XdrStruct):
             "contract_id",
             ContractID._checked(contract_id, "MuxedContract.contract_id"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, id: Uint64 = ..., contract_id: bytes = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not MuxedContract:
@@ -1427,6 +1515,12 @@ class SCAddress(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, account_id: AccountID.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.Account:
                 return NotImplemented
@@ -1465,6 +1559,10 @@ class SCAddress(metaclass=UnionNamespace):
                 "contract_id",
                 ContractID._checked(contract_id, "SCAddress.Contract.contract_id"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, contract_id: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.Contract:
@@ -1511,6 +1609,12 @@ class SCAddress(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, muxed_account: MuxedEd25519Account = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.MuxedAccount:
                 return NotImplemented
@@ -1555,6 +1659,12 @@ class SCAddress(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, claimable_balance_id: ClaimableBalanceID.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.ClaimableBalance:
                 return NotImplemented
@@ -1595,6 +1705,12 @@ class SCAddress(metaclass=UnionNamespace):
                     liquidity_pool_id, "SCAddress.LiquidityPool.liquidity_pool_id"
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool_id: bytes = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.LiquidityPool:
@@ -1640,6 +1756,12 @@ class SCAddress(metaclass=UnionNamespace):
                     MuxedContract,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, muxed_contract: MuxedContract = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCAddress.MuxedContract:
@@ -1814,6 +1936,12 @@ class ContractExecutableExternalRef(XdrStruct):
             self, "tag", SCString._checked(tag, "ContractExecutableExternalRef.tag")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, executable_owner: SCAddress.Any = ..., tag: bytes | str = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractExecutableExternalRef:
             return NotImplemented
@@ -1897,6 +2025,10 @@ class ContractExecutable(metaclass=UnionNamespace):
                 Hash._checked(wasm_hash, "ContractExecutable.Wasm.wasm_hash"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, wasm_hash: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractExecutable.Wasm:
                 return NotImplemented
@@ -1943,6 +2075,10 @@ class ContractExecutable(metaclass=UnionNamespace):
             Literal[ContractExecutableType.CONTRACT_EXECUTABLE_STELLAR_ASSET]
         ] = ContractExecutableType.CONTRACT_EXECUTABLE_STELLAR_ASSET
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractExecutable.StellarAsset:
                 return NotImplemented
@@ -1986,6 +2122,12 @@ class ContractExecutable(metaclass=UnionNamespace):
                     ContractExecutableExternalRef,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, external_ref: ContractExecutableExternalRef = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractExecutable.ExternalRef:
@@ -2125,6 +2267,10 @@ class SCNonceKey(XdrStruct):
     def __init__(self, nonce: Int64) -> None:
         set_field(self, "nonce", check.int64(nonce, "SCNonceKey.nonce"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, nonce: Int64 = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCNonceKey:
             return NotImplemented
@@ -2190,6 +2336,16 @@ class SCContractInstance(XdrStruct):
             "storage",
             check.optional(storage, "SCContractInstance.storage", SCMap._checked),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            executable: ContractExecutable.Any = ...,
+            storage: Sequence[SCMapEntry] | None = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCContractInstance:
@@ -2344,6 +2500,10 @@ class SCVal(metaclass=UnionNamespace):
         def __init__(self, b: bool) -> None:
             set_field(self, "b", check.boolean(b, "SCVal.Bool.b"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, b: bool = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Bool:
                 return NotImplemented
@@ -2383,6 +2543,10 @@ class SCVal(metaclass=UnionNamespace):
         __slots__ = ()
 
         type: ClassVar[Literal[SCValType.SCV_VOID]] = SCValType.SCV_VOID
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Void:
@@ -2426,6 +2590,10 @@ class SCVal(metaclass=UnionNamespace):
                 "error",
                 check.union(error, "SCVal.Error.error", _SC_ERROR_CLASSES, "SCError"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, error: SCError.Any = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Error:
@@ -2471,6 +2639,10 @@ class SCVal(metaclass=UnionNamespace):
         def __init__(self, u32: Uint32) -> None:
             set_field(self, "u32", check.uint32(u32, "SCVal.U32.u32"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, u32: Uint32 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.U32:
                 return NotImplemented
@@ -2514,6 +2686,10 @@ class SCVal(metaclass=UnionNamespace):
 
         def __init__(self, i32: Int32) -> None:
             set_field(self, "i32", check.int32(i32, "SCVal.I32.i32"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, i32: Int32 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.I32:
@@ -2559,6 +2735,10 @@ class SCVal(metaclass=UnionNamespace):
         def __init__(self, u64: Uint64) -> None:
             set_field(self, "u64", check.uint64(u64, "SCVal.U64.u64"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, u64: Uint64 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.U64:
                 return NotImplemented
@@ -2602,6 +2782,10 @@ class SCVal(metaclass=UnionNamespace):
 
         def __init__(self, i64: Int64) -> None:
             set_field(self, "i64", check.int64(i64, "SCVal.I64.i64"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, i64: Int64 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.I64:
@@ -2650,6 +2834,10 @@ class SCVal(metaclass=UnionNamespace):
                 "timepoint",
                 TimePoint._checked(timepoint, "SCVal.TimePoint.timepoint"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, timepoint: Uint64 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.TimePoint:
@@ -2703,6 +2891,10 @@ class SCVal(metaclass=UnionNamespace):
                 self, "duration", Duration._checked(duration, "SCVal.Duration.duration")
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, duration: Uint64 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Duration:
                 return NotImplemented
@@ -2755,6 +2947,10 @@ class SCVal(metaclass=UnionNamespace):
                 self, "u128", check.instance(u128, "SCVal.U128.u128", UInt128Parts)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, u128: UInt128Parts = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.U128:
                 return NotImplemented
@@ -2800,6 +2996,10 @@ class SCVal(metaclass=UnionNamespace):
             set_field(
                 self, "i128", check.instance(i128, "SCVal.I128.i128", Int128Parts)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, i128: Int128Parts = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.I128:
@@ -2847,6 +3047,10 @@ class SCVal(metaclass=UnionNamespace):
                 self, "u256", check.instance(u256, "SCVal.U256.u256", UInt256Parts)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, u256: UInt256Parts = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.U256:
                 return NotImplemented
@@ -2893,6 +3097,10 @@ class SCVal(metaclass=UnionNamespace):
                 self, "i256", check.instance(i256, "SCVal.I256.i256", Int256Parts)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, i256: Int256Parts = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.I256:
                 return NotImplemented
@@ -2936,6 +3144,10 @@ class SCVal(metaclass=UnionNamespace):
 
         def __init__(self, bytes: builtins.bytes) -> None:
             set_field(self, "bytes", SCBytes._checked(bytes, "SCVal.Bytes.bytes"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, bytes: builtins.bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Bytes:
@@ -2987,6 +3199,12 @@ class SCVal(metaclass=UnionNamespace):
         def __init__(self, str: bytes | builtins.str) -> None:
             set_field(self, "str", SCString._checked(str, "SCVal.String.str"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, str: bytes | builtins.str = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.String:
                 return NotImplemented
@@ -3037,6 +3255,10 @@ class SCVal(metaclass=UnionNamespace):
         def __init__(self, sym: bytes | str) -> None:
             set_field(self, "sym", SCSymbol._checked(sym, "SCVal.Symbol.sym"))
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, sym: bytes | str = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Symbol:
                 return NotImplemented
@@ -3086,6 +3308,12 @@ class SCVal(metaclass=UnionNamespace):
 
         def __init__(self, vec: Sequence[SCVal.Any] | None) -> None:
             set_field(self, "vec", check.optional(vec, "SCVal.Vec.vec", SCVec._checked))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, vec: Sequence[SCVal.Any] | None = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Vec:
@@ -3160,6 +3388,12 @@ class SCVal(metaclass=UnionNamespace):
 
         def __init__(self, map: Sequence[SCMapEntry] | None) -> None:
             set_field(self, "map", check.optional(map, "SCVal.Map.map", SCMap._checked))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, map: Sequence[SCMapEntry] | None = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Map:
@@ -3241,6 +3475,12 @@ class SCVal(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, address: SCAddress.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.Address:
                 return NotImplemented
@@ -3293,6 +3533,12 @@ class SCVal(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, instance: SCContractInstance = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.ContractInstance:
                 return NotImplemented
@@ -3334,6 +3580,10 @@ class SCVal(metaclass=UnionNamespace):
         type: ClassVar[Literal[SCValType.SCV_LEDGER_KEY_CONTRACT_INSTANCE]] = (
             SCValType.SCV_LEDGER_KEY_CONTRACT_INSTANCE
         )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.LedgerKeyContractInstance:
@@ -3379,6 +3629,10 @@ class SCVal(metaclass=UnionNamespace):
                 "nonce_key",
                 check.instance(nonce_key, "SCVal.LedgerKeyNonce.nonce_key", SCNonceKey),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, nonce_key: SCNonceKey = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.LedgerKeyNonce:
@@ -3429,6 +3683,12 @@ class SCVal(metaclass=UnionNamespace):
                 "executable_tag",
                 SCString._checked(executable_tag, "SCVal.ExecutableTag.executable_tag"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, executable_tag: bytes | str = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCVal.ExecutableTag:
@@ -3652,6 +3912,12 @@ class SCMapEntry(XdrStruct):
         set_field(
             self, "val", check.union(val, "SCMapEntry.val", _SC_VAL_CLASSES, "SCVal")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, key: SCVal.Any = ..., val: SCVal.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCMapEntry:

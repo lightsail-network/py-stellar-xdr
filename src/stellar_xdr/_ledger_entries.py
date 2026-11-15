@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._contract import _SC_ADDRESS_CLASSES, _SC_VAL_CLASSES, SCAddress, SCVal
 from ._contract_config_setting import (
@@ -908,6 +908,10 @@ class AssetCode(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, asset_code4: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AssetCode.CreditAlphaNum4:
                 return NotImplemented
@@ -950,6 +954,10 @@ class AssetCode(metaclass=UnionNamespace):
                     asset_code12, "AssetCode.CreditAlphaNum12.asset_code12"
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, asset_code12: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AssetCode.CreditAlphaNum12:
@@ -1083,6 +1091,12 @@ class AlphaNum4(XdrStruct):
             check.union(issuer, "AlphaNum4.issuer", _PUBLIC_KEY_CLASSES, "PublicKey"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, asset_code: bytes = ..., issuer: AccountID.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AlphaNum4:
             return NotImplemented
@@ -1153,6 +1167,12 @@ class AlphaNum12(XdrStruct):
             "issuer",
             check.union(issuer, "AlphaNum12.issuer", _PUBLIC_KEY_CLASSES, "PublicKey"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, asset_code: bytes = ..., issuer: AccountID.Any = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not AlphaNum12:
@@ -1227,6 +1247,10 @@ class Asset(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_NATIVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not Asset.Native:
                 return NotImplemented
@@ -1268,6 +1292,10 @@ class Asset(metaclass=UnionNamespace):
                     alpha_num4, "Asset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, alpha_num4: AlphaNum4 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Asset.CreditAlphaNum4:
@@ -1315,6 +1343,12 @@ class Asset(metaclass=UnionNamespace):
                     alpha_num12, "Asset.CreditAlphaNum12.alpha_num12", AlphaNum12
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, alpha_num12: AlphaNum12 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Asset.CreditAlphaNum12:
@@ -1447,6 +1481,10 @@ class Price(XdrStruct):
         set_field(self, "n", check.int32(n, "Price.n"))
         set_field(self, "d", check.int32(d, "Price.d"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, n: Int32 = ..., d: Int32 = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Price:
             return NotImplemented
@@ -1499,6 +1537,12 @@ class Liabilities(XdrStruct):
     def __init__(self, buying: Int64, selling: Int64) -> None:
         set_field(self, "buying", check.int64(buying, "Liabilities.buying"))
         set_field(self, "selling", check.int64(selling, "Liabilities.selling"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, buying: Int64 = ..., selling: Int64 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not Liabilities:
@@ -1562,6 +1606,12 @@ class Signer(XdrStruct):
             check.union(key, "Signer.key", _SIGNER_KEY_CLASSES, "SignerKey"),
         )
         set_field(self, "weight", check.uint32(weight, "Signer.weight"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, key: SignerKey.Any = ..., weight: Uint32 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not Signer:
@@ -1646,6 +1696,17 @@ class AccountEntryExtensionV3(XdrStruct):
             TimePoint._checked(seq_time, "AccountEntryExtensionV3.seq_time"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            seq_ledger: Uint32 = ...,
+            seq_time: Uint64 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AccountEntryExtensionV3:
             return NotImplemented
@@ -1727,6 +1788,10 @@ class AccountEntryExtensionV2Ext(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExtensionV2Ext.V0:
                 return NotImplemented
@@ -1766,6 +1831,12 @@ class AccountEntryExtensionV2Ext(metaclass=UnionNamespace):
                     v3, "AccountEntryExtensionV2Ext.V3.v3", AccountEntryExtensionV3
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v3: AccountEntryExtensionV3 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExtensionV2Ext.V3:
@@ -1952,6 +2023,18 @@ class AccountEntryExtensionV2(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            num_sponsored: Uint32 = ...,
+            num_sponsoring: Uint32 = ...,
+            signer_sponsoring_i_ds: Sequence[SponsorshipDescriptor] = ...,
+            ext: AccountEntryExtensionV2Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AccountEntryExtensionV2:
             return NotImplemented
@@ -2077,6 +2160,10 @@ class AccountEntryExtensionV1Ext(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExtensionV1Ext.V0:
                 return NotImplemented
@@ -2116,6 +2203,12 @@ class AccountEntryExtensionV1Ext(metaclass=UnionNamespace):
                     v2, "AccountEntryExtensionV1Ext.V2.v2", AccountEntryExtensionV2
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v2: AccountEntryExtensionV2 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExtensionV1Ext.V2:
@@ -2278,6 +2371,16 @@ class AccountEntryExtensionV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liabilities: Liabilities = ...,
+            ext: AccountEntryExtensionV1Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AccountEntryExtensionV1:
             return NotImplemented
@@ -2338,6 +2441,10 @@ class AccountEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExt.V0:
                 return NotImplemented
@@ -2375,6 +2482,12 @@ class AccountEntryExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "AccountEntryExt.V1.v1", AccountEntryExtensionV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: AccountEntryExtensionV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AccountEntryExt.V1:
@@ -2612,6 +2725,24 @@ class AccountEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            account_id: AccountID.Any = ...,
+            balance: Int64 = ...,
+            seq_num: Int64 = ...,
+            num_sub_entries: Uint32 = ...,
+            inflation_dest: AccountID.Any | None = ...,
+            flags: Uint32 = ...,
+            home_domain: bytes | str = ...,
+            thresholds: bytes = ...,
+            signers: Sequence[Signer] = ...,
+            ext: AccountEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AccountEntry:
             return NotImplemented
@@ -2823,6 +2954,10 @@ class TrustLineAsset(metaclass=UnionNamespace):
             AssetType.ASSET_TYPE_NATIVE
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineAsset.Native:
                 return NotImplemented
@@ -2864,6 +2999,10 @@ class TrustLineAsset(metaclass=UnionNamespace):
                     alpha_num4, "TrustLineAsset.CreditAlphaNum4.alpha_num4", AlphaNum4
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, alpha_num4: AlphaNum4 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineAsset.CreditAlphaNum4:
@@ -2914,6 +3053,12 @@ class TrustLineAsset(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, alpha_num12: AlphaNum12 = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineAsset.CreditAlphaNum12:
                 return NotImplemented
@@ -2960,6 +3105,12 @@ class TrustLineAsset(metaclass=UnionNamespace):
                     liquidity_pool_id, "TrustLineAsset.PoolShare.liquidity_pool_id"
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool_id: bytes = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineAsset.PoolShare:
@@ -3107,6 +3258,10 @@ class TrustLineEntryExtensionV2Ext(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineEntryExtensionV2Ext.V0:
@@ -3263,6 +3418,16 @@ class TrustLineEntryExtensionV2(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liquidity_pool_use_count: Int32 = ...,
+            ext: TrustLineEntryExtensionV2Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TrustLineEntryExtensionV2:
             return NotImplemented
@@ -3335,6 +3500,10 @@ class TrustLineEntryV1Ext(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineEntryV1Ext.V0:
                 return NotImplemented
@@ -3374,6 +3543,12 @@ class TrustLineEntryV1Ext(metaclass=UnionNamespace):
                     v2, "TrustLineEntryV1Ext.V2.v2", TrustLineEntryExtensionV2
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v2: TrustLineEntryExtensionV2 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineEntryV1Ext.V2:
@@ -3532,6 +3707,16 @@ class TrustLineEntryV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liabilities: Liabilities = ...,
+            ext: TrustLineEntryV1Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TrustLineEntryV1:
             return NotImplemented
@@ -3602,6 +3787,10 @@ class TrustLineEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineEntryExt.V0:
                 return NotImplemented
@@ -3639,6 +3828,10 @@ class TrustLineEntryExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "TrustLineEntryExt.V1.v1", TrustLineEntryV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v1: TrustLineEntryV1 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not TrustLineEntryExt.V1:
@@ -3844,6 +4037,20 @@ class TrustLineEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            account_id: AccountID.Any = ...,
+            asset: TrustLineAsset.Any = ...,
+            balance: Int64 = ...,
+            limit: Int64 = ...,
+            flags: Uint32 = ...,
+            ext: TrustLineEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TrustLineEntry:
             return NotImplemented
@@ -3942,6 +4149,10 @@ class OfferEntryExt(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not OfferEntryExt.V0:
@@ -4138,6 +4349,22 @@ class OfferEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            seller_id: AccountID.Any = ...,
+            offer_id: Int64 = ...,
+            selling: Asset.Any = ...,
+            buying: Asset.Any = ...,
+            amount: Int64 = ...,
+            price: Price = ...,
+            flags: Uint32 = ...,
+            ext: OfferEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not OfferEntry:
             return NotImplemented
@@ -4257,6 +4484,10 @@ class DataEntryExt(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not DataEntryExt.V0:
@@ -4413,6 +4644,18 @@ class DataEntry(XdrStruct):
             check.union(ext, "DataEntry.ext", _DATA_ENTRY_EXT_CLASSES, "DataEntryExt"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            account_id: AccountID.Any = ...,
+            data_name: bytes | str = ...,
+            data_value: bytes = ...,
+            ext: DataEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not DataEntry:
             return NotImplemented
@@ -4511,6 +4754,10 @@ class ClaimPredicate(metaclass=UnionNamespace):
             ClaimPredicateType.CLAIM_PREDICATE_UNCONDITIONAL
         )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.Unconditional:
                 return NotImplemented
@@ -4562,6 +4809,12 @@ class ClaimPredicate(metaclass=UnionNamespace):
                     "ClaimPredicate",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, and_predicates: Sequence[ClaimPredicate.Any] = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.And:
@@ -4641,6 +4894,12 @@ class ClaimPredicate(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, or_predicates: Sequence[ClaimPredicate.Any] = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.Or:
                 return NotImplemented
@@ -4718,6 +4977,12 @@ class ClaimPredicate(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, not_predicate: ClaimPredicate.Any | None = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.Not:
                 return NotImplemented
@@ -4786,6 +5051,10 @@ class ClaimPredicate(metaclass=UnionNamespace):
                 check.int64(abs_before, "ClaimPredicate.BeforeAbsoluteTime.abs_before"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, abs_before: Int64 = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.BeforeAbsoluteTime:
                 return NotImplemented
@@ -4841,6 +5110,10 @@ class ClaimPredicate(metaclass=UnionNamespace):
                 "rel_before",
                 check.int64(rel_before, "ClaimPredicate.BeforeRelativeTime.rel_before"),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, rel_before: Int64 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimPredicate.BeforeRelativeTime:
@@ -5020,6 +5293,16 @@ class ClaimantV0(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            destination: AccountID.Any = ...,
+            predicate: ClaimPredicate.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimantV0:
             return NotImplemented
@@ -5085,6 +5368,10 @@ class Claimant(metaclass=UnionNamespace):
 
         def __init__(self, v0: ClaimantV0) -> None:
             set_field(self, "v0", check.instance(v0, "Claimant.V0.v0", ClaimantV0))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: ClaimantV0 = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not Claimant.V0:
@@ -5210,6 +5497,10 @@ class ClaimableBalanceEntryExtensionV1Ext(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimableBalanceEntryExtensionV1Ext.V0:
@@ -5369,6 +5660,16 @@ class ClaimableBalanceEntryExtensionV1(XdrStruct):
             self, "flags", check.uint32(flags, "ClaimableBalanceEntryExtensionV1.flags")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ClaimableBalanceEntryExtensionV1Ext.Any = ...,
+            flags: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimableBalanceEntryExtensionV1:
             return NotImplemented
@@ -5434,6 +5735,10 @@ class ClaimableBalanceEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimableBalanceEntryExt.V0:
                 return NotImplemented
@@ -5475,6 +5780,12 @@ class ClaimableBalanceEntryExt(metaclass=UnionNamespace):
                     ClaimableBalanceEntryExtensionV1,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: ClaimableBalanceEntryExtensionV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimableBalanceEntryExt.V1:
@@ -5679,6 +5990,19 @@ class ClaimableBalanceEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            balance_id: ClaimableBalanceID.Any = ...,
+            claimants: Sequence[Claimant.Any] = ...,
+            asset: Asset.Any = ...,
+            amount: Int64 = ...,
+            ext: ClaimableBalanceEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ClaimableBalanceEntry:
             return NotImplemented
@@ -5810,6 +6134,17 @@ class LiquidityPoolConstantProductParameters(XdrStruct):
         set_field(
             self, "fee", check.int32(fee, "LiquidityPoolConstantProductParameters.fee")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            asset_a: Asset.Any = ...,
+            asset_b: Asset.Any = ...,
+            fee: Int32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LiquidityPoolConstantProductParameters:
@@ -5944,6 +6279,19 @@ class LiquidityPoolEntryConstantProduct(XdrStruct):
                 "LiquidityPoolEntryConstantProduct.pool_shares_trust_line_count",
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            params: LiquidityPoolConstantProductParameters = ...,
+            reserve_a: Int64 = ...,
+            reserve_b: Int64 = ...,
+            total_pool_shares: Int64 = ...,
+            pool_shares_trust_line_count: Int64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LiquidityPoolEntryConstantProduct:
@@ -6088,6 +6436,12 @@ class LiquidityPoolEntryBody(metaclass=UnionNamespace):
                     LiquidityPoolEntryConstantProduct,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, constant_product: LiquidityPoolEntryConstantProduct = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LiquidityPoolEntryBody.ConstantProduct:
@@ -6265,6 +6619,16 @@ class LiquidityPoolEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            liquidity_pool_id: bytes = ...,
+            body: LiquidityPoolEntryBody.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LiquidityPoolEntry:
             return NotImplemented
@@ -6378,6 +6742,19 @@ class ContractDataEntry(XdrStruct):
             "val",
             check.union(val, "ContractDataEntry.val", _SC_VAL_CLASSES, "SCVal"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            contract: SCAddress.Any = ...,
+            key: SCVal.Any = ...,
+            durability: ContractDataDurability = ...,
+            val: SCVal.Any = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractDataEntry:
@@ -6567,6 +6944,25 @@ class ContractCodeCostInputs(XdrStruct):
                 n_data_segment_bytes, "ContractCodeCostInputs.n_data_segment_bytes"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            n_instructions: Uint32 = ...,
+            n_functions: Uint32 = ...,
+            n_globals: Uint32 = ...,
+            n_table_entries: Uint32 = ...,
+            n_types: Uint32 = ...,
+            n_data_segments: Uint32 = ...,
+            n_elem_segments: Uint32 = ...,
+            n_imports: Uint32 = ...,
+            n_exports: Uint32 = ...,
+            n_data_segment_bytes: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractCodeCostInputs:
@@ -6779,6 +7175,16 @@ class ContractCodeEntryV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ExtensionPoint.Any = ...,
+            cost_inputs: ContractCodeCostInputs = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractCodeEntryV1:
             return NotImplemented
@@ -6845,6 +7251,10 @@ class ContractCodeEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractCodeEntryExt.V0:
                 return NotImplemented
@@ -6882,6 +7292,12 @@ class ContractCodeEntryExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "ContractCodeEntryExt.V1.v1", ContractCodeEntryV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: ContractCodeEntryV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ContractCodeEntryExt.V1:
@@ -7043,6 +7459,17 @@ class ContractCodeEntry(XdrStruct):
         set_field(self, "hash", Hash._checked(hash, "ContractCodeEntry.hash"))
         set_field(self, "code", check.opaque_var(code, "ContractCodeEntry.code", None))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ext: ContractCodeEntryExt.Any = ...,
+            hash: bytes = ...,
+            code: bytes = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not ContractCodeEntry:
             return NotImplemented
@@ -7124,6 +7551,12 @@ class TTLEntry(XdrStruct):
             check.uint32(live_until_ledger_seq, "TTLEntry.live_until_ledger_seq"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, key_hash: bytes = ..., live_until_ledger_seq: Uint32 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TTLEntry:
             return NotImplemented
@@ -7195,6 +7628,10 @@ class LedgerEntryExtensionV1Ext(metaclass=UnionNamespace):
         __slots__ = ()
 
         v: ClassVar[Literal[0]] = 0
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryExtensionV1Ext.V0:
@@ -7354,6 +7791,16 @@ class LedgerEntryExtensionV1(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            sponsoring_id: SponsorshipDescriptor = ...,
+            ext: LedgerEntryExtensionV1Ext.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerEntryExtensionV1:
             return NotImplemented
@@ -7459,6 +7906,10 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, account: AccountEntry = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.Account:
                 return NotImplemented
@@ -7504,6 +7955,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, trust_line: TrustLineEntry = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.TrustLine:
                 return NotImplemented
@@ -7547,6 +8004,10 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 check.instance(offer, "LedgerEntryData.Offer.offer", OfferEntry),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, offer: OfferEntry = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.Offer:
                 return NotImplemented
@@ -7589,6 +8050,10 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 "data",
                 check.instance(data, "LedgerEntryData.Data.data", DataEntry),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, data: DataEntry = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.Data:
@@ -7638,6 +8103,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                     ClaimableBalanceEntry,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, claimable_balance: ClaimableBalanceEntry = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.ClaimableBalance:
@@ -7690,6 +8161,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool: LiquidityPoolEntry = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.LiquidityPool:
                 return NotImplemented
@@ -7739,6 +8216,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_data: ContractDataEntry = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.ContractData:
                 return NotImplemented
@@ -7787,6 +8270,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                     ContractCodeEntry,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_code: ContractCodeEntry = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.ContractCode:
@@ -7838,6 +8327,12 @@ class LedgerEntryData(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, config_setting: ConfigSettingEntry.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.ConfigSetting:
                 return NotImplemented
@@ -7878,6 +8373,10 @@ class LedgerEntryData(metaclass=UnionNamespace):
             set_field(
                 self, "ttl", check.instance(ttl, "LedgerEntryData.TTL.ttl", TTLEntry)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ttl: TTLEntry = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryData.TTL:
@@ -8040,6 +8539,10 @@ class LedgerEntryExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryExt.V0:
                 return NotImplemented
@@ -8077,6 +8580,12 @@ class LedgerEntryExt(metaclass=UnionNamespace):
                 "v1",
                 check.instance(v1, "LedgerEntryExt.V1.v1", LedgerEntryExtensionV1),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v1: LedgerEntryExtensionV1 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerEntryExt.V1:
@@ -8271,6 +8780,17 @@ class LedgerEntry(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            last_modified_ledger_seq: Uint32 = ...,
+            data: LedgerEntryData.Any = ...,
+            ext: LedgerEntryExt.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerEntry:
             return NotImplemented
@@ -8350,6 +8870,10 @@ class LedgerKeyAccount(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, account_id: AccountID.Any = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyAccount:
             return NotImplemented
@@ -8418,6 +8942,12 @@ class LedgerKeyTrustLine(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, account_id: AccountID.Any = ..., asset: TrustLineAsset.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyTrustLine:
             return NotImplemented
@@ -8481,6 +9011,12 @@ class LedgerKeyOffer(XdrStruct):
             ),
         )
         set_field(self, "offer_id", check.int64(offer_id, "LedgerKeyOffer.offer_id"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, seller_id: AccountID.Any = ..., offer_id: Int64 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyOffer:
@@ -8551,6 +9087,12 @@ class LedgerKeyData(XdrStruct):
         set_field(
             self, "data_name", String64._checked(data_name, "LedgerKeyData.data_name")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, account_id: AccountID.Any = ..., data_name: bytes | str = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyData:
@@ -8625,6 +9167,12 @@ class LedgerKeyClaimableBalance(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, balance_id: ClaimableBalanceID.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyClaimableBalance:
             return NotImplemented
@@ -8681,6 +9229,10 @@ class LedgerKeyLiquidityPool(XdrStruct):
                 liquidity_pool_id, "LedgerKeyLiquidityPool.liquidity_pool_id"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, liquidity_pool_id: bytes = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyLiquidityPool:
@@ -8775,6 +9327,17 @@ class LedgerKeyContractData(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            contract: SCAddress.Any = ...,
+            key: SCVal.Any = ...,
+            durability: ContractDataDurability = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyContractData:
             return NotImplemented
@@ -8842,6 +9405,10 @@ class LedgerKeyContractCode(XdrStruct):
     def __init__(self, hash: bytes) -> None:
         set_field(self, "hash", Hash._checked(hash, "LedgerKeyContractCode.hash"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, hash: bytes = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyContractCode:
             return NotImplemented
@@ -8906,6 +9473,12 @@ class LedgerKeyConfigSetting(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, config_setting_id: ConfigSettingID = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyConfigSetting:
             return NotImplemented
@@ -8959,6 +9532,10 @@ class LedgerKeyTTL(XdrStruct):
 
     def __init__(self, key_hash: bytes) -> None:
         set_field(self, "key_hash", Hash._checked(key_hash, "LedgerKeyTTL.key_hash"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, key_hash: bytes = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not LedgerKeyTTL:
@@ -9084,6 +9661,12 @@ class LedgerKey(metaclass=UnionNamespace):
                 check.instance(account, "LedgerKey.Account.account", LedgerKeyAccount),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, account: LedgerKeyAccount = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.Account:
                 return NotImplemented
@@ -9129,6 +9712,12 @@ class LedgerKey(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, trust_line: LedgerKeyTrustLine = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.TrustLine:
                 return NotImplemented
@@ -9172,6 +9761,10 @@ class LedgerKey(metaclass=UnionNamespace):
                 check.instance(offer, "LedgerKey.Offer.offer", LedgerKeyOffer),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, offer: LedgerKeyOffer = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.Offer:
                 return NotImplemented
@@ -9212,6 +9805,10 @@ class LedgerKey(metaclass=UnionNamespace):
             set_field(
                 self, "data", check.instance(data, "LedgerKey.Data.data", LedgerKeyData)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, data: LedgerKeyData = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.Data:
@@ -9261,6 +9858,12 @@ class LedgerKey(metaclass=UnionNamespace):
                     LedgerKeyClaimableBalance,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, claimable_balance: LedgerKeyClaimableBalance = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.ClaimableBalance:
@@ -9317,6 +9920,12 @@ class LedgerKey(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, liquidity_pool: LedgerKeyLiquidityPool = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.LiquidityPool:
                 return NotImplemented
@@ -9367,6 +9976,12 @@ class LedgerKey(metaclass=UnionNamespace):
                     LedgerKeyContractData,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_data: LedgerKeyContractData = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.ContractData:
@@ -9419,6 +10034,12 @@ class LedgerKey(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, contract_code: LedgerKeyContractCode = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.ContractCode:
                 return NotImplemented
@@ -9470,6 +10091,12 @@ class LedgerKey(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, config_setting: LedgerKeyConfigSetting = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.ConfigSetting:
                 return NotImplemented
@@ -9512,6 +10139,10 @@ class LedgerKey(metaclass=UnionNamespace):
             set_field(
                 self, "ttl", check.instance(ttl, "LedgerKey.TTL.ttl", LedgerKeyTTL)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ttl: LedgerKeyTTL = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not LedgerKey.TTL:
@@ -9671,6 +10302,10 @@ class BucketMetadataExt(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketMetadataExt.V0:
                 return NotImplemented
@@ -9712,6 +10347,12 @@ class BucketMetadataExt(metaclass=UnionNamespace):
                     BucketListType,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, bucket_list_type: BucketListType = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketMetadataExt.V1:
@@ -9870,6 +10511,12 @@ class BucketMetadata(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ledger_version: Uint32 = ..., ext: BucketMetadataExt.Any = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not BucketMetadata:
             return NotImplemented
@@ -9945,6 +10592,12 @@ class BucketEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, live_entry: LedgerEntry = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketEntry.LiveEntry:
                 return NotImplemented
@@ -9989,6 +10642,12 @@ class BucketEntry(metaclass=UnionNamespace):
                     live_entry, "BucketEntry.InitEntry.live_entry", LedgerEntry
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, live_entry: LedgerEntry = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketEntry.InitEntry:
@@ -10038,6 +10697,12 @@ class BucketEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, dead_entry: LedgerKey.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketEntry.DeadEntry:
                 return NotImplemented
@@ -10082,6 +10747,12 @@ class BucketEntry(metaclass=UnionNamespace):
                     meta_entry, "BucketEntry.MetaEntry.meta_entry", BucketMetadata
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, meta_entry: BucketMetadata = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not BucketEntry.MetaEntry:
@@ -10235,6 +10906,12 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, archived_entry: LedgerEntry = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HotArchiveBucketEntry.Archived:
                 return NotImplemented
@@ -10285,6 +10962,10 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, key: LedgerKey.Any = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not HotArchiveBucketEntry.Live:
                 return NotImplemented
@@ -10333,6 +11014,12 @@ class HotArchiveBucketEntry(metaclass=UnionNamespace):
                     BucketMetadata,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, meta_entry: BucketMetadata = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not HotArchiveBucketEntry.MetaEntry:

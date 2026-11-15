@@ -123,7 +123,43 @@ def base_classes(value: xdr.XdrValue, record: xdr.XdrStruct | xdr.XdrArm) -> Non
     xdr.encode_stream([5])  # type: ignore[list-item]
 
 
-def replacing(value: xdr.UInt128Parts) -> None:
+def replacing(value: xdr.UInt128Parts, record: xdr.XdrStruct) -> None:
     assert_type(xdr.replace(value, lo=1), xdr.UInt128Parts)
+    assert_type(xdr.replace(xdr.SCVal.U32(1), u32=2), xdr.SCVal.U32)
+    # The fields are checked as the constructor checks them.
+    xdr.replace(value, low=1)  # type: ignore[call-arg]
+    xdr.replace(value, lo="1")  # type: ignore[arg-type]
+    xdr.replace(value, 1)  # type: ignore[call-arg]
+    # An arm without a field takes no change.
+    assert_type(xdr.replace(xdr.SCVal.Void()), xdr.SCVal.Void)
+    xdr.replace(xdr.SCVal.Void(), void=1)  # type: ignore[call-arg]
+    # Only structs and arms have fields to replace.
+    xdr.replace(xdr.SCValType.SCV_U32)  # type: ignore[arg-type]
+    xdr.replace(xdr.Hash(bytes(32)))  # type: ignore[arg-type]
+    # A value known only as a struct takes any field, which is checked when it runs.
+    assert_type(xdr.replace(record, anything=1), xdr.XdrStruct)
     if sys.version_info >= (3, 13):
         assert_type(copy.replace(value, lo=1), xdr.UInt128Parts)
+
+
+def replacing_fields(
+    footprint: xdr.LedgerFootprint,
+    key: xdr.LedgerKey.Any,
+    instance: xdr.SCContractInstance,
+    entry: xdr.SCMapEntry,
+    scval: xdr.SCVal.Any,
+) -> None:
+    # A field takes what the constructor takes: any sequence for an array, None for
+    # an optional value, str for a string, and the plain value of a typedef.
+    assert_type(xdr.replace(footprint, read_only=[]), xdr.LedgerFootprint)
+    assert_type(xdr.replace(footprint, read_only=[key]), xdr.LedgerFootprint)
+    assert_type(xdr.replace(instance, storage=None), xdr.SCContractInstance)
+    symbol = xdr.SCVal.Symbol("a")
+    assert_type(xdr.replace(symbol, sym="b"), xdr.SCVal.Symbol)
+    assert_type(xdr.replace(symbol, sym=b"b"), xdr.SCVal.Symbol)
+    contract = xdr.SCAddress.Contract(bytes(32))
+    assert_type(xdr.replace(contract, contract_id=bytes(32)), xdr.SCAddress.Contract)
+    # A field may take a union. A union whose fields are replaced is narrowed first.
+    assert_type(xdr.replace(entry, val=scval), xdr.SCMapEntry)
+    if isinstance(scval, xdr.SCVal.U32):
+        assert_type(xdr.replace(scval, u32=2), xdr.SCVal.U32)

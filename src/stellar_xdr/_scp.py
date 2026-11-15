@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._runtime import (
     DEFAULT_MAX_DEPTH,
@@ -143,6 +143,12 @@ class SCPBallot(XdrStruct):
         set_field(self, "counter", check.uint32(counter, "SCPBallot.counter"))
         set_field(self, "value", Value._checked(value, "SCPBallot.value"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, counter: Uint32 = ..., value: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPBallot:
             return NotImplemented
@@ -220,6 +226,17 @@ class SCPNomination(XdrStruct):
             "accepted",
             check.array(accepted, "SCPNomination.accepted", None, Value._checked),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            quorum_set_hash: bytes = ...,
+            votes: Sequence[bytes] = ...,
+            accepted: Sequence[bytes] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPNomination:
@@ -387,6 +404,20 @@ class SCPStatementPrepare(XdrStruct):
         )
         set_field(self, "n_c", check.uint32(n_c, "SCPStatementPrepare.n_c"))
         set_field(self, "n_h", check.uint32(n_h, "SCPStatementPrepare.n_h"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            quorum_set_hash: bytes = ...,
+            ballot: SCPBallot = ...,
+            prepared: SCPBallot | None = ...,
+            prepared_prime: SCPBallot | None = ...,
+            n_c: Uint32 = ...,
+            n_h: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPStatementPrepare:
@@ -561,6 +592,19 @@ class SCPStatementConfirm(XdrStruct):
             Hash._checked(quorum_set_hash, "SCPStatementConfirm.quorum_set_hash"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ballot: SCPBallot = ...,
+            n_prepared: Uint32 = ...,
+            n_commit: Uint32 = ...,
+            n_h: Uint32 = ...,
+            quorum_set_hash: bytes = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPStatementConfirm:
             return NotImplemented
@@ -683,6 +727,17 @@ class SCPStatementExternalize(XdrStruct):
                 commit_quorum_set_hash, "SCPStatementExternalize.commit_quorum_set_hash"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            commit: SCPBallot = ...,
+            n_h: Uint32 = ...,
+            commit_quorum_set_hash: bytes = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPStatementExternalize:
@@ -812,6 +867,12 @@ class SCPStatementPledges(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, prepare: SCPStatementPrepare = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCPStatementPledges.Prepare:
                 return NotImplemented
@@ -858,6 +919,12 @@ class SCPStatementPledges(metaclass=UnionNamespace):
                     confirm, "SCPStatementPledges.Confirm.confirm", SCPStatementConfirm
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, confirm: SCPStatementConfirm = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCPStatementPledges.Confirm:
@@ -908,6 +975,12 @@ class SCPStatementPledges(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, externalize: SCPStatementExternalize = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCPStatementPledges.Externalize:
                 return NotImplemented
@@ -956,6 +1029,12 @@ class SCPStatementPledges(metaclass=UnionNamespace):
                     nominate, "SCPStatementPledges.Nominate.nominate", SCPNomination
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, nominate: SCPNomination = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SCPStatementPledges.Nominate:
@@ -1149,6 +1228,17 @@ class SCPStatement(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            node_id: NodeID.Any = ...,
+            slot_index: Uint64 = ...,
+            pledges: SCPStatementPledges.Any = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPStatement:
             return NotImplemented
@@ -1226,6 +1316,12 @@ class SCPEnvelope(XdrStruct):
         set_field(
             self, "signature", Signature._checked(signature, "SCPEnvelope.signature")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, statement: SCPStatement = ..., signature: bytes = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPEnvelope:
@@ -1318,6 +1414,17 @@ class SCPQuorumSet(XdrStruct):
                 SCPQuorumSet,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            threshold: Uint32 = ...,
+            validators: Sequence[NodeID.Any] = ...,
+            inner_sets: Sequence[SCPQuorumSet] = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SCPQuorumSet:

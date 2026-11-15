@@ -11,7 +11,7 @@ file between releases.
 
 from __future__ import annotations
 
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 import stellar_strkey as strkey
 
@@ -420,6 +420,10 @@ class ExtensionPoint(metaclass=UnionNamespace):
 
         v: ClassVar[Literal[0]] = 0
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not ExtensionPoint.V0:
                 return NotImplemented
@@ -553,6 +557,10 @@ class PublicKey(metaclass=UnionNamespace):
                 self, "ed25519", Uint256._checked(ed25519, "PublicKey.Ed25519.ed25519")
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ed25519: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PublicKey.Ed25519:
                 return NotImplemented
@@ -682,6 +690,12 @@ class SignerKeyEd25519SignedPayload(XdrStruct):
             check.opaque_var(payload, "SignerKeyEd25519SignedPayload.payload", 64),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, ed25519: bytes = ..., payload: bytes = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SignerKeyEd25519SignedPayload:
             return NotImplemented
@@ -755,6 +769,10 @@ class SignerKey(metaclass=UnionNamespace):
                 self, "ed25519", Uint256._checked(ed25519, "SignerKey.Ed25519.ed25519")
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ed25519: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SignerKey.Ed25519:
                 return NotImplemented
@@ -794,6 +812,10 @@ class SignerKey(metaclass=UnionNamespace):
                 Uint256._checked(pre_auth_tx, "SignerKey.PreAuthTx.pre_auth_tx"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, pre_auth_tx: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not SignerKey.PreAuthTx:
                 return NotImplemented
@@ -830,6 +852,10 @@ class SignerKey(metaclass=UnionNamespace):
             set_field(
                 self, "hash_x", Uint256._checked(hash_x, "SignerKey.HashX.hash_x")
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, hash_x: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SignerKey.HashX:
@@ -875,6 +901,12 @@ class SignerKey(metaclass=UnionNamespace):
                     SignerKeyEd25519SignedPayload,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, ed25519_signed_payload: SignerKeyEd25519SignedPayload = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SignerKey.Ed25519SignedPayload:
@@ -1016,6 +1048,10 @@ class Curve25519Secret(XdrStruct):
     def __init__(self, key: bytes) -> None:
         set_field(self, "key", check.opaque_fixed(key, "Curve25519Secret.key", 32))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, key: bytes = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Curve25519Secret:
             return NotImplemented
@@ -1066,6 +1102,10 @@ class Curve25519Public(XdrStruct):
 
     def __init__(self, key: bytes) -> None:
         set_field(self, "key", check.opaque_fixed(key, "Curve25519Public.key", 32))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, key: bytes = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not Curve25519Public:
@@ -1118,6 +1158,10 @@ class HmacSha256Key(XdrStruct):
     def __init__(self, key: bytes) -> None:
         set_field(self, "key", check.opaque_fixed(key, "HmacSha256Key.key", 32))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, key: bytes = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not HmacSha256Key:
             return NotImplemented
@@ -1167,6 +1211,10 @@ class HmacSha256Mac(XdrStruct):
     def __init__(self, mac: bytes) -> None:
         set_field(self, "mac", check.opaque_fixed(mac, "HmacSha256Mac.mac", 32))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, mac: bytes = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not HmacSha256Mac:
             return NotImplemented
@@ -1215,6 +1263,10 @@ class ShortHashSeed(XdrStruct):
 
     def __init__(self, seed: bytes) -> None:
         set_field(self, "seed", check.opaque_fixed(seed, "ShortHashSeed.seed", 16))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, seed: bytes = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not ShortHashSeed:
@@ -1369,6 +1421,23 @@ class SerializedBinaryFuseFilter(XdrStruct):
                 fingerprints, "SerializedBinaryFuseFilter.fingerprints", None
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            type: BinaryFuseFilterType = ...,
+            input_hash_seed: ShortHashSeed = ...,
+            filter_seed: ShortHashSeed = ...,
+            segment_length: Uint32 = ...,
+            segement_length_mask: Uint32 = ...,
+            segment_count: Uint32 = ...,
+            segment_count_length: Uint32 = ...,
+            fingerprint_length: Uint32 = ...,
+            fingerprints: bytes = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SerializedBinaryFuseFilter:
@@ -1539,6 +1608,10 @@ class ClaimableBalanceID(metaclass=UnionNamespace):
 
         def __init__(self, v0: bytes) -> None:
             set_field(self, "v0", Hash._checked(v0, "ClaimableBalanceID.V0.v0"))
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, v0: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not ClaimableBalanceID.V0:

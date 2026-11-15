@@ -12,7 +12,7 @@ file between releases.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any, ClassVar, Final, Literal, Self, TypeAlias, final
+from typing import TYPE_CHECKING, Any, ClassVar, Final, Literal, Self, TypeAlias, final
 
 from ._ledger import (
     _GENERALIZED_TRANSACTION_SET_CLASSES,
@@ -356,6 +356,12 @@ class Error(XdrStruct):
         set_field(self, "code", check.instance(code, "Error.code", ErrorCode))
         set_field(self, "msg", check.string(msg, "Error.msg", 100))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, code: ErrorCode = ..., msg: bytes | str = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Error:
             return NotImplemented
@@ -407,6 +413,10 @@ class SendMore(XdrStruct):
         set_field(
             self, "num_messages", check.uint32(num_messages, "SendMore.num_messages")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, num_messages: Uint32 = ...) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SendMore:
@@ -467,6 +477,12 @@ class SendMoreExtended(XdrStruct):
         set_field(
             self, "num_bytes", check.uint32(num_bytes, "SendMoreExtended.num_bytes")
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, num_messages: Uint32 = ..., num_bytes: Uint32 = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SendMoreExtended:
@@ -542,6 +558,17 @@ class AuthCert(XdrStruct):
         )
         set_field(self, "expiration", check.uint64(expiration, "AuthCert.expiration"))
         set_field(self, "sig", Signature._checked(sig, "AuthCert.sig"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            pubkey: Curve25519Public = ...,
+            expiration: Uint64 = ...,
+            sig: bytes = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not AuthCert:
@@ -678,6 +705,23 @@ class Hello(XdrStruct):
         )
         set_field(self, "cert", check.instance(cert, "Hello.cert", AuthCert))
         set_field(self, "nonce", Uint256._checked(nonce, "Hello.nonce"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ledger_version: Uint32 = ...,
+            overlay_version: Uint32 = ...,
+            overlay_min_version: Uint32 = ...,
+            network_id: bytes = ...,
+            version_str: bytes | str = ...,
+            listening_port: int = ...,
+            peer_id: NodeID.Any = ...,
+            cert: AuthCert = ...,
+            nonce: bytes = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not Hello:
@@ -832,6 +876,10 @@ class Auth(XdrStruct):
     def __init__(self, flags: int) -> None:
         set_field(self, "flags", check.int32(flags, "Auth.flags"))
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(self, /, *, flags: int = ...) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not Auth:
             return NotImplemented
@@ -888,6 +936,10 @@ class PeerAddressIP(metaclass=UnionNamespace):
                 self, "ipv4", check.opaque_fixed(ipv4, "PeerAddressIP.IPv4.ipv4", 4)
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ipv4: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not PeerAddressIP.IPv4:
                 return NotImplemented
@@ -932,6 +984,10 @@ class PeerAddressIP(metaclass=UnionNamespace):
             set_field(
                 self, "ipv6", check.opaque_fixed(ipv6, "PeerAddressIP.IPv6.ipv6", 16)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, ipv6: bytes = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not PeerAddressIP.IPv6:
@@ -1091,6 +1147,17 @@ class PeerAddress(XdrStruct):
             self, "num_failures", check.uint32(num_failures, "PeerAddress.num_failures")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            ip: PeerAddressIP.Any = ...,
+            port: Uint32 = ...,
+            num_failures: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not PeerAddress:
             return NotImplemented
@@ -1160,6 +1227,12 @@ class DontHave(XdrStruct):
     def __init__(self, type: MessageType, req_hash: bytes) -> None:
         set_field(self, "type", check.instance(type, "DontHave.type", MessageType))
         set_field(self, "req_hash", Uint256._checked(req_hash, "DontHave.req_hash"))
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, type: MessageType = ..., req_hash: bytes = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not DontHave:
@@ -1244,6 +1317,17 @@ class TimeSlicedSurveyStartCollectingMessage(XdrStruct):
                 ledger_num, "TimeSlicedSurveyStartCollectingMessage.ledger_num"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            surveyor_id: NodeID.Any = ...,
+            nonce: Uint32 = ...,
+            ledger_num: Uint32 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedSurveyStartCollectingMessage:
@@ -1348,6 +1432,16 @@ class SignedTimeSlicedSurveyStartCollectingMessage(XdrStruct):
                 TimeSlicedSurveyStartCollectingMessage,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            signature: bytes = ...,
+            start_collecting: TimeSlicedSurveyStartCollectingMessage = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SignedTimeSlicedSurveyStartCollectingMessage:
@@ -1463,6 +1557,17 @@ class TimeSlicedSurveyStopCollectingMessage(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            surveyor_id: NodeID.Any = ...,
+            nonce: Uint32 = ...,
+            ledger_num: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedSurveyStopCollectingMessage:
             return NotImplemented
@@ -1565,6 +1670,16 @@ class SignedTimeSlicedSurveyStopCollectingMessage(XdrStruct):
                 TimeSlicedSurveyStopCollectingMessage,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            signature: bytes = ...,
+            stop_collecting: TimeSlicedSurveyStopCollectingMessage = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SignedTimeSlicedSurveyStopCollectingMessage:
@@ -1713,6 +1828,19 @@ class SurveyRequestMessage(XdrStruct):
                 SurveyMessageCommandType,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            surveyor_peer_id: NodeID.Any = ...,
+            surveyed_peer_id: NodeID.Any = ...,
+            ledger_num: Uint32 = ...,
+            encryption_key: Curve25519Public = ...,
+            command_type: SurveyMessageCommandType = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SurveyRequestMessage:
@@ -1863,6 +1991,18 @@ class TimeSlicedSurveyRequestMessage(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            request: SurveyRequestMessage = ...,
+            nonce: Uint32 = ...,
+            inbound_peers_index: Uint32 = ...,
+            outbound_peers_index: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedSurveyRequestMessage:
             return NotImplemented
@@ -1982,6 +2122,16 @@ class SignedTimeSlicedSurveyRequestMessage(XdrStruct):
                 TimeSlicedSurveyRequestMessage,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            request_signature: bytes = ...,
+            request: TimeSlicedSurveyRequestMessage = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SignedTimeSlicedSurveyRequestMessage:
@@ -2121,6 +2271,19 @@ class SurveyResponseMessage(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            surveyor_peer_id: NodeID.Any = ...,
+            surveyed_peer_id: NodeID.Any = ...,
+            ledger_num: Uint32 = ...,
+            command_type: SurveyMessageCommandType = ...,
+            encrypted_body: bytes = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not SurveyResponseMessage:
             return NotImplemented
@@ -2255,6 +2418,12 @@ class TimeSlicedSurveyResponseMessage(XdrStruct):
             self, "nonce", check.uint32(nonce, "TimeSlicedSurveyResponseMessage.nonce")
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, response: SurveyResponseMessage = ..., nonce: Uint32 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedSurveyResponseMessage:
             return NotImplemented
@@ -2334,6 +2503,16 @@ class SignedTimeSlicedSurveyResponseMessage(XdrStruct):
                 TimeSlicedSurveyResponseMessage,
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            response_signature: bytes = ...,
+            response: TimeSlicedSurveyResponseMessage = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not SignedTimeSlicedSurveyResponseMessage:
@@ -2560,6 +2739,29 @@ class PeerStats(XdrStruct):
                 duplicate_fetch_message_recv, "PeerStats.duplicate_fetch_message_recv"
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            id: NodeID.Any = ...,
+            version_str: bytes | str = ...,
+            messages_read: Uint64 = ...,
+            messages_written: Uint64 = ...,
+            bytes_read: Uint64 = ...,
+            bytes_written: Uint64 = ...,
+            seconds_connected: Uint64 = ...,
+            unique_flood_bytes_recv: Uint64 = ...,
+            duplicate_flood_bytes_recv: Uint64 = ...,
+            unique_fetch_bytes_recv: Uint64 = ...,
+            duplicate_fetch_bytes_recv: Uint64 = ...,
+            unique_flood_message_recv: Uint64 = ...,
+            duplicate_flood_message_recv: Uint64 = ...,
+            unique_fetch_message_recv: Uint64 = ...,
+            duplicate_fetch_message_recv: Uint64 = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not PeerStats:
@@ -2920,6 +3122,24 @@ class TimeSlicedNodeData(XdrStruct):
             ),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            added_authenticated_peers: Uint32 = ...,
+            dropped_authenticated_peers: Uint32 = ...,
+            total_inbound_peer_count: Uint32 = ...,
+            total_outbound_peer_count: Uint32 = ...,
+            p75_scp_first_to_self_latency_ms: Uint32 = ...,
+            p75_scp_self_to_other_latency_ms: Uint32 = ...,
+            lost_sync_count: Uint32 = ...,
+            is_validator: bool = ...,
+            max_inbound_peer_count: Uint32 = ...,
+            max_outbound_peer_count: Uint32 = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedNodeData:
             return NotImplemented
@@ -3126,6 +3346,12 @@ class TimeSlicedPeerData(XdrStruct):
             check.uint32(average_latency_ms, "TimeSlicedPeerData.average_latency_ms"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, peer_stats: PeerStats = ..., average_latency_ms: Uint32 = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not TimeSlicedPeerData:
             return NotImplemented
@@ -3218,6 +3444,17 @@ class TopologyResponseBodyV2(XdrStruct):
                 node_data, "TopologyResponseBodyV2.node_data", TimeSlicedNodeData
             ),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            inbound_peers: Sequence[TimeSlicedPeerData] = ...,
+            outbound_peers: Sequence[TimeSlicedPeerData] = ...,
+            node_data: TimeSlicedNodeData = ...,
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not TopologyResponseBodyV2:
@@ -3361,6 +3598,12 @@ class SurveyResponseBody(metaclass=UnionNamespace):
                     TopologyResponseBodyV2,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, topology_response_body_v2: TopologyResponseBodyV2 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not SurveyResponseBody.TopologyResponseV2:
@@ -3507,6 +3750,12 @@ class FloodAdvert(XdrStruct):
             TxAdvertVector._checked(tx_hashes, "FloodAdvert.tx_hashes"),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, tx_hashes: Sequence[bytes] = ...
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not FloodAdvert:
             return NotImplemented
@@ -3585,6 +3834,12 @@ class FloodDemand(XdrStruct):
             "tx_hashes",
             TxDemandVector._checked(tx_hashes, "FloodDemand.tx_hashes"),
         )
+
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self, /, *, tx_hashes: Sequence[bytes] = ...
+        ) -> Self: ...
 
     def __eq__(self, other: object) -> bool:
         if type(other) is not FloodDemand:
@@ -3721,6 +3976,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 check.instance(error, "StellarMessage.ErrorMsg.error", Error),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, error: Error = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.ErrorMsg:
                 return NotImplemented
@@ -3764,6 +4023,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 check.instance(hello, "StellarMessage.Hello.hello", Hello),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, hello: Hello = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.Hello:
                 return NotImplemented
@@ -3804,6 +4067,10 @@ class StellarMessage(metaclass=UnionNamespace):
             set_field(
                 self, "auth", check.instance(auth, "StellarMessage.Auth.auth", Auth)
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, auth: Auth = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.Auth:
@@ -3849,6 +4116,10 @@ class StellarMessage(metaclass=UnionNamespace):
                     dont_have, "StellarMessage.DontHave.dont_have", DontHave
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, dont_have: DontHave = ...) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.DontHave:
@@ -3898,6 +4169,12 @@ class StellarMessage(metaclass=UnionNamespace):
                     PeerAddress,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, peers: Sequence[PeerAddress] = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.Peers:
@@ -3958,6 +4235,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 Uint256._checked(tx_set_hash, "StellarMessage.GetTxSet.tx_set_hash"),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, tx_set_hash: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.GetTxSet:
                 return NotImplemented
@@ -4010,6 +4291,12 @@ class StellarMessage(metaclass=UnionNamespace):
                 check.instance(tx_set, "StellarMessage.TxSet.tx_set", TransactionSet),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, tx_set: TransactionSet = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.TxSet:
                 return NotImplemented
@@ -4059,6 +4346,12 @@ class StellarMessage(metaclass=UnionNamespace):
                     "GeneralizedTransactionSet",
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, generalized_tx_set: GeneralizedTransactionSet.Any = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.GeneralizedTxSet:
@@ -4114,6 +4407,12 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, transaction: TransactionEnvelope.Any = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.Transaction:
                 return NotImplemented
@@ -4165,6 +4464,15 @@ class StellarMessage(metaclass=UnionNamespace):
                     SignedTimeSlicedSurveyRequestMessage,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                signed_time_sliced_survey_request_message: SignedTimeSlicedSurveyRequestMessage = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.TimeSlicedSurveyRequest:
@@ -4240,6 +4548,15 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                signed_time_sliced_survey_response_message: SignedTimeSlicedSurveyResponseMessage = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.TimeSlicedSurveyResponse:
                 return NotImplemented
@@ -4313,6 +4630,15 @@ class StellarMessage(metaclass=UnionNamespace):
                     SignedTimeSlicedSurveyStartCollectingMessage,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                signed_time_sliced_survey_start_collecting_message: SignedTimeSlicedSurveyStartCollectingMessage = ...,
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.TimeSlicedSurveyStartCollecting:
@@ -4388,6 +4714,15 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self,
+                /,
+                *,
+                signed_time_sliced_survey_stop_collecting_message: SignedTimeSlicedSurveyStopCollectingMessage = ...,
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.TimeSlicedSurveyStopCollecting:
                 return NotImplemented
@@ -4455,6 +4790,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, q_set_hash: bytes = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.GetSCPQuorumSet:
                 return NotImplemented
@@ -4509,6 +4848,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, q_set: SCPQuorumSet = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.SCPQuorumSet:
                 return NotImplemented
@@ -4554,6 +4897,10 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(self, /, *, envelope: SCPEnvelope = ...) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.SCPMessage:
                 return NotImplemented
@@ -4598,6 +4945,12 @@ class StellarMessage(metaclass=UnionNamespace):
                     get_scp_ledger_seq, "StellarMessage.GetSCPState.get_scp_ledger_seq"
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, get_scp_ledger_seq: Uint32 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.GetSCPState:
@@ -4652,6 +5005,12 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, send_more_message: SendMore = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.SendMore:
                 return NotImplemented
@@ -4700,6 +5059,12 @@ class StellarMessage(metaclass=UnionNamespace):
                     SendMoreExtended,
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, send_more_extended_message: SendMoreExtended = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.SendMoreExtended:
@@ -4754,6 +5119,12 @@ class StellarMessage(metaclass=UnionNamespace):
                 ),
             )
 
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, flood_advert: FloodAdvert = ...
+            ) -> Self: ...
+
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.FloodAdvert:
                 return NotImplemented
@@ -4798,6 +5169,12 @@ class StellarMessage(metaclass=UnionNamespace):
                     flood_demand, "StellarMessage.FloodDemand.flood_demand", FloodDemand
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, flood_demand: FloodDemand = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not StellarMessage.FloodDemand:
@@ -5013,6 +5390,17 @@ class AuthenticatedMessageV0(XdrStruct):
             check.instance(mac, "AuthenticatedMessageV0.mac", HmacSha256Mac),
         )
 
+    if TYPE_CHECKING:
+
+        def _replace_signature(
+            self,
+            /,
+            *,
+            sequence: Uint64 = ...,
+            message: StellarMessage.Any = ...,
+            mac: HmacSha256Mac = ...,
+        ) -> Self: ...
+
     def __eq__(self, other: object) -> bool:
         if type(other) is not AuthenticatedMessageV0:
             return NotImplemented
@@ -5095,6 +5483,12 @@ class AuthenticatedMessage(metaclass=UnionNamespace):
                     v0, "AuthenticatedMessage.V0.v0", AuthenticatedMessageV0
                 ),
             )
+
+        if TYPE_CHECKING:
+
+            def _replace_signature(
+                self, /, *, v0: AuthenticatedMessageV0 = ...
+            ) -> Self: ...
 
         def __eq__(self, other: object) -> bool:
             if type(other) is not AuthenticatedMessage.V0:
