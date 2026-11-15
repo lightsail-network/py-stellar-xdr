@@ -88,6 +88,11 @@ def test_the_discriminant_is_a_class_attribute() -> None:
     assert xdr.TransactionExt.V0().v == 0
 
 
+def replace_by_position(value: xdr.XdrStruct) -> object:
+    # Known only as a struct, the value takes any change, as far as type checkers know.
+    return xdr.replace(value, 3)
+
+
 def test_replace_builds_a_checked_copy() -> None:
     value = xdr.UInt128Parts(1, 2)
     assert xdr.replace(value, lo=3) == xdr.UInt128Parts(1, 3)
@@ -97,7 +102,7 @@ def test_replace_builds_a_checked_copy() -> None:
     with pytest.raises(TypeError):
         xdr.replace(value, missing=1)  # type: ignore[call-arg]
     with pytest.raises(TypeError, match="by name"):
-        xdr.replace(value, 3)  # type: ignore[call-arg]
+        replace_by_position(value)
     with pytest.raises(
         TypeError, match="expected a struct or a union arm, got SCValType"
     ):

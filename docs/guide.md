@@ -75,11 +75,14 @@ assert symbols.vec == (xdr.SCVal.Symbol("a"), xdr.SCVal.Symbol("b"))
 ```
 
 Values are immutable: assigning to a field raises `AttributeError`. To change a field,
-make a copy with `replace`, which checks the new value like a constructor. Type checkers
-check its fields as a constructor's too: a misspelled field or a value of the wrong type
-is an error before the code runs. On Python 3.13 and later, `copy.replace` makes the
-same copy, but type checkers don't check it the same way: mypy takes each field as it is
-stored, such as a tuple for an array, and pyright doesn't check the fields.
+make a copy with `replace`, which checks the new value like a constructor. When the
+class of the value is known, type checkers check its fields as a constructor's too: a
+misspelled field or a value of the wrong type is an error before the code runs. Narrow
+a value whose type is a union, such as `SCVal.Any`, with `match` or `isinstance` before
+replacing its fields; a value known only as `XdrStruct` or `XdrArm` takes any field
+until the code runs. On Python 3.13 and later, `copy.replace` makes the same copy, but
+type checkers don't check it the same way: mypy takes each field as it is stored, such
+as a tuple for an array, and pyright doesn't check the fields.
 
 ```python
 import stellar_xdr as xdr

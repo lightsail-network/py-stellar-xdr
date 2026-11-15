@@ -5,10 +5,12 @@ are tested here, and the JSON names against the reference's schemas (see
 `tests/vectors/README.md`).
 """
 
+import ast
 import dataclasses
 import json
 import pkgutil
 import re
+from collections.abc import Iterator
 from pathlib import Path
 from types import ModuleType
 from typing import Any
@@ -34,6 +36,7 @@ from generator.model import (
     load,
 )
 from generator.package import Generator
+from stellar_xdr._runtime._base import UnionNamespace
 
 ROOT = Path(__file__).parent.parent
 MODEL = load(ROOT / "xdr" / "xdr.json")
@@ -521,6 +524,83 @@ def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
     assert "new_int(Count, xdr_json.read_uint32(fields['count'], 'S.count'))" in (
         struct_code
     )
+
+
+GENERATED = [
+    path
+    for path in sorted(Path(stellar_xdr.__file__).parent.glob("_*.py"))
+    if path.name != "__init__.py"
+]
+
+
+def classes(tree: ast.Module) -> Iterator[ast.ClassDef]:
+    """The classes of a struct or an arm in a module, those in a namespace included."""
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ClassDef) and {ast.unparse(b) for b in node.bases} & {
+            "XdrStruct",
+            "XdrArm",
+        }:
+            yield node
+
+
+def method(owner: ast.ClassDef, name: str, *, typing_only: bool) -> ast.FunctionDef:
+    """A method of a class, or one declared under `if TYPE_CHECKING:` in it."""
+    body: list[ast.stmt] = []
+    for node in owner.body:
+        if not typing_only:
+            body.append(node)
+        elif isinstance(node, ast.If) and ast.unparse(node.test) == "TYPE_CHECKING":
+            body += node.body
+    found = [n for n in body if isinstance(n, ast.FunctionDef) and n.name == name]
+    assert len(found) == 1, f"{owner.name}.{name}"
+    return found[0]
+
+
+def parameter(arg: ast.arg) -> tuple[str, str | None]:
+    """A parameter's name and annotation, as written."""
+    return arg.arg, None if arg.annotation is None else ast.unparse(arg.annotation)
+
+
+@pytest.mark.parametrize("path", GENERATED, ids=lambda path: path.name)
+def test_a_copy_takes_the_fields_its_constructor_takes(path: Path) -> None:
+    for owner in classes(ast.parse(path.read_text())):
+        declared = method(owner, "_replace_signature", typing_only=True).args
+        assert [a.arg for a in declared.posonlyargs] == ["self"], owner.name
+        assert not declared.args, owner.name
+        assert declared.vararg is None, owner.name
+        assert declared.kwarg is None, owner.name
+        # Every field may be left out.
+        defaults = [None if d is None else ast.unparse(d) for d in declared.kw_defaults]
+        assert defaults == ["..."] * len(declared.kwonlyargs), owner.name
+        has_init = any(
+            isinstance(n, ast.FunctionDef) and n.name == "__init__" for n in owner.body
+        )
+        taken = (
+            method(owner, "__init__", typing_only=False).args.args[1:]
+            if has_init
+            else []
+        )
+        assert [parameter(a) for a in declared.kwonlyargs] == [
+            parameter(a) for a in taken
+        ], owner.name
+
+
+def test_the_fields_of_a_copy_are_declared_for_type_checkers_only() -> None:
+    defined = [v for v in vars(stellar_xdr).values() if isinstance(v, type)]
+    arms = [
+        arm
+        for namespace in defined
+        if isinstance(namespace, UnionNamespace)
+        for arm in vars(namespace).values()
+        if isinstance(arm, type)
+    ]
+    values = [
+        c
+        for c in defined + arms
+        if issubclass(c, stellar_xdr.XdrStruct | stellar_xdr.XdrArm)
+    ]
+    assert len(values) > 800
+    assert not [c for c in values if hasattr(c, "_replace_signature")]
 
 
 def generated(tmp_path: Path, *definitions: dict[str, Any]) -> ModuleType:
