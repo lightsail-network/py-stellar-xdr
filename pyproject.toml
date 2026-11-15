@@ -107,6 +107,7 @@ ignore = [
     "FBT001",  # boolean fields are positional like any other field
     "N801",    # arm classes are named after their case, such as IPv4
     "N815",    # enum members are named as in XDR, such as txSUCCESS
+    "PERF401", # an array on a cycle is a loop, which takes no stack frame of its own
     "C901",    # an encoder has one branch per optional field
     "PLR0912", # as above
     "PLR0913", # constructors take one argument per field

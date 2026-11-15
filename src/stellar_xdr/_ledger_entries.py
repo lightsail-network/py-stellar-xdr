@@ -31,6 +31,7 @@ from ._runtime import (
     XdrBytes,
     XdrEnum,
     XdrInt,
+    XdrJsonError,
     XdrStruct,
     check,
     decode_base64,
@@ -4581,33 +4582,38 @@ class ClaimPredicate(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "and_predicates",
-                tuple(
-                    [ClaimPredicate._decode(reader) for _ in range(reader.count(2, 4))]
-                ),
-            )
+            and_predicates_items: list[ClaimPredicate.Any] = []
+            for _ in range(reader.count(2, 4)):
+                and_predicates_items.append(ClaimPredicate._decode(reader))
+            set_field(obj, "and_predicates", tuple(and_predicates_items))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {"and": [item0._to_json(ctx) for item0 in self.and_predicates]}
+            and_predicates_list: list[Any] = []
+            for and_predicates_item0 in self.and_predicates:
+                and_predicates_list.append(and_predicates_item0._to_json(ctx))
+            result = {"and": and_predicates_list}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "and_predicates",
-                xdr_json.read_items(
-                    xdr_json.read_array(value, "ClaimPredicate.And.and_predicates", 2),
-                    "ClaimPredicate.And.and_predicates",
-                    lambda item0: ClaimPredicate._from_json(item0, ctx),
-                ),
+            and_predicates_json = xdr_json.read_array(
+                value, "ClaimPredicate.And.and_predicates", 2
             )
+            and_predicates_items: list[ClaimPredicate.Any] = []
+            try:
+                for and_predicates_item0 in and_predicates_json:
+                    and_predicates_items.append(
+                        ClaimPredicate._from_json(and_predicates_item0, ctx)
+                    )
+            except XdrJsonError as e:
+                raise xdr_json.item_error(
+                    "ClaimPredicate.And.and_predicates", len(and_predicates_items), e
+                ) from None
+            set_field(obj, "and_predicates", tuple(and_predicates_items))
             return obj
 
     @final
@@ -4654,33 +4660,38 @@ class ClaimPredicate(metaclass=UnionNamespace):
         @classmethod
         def _decode_payload(cls, reader: Reader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "or_predicates",
-                tuple(
-                    [ClaimPredicate._decode(reader) for _ in range(reader.count(2, 4))]
-                ),
-            )
+            or_predicates_items: list[ClaimPredicate.Any] = []
+            for _ in range(reader.count(2, 4)):
+                or_predicates_items.append(ClaimPredicate._decode(reader))
+            set_field(obj, "or_predicates", tuple(or_predicates_items))
             return obj
 
         def _to_json(self, ctx: JsonWriter) -> Any:
             ctx.enter()
-            result = {"or": [item0._to_json(ctx) for item0 in self.or_predicates]}
+            or_predicates_list: list[Any] = []
+            for or_predicates_item0 in self.or_predicates:
+                or_predicates_list.append(or_predicates_item0._to_json(ctx))
+            result = {"or": or_predicates_list}
             ctx.depth -= 1
             return result
 
         @classmethod
         def _from_json_payload(cls, value: object, ctx: JsonReader) -> Self:
             obj = new(cls)
-            set_field(
-                obj,
-                "or_predicates",
-                xdr_json.read_items(
-                    xdr_json.read_array(value, "ClaimPredicate.Or.or_predicates", 2),
-                    "ClaimPredicate.Or.or_predicates",
-                    lambda item0: ClaimPredicate._from_json(item0, ctx),
-                ),
+            or_predicates_json = xdr_json.read_array(
+                value, "ClaimPredicate.Or.or_predicates", 2
             )
+            or_predicates_items: list[ClaimPredicate.Any] = []
+            try:
+                for or_predicates_item0 in or_predicates_json:
+                    or_predicates_items.append(
+                        ClaimPredicate._from_json(or_predicates_item0, ctx)
+                    )
+            except XdrJsonError as e:
+                raise xdr_json.item_error(
+                    "ClaimPredicate.Or.or_predicates", len(or_predicates_items), e
+                ) from None
+            set_field(obj, "or_predicates", tuple(or_predicates_items))
             return obj
 
     @final

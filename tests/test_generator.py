@@ -10,13 +10,14 @@ import json
 import pkgutil
 import re
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 import pytest
 
 import stellar_xdr
 from generator import names, sep51
-from generator.analysis import counted_types
+from generator.analysis import counted_types, cycles
 from generator.model import (
     Case,
     Enum,
@@ -250,6 +251,15 @@ def test_recursive_types_count_their_unions() -> None:
     # SCMapEntry is on the cycle of SCVal, but only the union counts.
     assert "SCMapEntry" not in counted
     assert "TransactionEnvelope" not in counted
+
+
+def test_the_types_on_a_cycle_are_those_that_nest() -> None:
+    found = cycles(MODEL)
+    # What an SCVal can hold an SCVal through, whose arrays are read by loops.
+    assert {"SCVec", "SCMap", "SCMapEntry", "SCContractInstance"} <= found["SCVal"]
+    assert found["SorobanAuthorizedInvocation"] == {"SorobanAuthorizedInvocation"}
+    # Holding an SCVal doesn't put a type on its cycle: SCVal never holds a call.
+    assert "InvokeContractArgs" not in found
 
 
 def document(*definitions: dict[str, Any], **top: Any) -> dict[str, Any]:
@@ -511,6 +521,64 @@ def test_a_typedef_is_a_class_unless_its_values_cant_be_instances(
     assert "new_int(Count, xdr_json.read_uint32(fields['count'], 'S.count'))" in (
         struct_code
     )
+
+
+def generated(tmp_path: Path, *definitions: dict[str, Any]) -> ModuleType:
+    """The module the generator writes for these definitions, ready to be used."""
+    model = load_document(tmp_path, document(*definitions))
+    source = Generator(model, PROTOCOL, sep51.Rules()).sources()["_test.py"]
+    # A module of the package, which imports the runtime relative to it.
+    module = ModuleType("stellar_xdr._test")
+    module.__package__ = "stellar_xdr"
+    exec(compile(source, "_test.py", "exec"), module.__dict__)  # noqa: S102
+    return module
+
+
+NODE = {"kind": "ref", "name": "Node"}
+
+
+@pytest.mark.parametrize(
+    "definitions",
+    [
+        # struct Node { Node *children<>; }
+        [
+            struct(
+                "Node",
+                (
+                    "children",
+                    {
+                        "kind": "var_array",
+                        "element": {"kind": "optional", "element": NODE},
+                    },
+                ),
+            )
+        ],
+        # typedef Node *Child; struct Node { Child children<>; }
+        [
+            typedef("Child", {"kind": "optional", "element": NODE}),
+            struct(
+                "Node",
+                (
+                    "children",
+                    {"kind": "var_array", "element": {"kind": "ref", "name": "Child"}},
+                ),
+            ),
+        ],
+    ],
+    ids=["optional items", "typedef of optional items"],
+)
+def test_an_array_of_optional_values_on_a_cycle_is_a_loop(
+    tmp_path: Path, definitions: list[dict[str, Any]]
+) -> None:
+    node = generated(tmp_path, *definitions).Node
+    # Each level holds nothing and the next level: read by a loop, 499 levels take a
+    # frame each, well within the recursion limit and the default depth.
+    value = node([None])
+    for _ in range(498):
+        value = node([None, value])
+    data = value.to_xdr_bytes()
+    assert node.from_xdr_bytes(data).to_xdr_bytes() == data
+    assert node.from_json_value(value.to_json_value()).to_xdr_bytes() == data
 
 
 def test_a_word_in_the_xdr_source_is_not_a_use_of_a_name(tmp_path: Path) -> None:

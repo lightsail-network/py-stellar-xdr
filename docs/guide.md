@@ -399,8 +399,10 @@ assert message == "unknown SCVal discriminant 99 at offset 0"
 ### Depth
 
 Recursive types, such as `SCVal`, can nest without limit in XDR. Decoding and encoding
-stop at 200 levels of such types by default, which is above what the network accepts.
-Pass `max_depth` to change the limit. Going over it raises `XdrDepthError`, whether a
+stop at 500 levels of such types by default, and no transaction the network admits is
+deeper: since protocol 28, stellar-core reads each one with rs-stellar-xdr within a
+depth of 1000, which counts every type, at least twice as many as these levels. Pass
+`max_depth` to change the limit. Going over it raises `XdrDepthError`, whether a
 value is being decoded, encoded or converted to or from JSON:
 
 ```python
@@ -414,6 +416,16 @@ except xdr.XdrDepthError as error:
     message = str(error)
 assert message.startswith("nesting deeper than max_depth=2")
 ```
+
+Python's recursion limit can stop a value before `max_depth` does, which raises
+`XdrDepthError` too. The deepest values that a transaction the network admits can hold
+leave 300 of the default 1000 stack frames to the code calling the library. Claim
+predicates nest as well, but stellar-core rejects one nested more than four levels
+deep, and a far deeper one can reach the recursion limit. The JSON of the deepest
+authorization trees nests about 1000 levels, which the `json` module counts against
+the same limit on CPython 3.11, as `json.dumps` with `indent` does on CPython 3.12:
+reading or writing such JSON there needs a higher limit, set with
+`sys.setrecursionlimit`.
 
 Input that is too deep may be valid XDR otherwise, so `XdrDepthError` is not an
 `XdrDecodeError`, nor an `XdrJsonError`. Every error derives from `XdrError`: catch that
@@ -431,10 +443,10 @@ def parse(data: bytes) -> xdr.SCVal.Any | None:
 
 
 deep: xdr.SCVal.Any = xdr.SCVal.Void()
-for _ in range(300):
+for _ in range(600):
     deep = xdr.SCVal.Vec([deep])
 
-assert parse(deep.to_xdr_bytes(max_depth=400)) is None
+assert parse(deep.to_xdr_bytes(max_depth=700)) is None
 assert parse(b"not XDR") is None
 assert parse(xdr.SCVal.Void().to_xdr_bytes()) == xdr.SCVal.Void()
 ```

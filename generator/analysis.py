@@ -1,7 +1,7 @@
 """What the generator works out of the model as a whole, before it writes anything.
 
-Which types count towards `max_depth`, and the fewest bytes a value of each type
-encodes to.
+Which types are on a cycle of references and which of those count towards
+`max_depth`, and the fewest bytes a value of each type encodes to.
 """
 
 from collections.abc import Iterator
@@ -44,6 +44,22 @@ def references(d: Definition) -> set[str]:
     return set()
 
 
+def cycles(model: Model) -> dict[str, frozenset[str]]:
+    """The types on a cycle of references, each with the types on its cycles.
+
+    These are the strongly connected components that hold a cycle: each type in one
+    reaches every other, through the fields, arms and typedefs on the way. An array of
+    a type in the same component as the type that holds it is a level of nesting.
+    """
+    graph = _graph(model)
+    found: dict[str, frozenset[str]] = {}
+    for component in _components(graph):
+        first = next(iter(component))
+        if len(component) > 1 or first in graph[first]:
+            found.update(dict.fromkeys(component, frozenset(component)))
+    return found
+
+
 def counted_types(model: Model) -> set[str]:
     """The types whose nesting counts towards `max_depth`.
 
@@ -52,8 +68,25 @@ def counted_types(model: Model) -> set[str]:
     the number of XDR structures on the way. If a cycle has no union, its structs are
     counted, so that every cycle counts at least once.
     """
-    graph = {d.name: references(d) for d in model.definitions}
-    # Tarjan's strongly connected components.
+    graph = _graph(model)
+    counted: set[str] = set()
+    for component in set(cycles(model).values()):
+        unions = {n for n in component if isinstance(model.get(n), Union)}
+        chosen = unions or {n for n in component if isinstance(model.get(n), Struct)}
+        rest = component - chosen
+        if _has_cycle({n: graph[n] & rest for n in rest}):
+            msg = f"a cycle among {sorted(rest)} passes through no counted type"
+            raise GenerationError(msg)
+        counted |= chosen
+    return counted
+
+
+def _graph(model: Model) -> dict[str, set[str]]:
+    return {d.name: references(d) for d in model.definitions}
+
+
+def _components(graph: dict[str, set[str]]) -> list[set[str]]:
+    """The strongly connected components of a graph, by Tarjan's algorithm."""
     index: dict[str, int] = {}
     low: dict[str, int] = {}
     stack: list[str] = []
@@ -83,20 +116,7 @@ def counted_types(model: Model) -> set[str]:
     for v in graph:
         if v not in index:
             visit(v)
-    counted: set[str] = set()
-    for component in components:
-        first = next(iter(component))
-        cyclic = len(component) > 1 or first in graph[first]
-        if not cyclic:
-            continue
-        unions = {n for n in component if isinstance(model.get(n), Union)}
-        chosen = unions or {n for n in component if isinstance(model.get(n), Struct)}
-        rest = component - chosen
-        if _has_cycle({n: graph[n] & rest for n in rest}):
-            msg = f"a cycle among {sorted(rest)} passes through no counted type"
-            raise GenerationError(msg)
-        counted |= chosen
-    return counted
+    return components
 
 
 def _has_cycle(graph: dict[str, set[str]]) -> bool:

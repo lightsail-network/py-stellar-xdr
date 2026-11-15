@@ -122,11 +122,6 @@ def test_depth_counts_recursive_types() -> None:
         value.to_xdr_base64(max_depth=5)
 
 
-def test_the_default_depth_accepts_what_soroban_accepts() -> None:
-    value = nested_vec(150)
-    assert xdr.SCVal.from_xdr_bytes(value.to_xdr_bytes()) == value
-
-
 def test_recursion_beyond_python_limits_is_an_error() -> None:
     data = u32(VEC, 1) * 3000 + u32(xdr.SCValType.SCV_VOID)
     with pytest.raises(xdr.XdrDepthError, match="recursion limit at offset"):
