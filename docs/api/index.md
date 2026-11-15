@@ -44,6 +44,8 @@ return the union's `Any`. A typedef's are those of a struct too.
 
 ::: stellar_xdr.XdrStruct
     options:
+      # Its decoding methods come from a private base class.
+      inherited_members: true
       members:
         - from_xdr_bytes
         - from_xdr_base64
