@@ -134,8 +134,14 @@ def module_name(xdr_file: str) -> str:
 
 def _strip(member: str, enum: Enum) -> str:
     stripped = member.removeprefix(enum.member_prefix)
-    # A name can't start with a digit: BINARY_FUSE_FILTER_8_BIT keeps the first
-    # character of the prefix and becomes B8_BIT.
+    # A member that starts with a digit once the prefix is stripped keeps the first
+    # letter of the prefix: BINARY_FUSE_FILTER_8_BIT becomes B8_BIT, so its JSON name
+    # is `b8_bit`. SEP-51 says only to strip the shared prefix, which gives `8_bit`.
+    # rs-stellar-xdr takes the JSON name from a Rust enum variant, and a Rust
+    # identifier can't start with a digit, so it keeps the letter (`B8Bit`). The
+    # letter means nothing; it is kept so that JSON written here reads in
+    # rs-stellar-xdr, and theirs reads here. BinaryFuseFilterType is the only such
+    # enum today, and no union switches on it, so no Python arm name comes from here.
     if stripped[:1].isdigit():
         stripped = enum.member_prefix[:1] + stripped
     return stripped
