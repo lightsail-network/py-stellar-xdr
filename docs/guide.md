@@ -292,7 +292,10 @@ type aliases rather than classes: names for annotations, which, like a union, ca
 called or used with `isinstance`. A field of one holds a plain `int`, checked against
 the range of its XDR type like any other field. Were `Uint32` another name for `int`,
 `Uint32(1.9)` would be `1`, and `isinstance(-1, Uint32)` would be true. Reflection, such
-as `typing.get_type_hints`, gives the alias; its `__value__` is `int`.
+as `typing.get_type_hints`, gives the alias; its `__value__` is `int`. An alias has no
+methods, such as `from_xdr_bytes`: a field of one is encoded and decoded with the value
+that holds it. To read an integer by itself, use `int.from_bytes(data, "big")`, with
+`signed=True` for `Int32` and `Int64`.
 
 ```python
 import stellar_xdr as xdr
@@ -312,6 +315,12 @@ except TypeError:
     message = "not callable"
 assert message == "not callable"
 ```
+
+`SponsorshipDescriptor`, an optional `AccountID`, is not a class either: it is another
+name for `AccountID.Any | None`, since `None` can't be an instance of a class of its
+own. `isinstance` works with it, but it can't be called and has no methods. It is the
+type of `LedgerEntryExtensionV1.sponsoring_id` and of the items of
+`AccountEntryExtensionV2.signer_sponsoring_i_ds`, and is decoded with those structs.
 
 ## Values of any type
 
@@ -424,14 +433,22 @@ assert message.startswith("nesting deeper than max_depth=2")
 ```
 
 Python's recursion limit can stop a value before `max_depth` does, which raises
-`XdrDepthError` too. The deepest values that a transaction the network admits can hold
-leave 300 of the default 1000 stack frames to the code calling the library. Claim
-predicates nest as well, but stellar-core rejects one nested more than four levels
-deep, and a far deeper one can reach the recursion limit. The JSON of the deepest
-authorization trees nests about 1000 levels, which the `json` module counts against
-the same limit on CPython 3.11, as `json.dumps` with `indent` does on CPython 3.12:
-reading or writing such JSON there needs a higher limit, set with
-`sys.setrecursionlimit`.
+`XdrDepthError` too. The limit counts every stack frame in use, including those of the
+code calling the library, so the same bytes can decode in one place and not in another
+that is deeper in a program. Decoding takes about two frames for each level of
+`SCVal.Vec`, three for `SCVal.Map` and four for `SCVal.ContractInstance`, so with the
+default limit of 1000 frames it stops at about 500, 330 and 250 levels of them,
+whatever `max_depth` is. To go deeper, raise the limit with `sys.setrecursionlimit` as
+well as `max_depth`; the library doesn't change it, since it applies to the whole
+process.
+
+The deepest values that a transaction the network admits can hold leave 300 of the
+default 1000 frames to the code calling the library. Claim predicates nest as well, but
+stellar-core rejects one nested more than four levels deep, and a far deeper one can
+reach the recursion limit. The JSON of the deepest authorization trees nests about 1000
+levels, which the `json` module counts against the same limit on CPython 3.11, as
+`json.dumps` with `indent` does on CPython 3.12: reading or writing such JSON there
+needs a higher limit too.
 
 Input that is too deep may be valid XDR otherwise, so `XdrDepthError` is not an
 `XdrDecodeError`, nor an `XdrJsonError`. Every error derives from `XdrError`: catch that
