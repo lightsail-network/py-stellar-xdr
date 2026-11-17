@@ -292,10 +292,11 @@ type aliases rather than classes: names for annotations, which, like a union, ca
 called or used with `isinstance`. A field of one holds a plain `int`, checked against
 the range of its XDR type like any other field. Were `Uint32` another name for `int`,
 `Uint32(1.9)` would be `1`, and `isinstance(-1, Uint32)` would be true. Reflection, such
-as `typing.get_type_hints`, gives the alias; its `__value__` is `int`. An alias has no
-methods, such as `from_xdr_bytes`: a field of one is encoded and decoded with the value
-that holds it. To read an integer by itself, use `int.from_bytes(data, "big")`, with
-`signed=True` for `Int32` and `Int64`.
+as `typing.get_type_hints`, gives the alias; its `__value__` is `int`. An alias has none
+of the methods of a value, such as `from_xdr_base64`: a field of one is encoded and
+decoded with the value that holds it. To read an integer by itself, use `struct.unpack`,
+which checks the length too: `struct.unpack(">I", data)[0]` for a `Uint32`, and `">i"`,
+`">Q"` and `">q"` for `Int32`, `Uint64` and `Int64`.
 
 ```python
 import stellar_xdr as xdr
@@ -316,9 +317,11 @@ except TypeError:
 assert message == "not callable"
 ```
 
-`SponsorshipDescriptor`, an optional `AccountID`, is not a class either: it is another
-name for `AccountID.Any | None`, since `None` can't be an instance of a class of its
-own. `isinstance` works with it, but it can't be called and has no methods. It is the
+`SponsorshipDescriptor`, an optional `AccountID`, is not a class either: no class can
+have both `None` and an account as instances, since `NoneType` can't be extended. It is
+another name for `AccountID.Any | None`, so a field of it holds the account or `None`
+itself. `isinstance` works with it, but it can't be called and has none of the methods
+of a value. It is the
 type of `LedgerEntryExtensionV1.sponsoring_id` and of the items of
 `AccountEntryExtensionV2.signer_sponsoring_i_ds`, and is decoded with those structs.
 
@@ -435,12 +438,13 @@ assert message.startswith("nesting deeper than max_depth=2")
 Python's recursion limit can stop a value before `max_depth` does, which raises
 `XdrDepthError` too. The limit counts every stack frame in use, including those of the
 code calling the library, so the same bytes can decode in one place and not in another
-that is deeper in a program. Decoding takes about two frames for each level of
-`SCVal.Vec`, three for `SCVal.Map` and four for `SCVal.ContractInstance`, so with the
-default limit of 1000 frames it stops at about 500, 330 and 250 levels of them,
-whatever `max_depth` is. To go deeper, raise the limit with `sys.setrecursionlimit` as
-well as `max_depth`; the library doesn't change it, since it applies to the whole
-process.
+that is deeper in a program. On CPython, decoding takes about two frames for each level
+of `SCVal.Vec`, three for `SCVal.Map` and four for `SCVal.ContractInstance`, so with the
+default limit of 1000 frames it stops at about 500, 330 and 250 levels of them, however
+high `max_depth` is. PyPy counts frames differently, and the depth it reaches varies. To
+go deeper, raise the limit with `sys.setrecursionlimit`, and `max_depth` too if the
+depth wanted is above it. The library doesn't change the recursion limit itself, since
+it applies to the whole interpreter, other threads included.
 
 The deepest values that a transaction the network admits can hold leave 300 of the
 default 1000 frames to the code calling the library. Claim predicates nest as well, but

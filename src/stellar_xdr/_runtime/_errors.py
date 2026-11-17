@@ -27,6 +27,7 @@ class XdrJsonError(XdrError):
 class XdrDepthError(XdrError):
     """A value, or the input for one, is nested more deeply than `max_depth` allows.
 
+    Python's recursion limit can come first, which raises it too, below `max_depth`.
     Decoding, encoding and both JSON conversions raise it. It says nothing else about
     the input: binary or JSON input that is too deep is not an `XdrDecodeError` or an
     `XdrJsonError`, so catch `XdrError` to reject untrusted input of any kind.

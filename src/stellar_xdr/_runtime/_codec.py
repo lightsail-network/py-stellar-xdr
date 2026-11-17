@@ -231,9 +231,9 @@ def decode_from(decode: Callable[[Reader], _T], reader: Reader) -> _T:
         raise reader.error("unexpected end of input") from None
     except RecursionError:
         # Each level takes several stack frames, and the caller's frames count too, so
-        # the recursion limit can come first even at the default max_depth: decoding
-        # stops at about 500 levels of SCVal.Vec and 250 of SCVal.ContractInstance
-        # from the top of the stack. See "Depth" in the guide.
+        # the recursion limit can come first even at the default max_depth: on CPython,
+        # decoding stops at about 500 levels of SCVal.Vec and 250 of
+        # SCVal.ContractInstance from the top of the stack. See "Depth" in the guide.
         msg = f"nesting deeper than Python's recursion limit at offset {reader.pos}"
         raise XdrDepthError(msg) from None
 
@@ -244,7 +244,8 @@ def encode_to(encode: Callable[[Writer], None], writer: Writer) -> None:
         encode(writer)
     except RecursionError:
         # As in decode_from, the recursion limit can come first even at the default
-        # max_depth, for instance at about 330 levels of SCVal.ContractInstance.
+        # max_depth, for instance on CPython at about 330 levels of
+        # SCVal.ContractInstance.
         msg = "value nested deeper than Python's recursion limit"
         raise XdrDepthError(msg) from None
 
